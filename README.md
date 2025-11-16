@@ -1,162 +1,250 @@
-# SafeV
+# 🚗 SAFE-V: Smart Alert and Fire Emergency Vehicle System
 
-A comprehensive security and validation toolkit for modern applications.
+[![Live Dashboard](https://img.shields.io/badge/Live-Dashboard-blue)](https://safev.vercel.app/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![IoT](https://img.shields.io/badge/IoT-ESP32-red)](https://www.espressif.com/en/products/socs/esp32)
 
-## 📋 Overview
+> A real-time IoT-based system built to detect and respond to vehicle emergencies with smart alerts and interactive data monitoring.
 
-SafeV is a robust security framework designed to help developers implement best practices for data validation, sanitization, and security checks in their applications. It provides a collection of utilities and tools to ensure your application handles user input safely and securely.
+## 🎯 Overview
 
-## ✨ Features
+**SAFE-V** is a dual-integrated emergency vigilance system combining two powerful modules:
 
-- **Input Validation**: Comprehensive validation rules for various data types
-- **Data Sanitization**: Clean and sanitize user input to prevent security vulnerabilities
-- **Security Checks**: Built-in security validators for common attack vectors
-- **Easy Integration**: Simple API that integrates seamlessly with existing projects
-- **Lightweight**: Minimal dependencies and optimized performance
-- **Type-Safe**: Full TypeScript support with type definitions
+### 🔍 MADAKSH
+**Monitoring and Dashboard for Alcohol, Fire, and Temperature Sensor Health**
+
+- 🍺 **Alcohol Detection**: Prevents drunk driving with real-time monitoring
+- 🔥 **Fire Detection**: Instant alerts for in-vehicle fire hazards
+- 🌡️ **Temperature Monitoring**: Tracks cabin heat levels
+- 📊 **Live Dashboard**: Built with Next.js for responsive data visualization
+- ✅ **Sensor Health Monitoring**: Logs sensor performance and status
+
+### 🚨 AGNIVAR
+**Alert Generation & Notification for Incidents via Vehicle Automated Response**
+
+- 💥 **Accident Detection**: Vibration/tilt-based crash alerts
+- ☢️ **Gas Leakage Monitoring**: Detects harmful gas presence
+- 📱 **Instant Notifications**: Sent via Telegram and Email
+- 🔒 **Secure APIs**: RESTful services ensure smooth and reliable backend operations
+
+## ✨ Key Features
+
+- 🔐 **Unique Vehicle-Specific Code-Based Access**
+- ⚡ **Real-Time Emergency Alert System**
+- 👤 **Role-Based Secure Login** (Spring Security 6)
+- 📈 **Graphical Sensor Data Visualization**
+- 🏗️ **Scalable and Modular Architecture**
+- 📱 **Responsive UI with Cross-Platform Compatibility**
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework**: Next.js
+- **Styling**: Tailwind CSS / CSS Modules
+- **State Management**: React Hooks
+- **Charts**: Chart.js / Recharts
+
+### Backend
+- **Framework**: Spring Boot
+- **Security**: Spring Security 6
+- **API**: RESTful Services
+- **Authentication**: JWT-based
+
+### Database
+- **DBMS**: MySQL
+- **ORM**: Spring Data JPA / Hibernate
+
+### Hardware
+- **Microcontroller**: ESP32
+- **Sensors**:
+  - MQ3 (Alcohol Detection)
+  - MQ2 (Gas Detection)
+  - Flame Sensor
+  - Vibration Sensor
+  - DHT11 (Temperature & Humidity)
+
+### Notifications
+- Telegram Bot API
+- Email Service (SMTP)
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js (version 14 or higher)
-- npm or yarn
+- Node.js (v16 or higher)
+- Java 17 or higher
+- MySQL Server
+- Arduino IDE (for ESP32 programming)
 
 ### Installation
 
-```bash
-# Using npm
-npm install safev
-
-# Using yarn
-yarn add safev
-```
-
-## 📖 Usage
-
-### Basic Example
-
-```javascript
-import { validate, sanitize } from 'safev';
-
-// Validate email
-const email = validate.email('user@example.com');
-console.log(email.isValid); // true
-
-// Sanitize HTML input
-const cleanHTML = sanitize.html('<script>alert("XSS")</script><p>Hello</p>');
-console.log(cleanHTML); // <p>Hello</p>
-```
-
-### Advanced Usage
-
-```javascript
-import { Validator, SecurityCheck } from 'safev';
-
-// Create custom validator
-const validator = new Validator({
-  username: {
-    type: 'string',
-    minLength: 3,
-    maxLength: 20,
-    pattern: /^[a-zA-Z0-9_]+$/
-  },
-  password: {
-    type: 'string',
-    minLength: 8,
-    requireUppercase: true,
-    requireNumbers: true,
-    requireSpecialChars: true
-  }
-});
-
-// Validate user input
-const result = validator.validate({
-  username: 'john_doe',
-  password: 'SecurePass123!'
-});
-
-if (result.isValid) {
-  console.log('Validation passed!');
-} else {
-  console.error('Validation errors:', result.errors);
-}
-
-// Perform security checks
-const securityCheck = new SecurityCheck();
-const isSafe = securityCheck.checkSQL(userInput);
-```
-
-## 🛠️ API Reference
-
-### Validation Methods
-
-- `validate.email(value)` - Validate email addresses
-- `validate.url(value)` - Validate URLs
-- `validate.phone(value)` - Validate phone numbers
-- `validate.creditCard(value)` - Validate credit card numbers
-- `validate.ipAddress(value)` - Validate IP addresses
-
-### Sanitization Methods
-
-- `sanitize.html(value)` - Remove dangerous HTML tags and attributes
-- `sanitize.sql(value)` - Escape SQL injection attempts
-- `sanitize.xss(value)` - Prevent cross-site scripting attacks
-- `sanitize.filename(value)` - Clean filenames for safe storage
-
-### Security Checks
-
-- `SecurityCheck.checkSQL(value)` - Detect SQL injection attempts
-- `SecurityCheck.checkXSS(value)` - Detect XSS attempts
-- `SecurityCheck.checkPathTraversal(value)` - Detect path traversal attempts
-
-## 🔧 Configuration
-
-Create a `safev.config.js` file in your project root:
-
-```javascript
-module.exports = {
-  validation: {
-    strictMode: true,
-    customRules: {
-      // Add your custom validation rules
-    }
-  },
-  sanitization: {
-    allowedTags: ['p', 'br', 'strong', 'em'],
-    allowedAttributes: {
-      'a': ['href', 'title']
-    }
-  }
-};
-```
-
-## 🧪 Testing
+#### 1. Clone the Repository
 
 ```bash
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
+git clone https://github.com/adityathodsare/safev.git
+cd safev
 ```
 
-## 📦 Building
+#### 2. Frontend Setup
 
 ```bash
-# Build for production
-npm run build
-
-# Build and watch for changes
-npm run build:watch
+cd frontend
+npm install
+npm run dev
 ```
+
+The frontend will run on `http://localhost:3000`
+
+#### 3. Backend Setup
+
+```bash
+cd backend
+./mvnw clean install
+./mvnw spring-boot:run
+```
+
+The backend will run on `http://localhost:8080`
+
+#### 4. Database Configuration
+
+Create a MySQL database:
+
+```sql
+CREATE DATABASE safev_db;
+```
+
+Update `application.properties`:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/safev_db
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+```
+
+#### 5. ESP32 Configuration
+
+- Install Arduino IDE
+- Add ESP32 board support
+- Install required sensor libraries
+- Upload the firmware to ESP32
+- Configure WiFi credentials in the code
+
+## 📊 System Architecture
+
+```
+┌─────────────────┐
+│   ESP32 + IoT   │
+│    Sensors      │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Spring Boot    │
+│   Backend API   │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    ▼         ▼
+┌────────┐ ┌──────────┐
+│ MySQL  │ │ Next.js  │
+│   DB   │ │ Frontend │
+└────────┘ └──────────┘
+              │
+         ┌────┴────┐
+         ▼         ▼
+    ┌─────────┐ ┌──────┐
+    │Telegram │ │Email │
+    └─────────┘ └──────┘
+```
+
+## 🔌 API Endpoints
+
+### Authentication
+```
+POST /api/auth/login
+POST /api/auth/register
+POST /api/auth/logout
+```
+
+### Vehicle Monitoring
+```
+GET  /api/vehicle/{vehicleCode}
+POST /api/vehicle/register
+GET  /api/vehicle/status
+```
+
+### Sensor Data
+```
+GET  /api/sensors/data
+POST /api/sensors/update
+GET  /api/sensors/history
+```
+
+### Alerts
+```
+GET  /api/alerts/all
+POST /api/alerts/create
+PUT  /api/alerts/acknowledge
+```
+
+## 📱 Dashboard Features
+
+- **Real-Time Monitoring**: Live sensor data visualization
+- **Alert History**: View past emergency incidents
+- **Vehicle Status**: Check current vehicle health
+- **Analytics**: Graphical representation of sensor trends
+- **Notifications Panel**: Manage alert preferences
+
+## 🔔 Alert System
+
+SAFE-V triggers alerts based on threshold values:
+
+| Sensor | Threshold | Action |
+|--------|-----------|--------|
+| MQ3 (Alcohol) | > 400 ppm | Engine lock + Alert |
+| MQ2 (Gas) | > 1000 ppm | Notification sent |
+| Flame Sensor | Fire detected | Immediate alert |
+| Temperature | > 60°C | Warning notification |
+| Vibration | High impact | Accident alert |
+
+## 🎓 Team
+
+- **[Aditya Thodsare](https://github.com/adityathodsare)** - Full Stack Developer
+- **Khushi Sharma** - IoT & Hardware Integration
+- **Kirti Shelke** - Frontend Developer
+
+## 📂 Project Structure
+
+```
+safev/
+├── frontend/
+│   ├── components/
+│   ├── pages/
+│   ├── public/
+│   ├── styles/
+│   └── package.json
+├── backend/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   └── resources/
+│   │   └── test/
+│   └── pom.xml
+├── hardware/
+│   ├── esp32_code/
+│   └── circuit_diagrams/
+└── README.md
+```
+
+## 🔗 Links
+
+- **🌐 Live Dashboard**: [https://safev.vercel.app](https://safev.vercel.app)
+- **💻 Frontend Repository**: [GitHub - Frontend](https://github.com/adityathodsare/safev-frontend)
+- **⚙️ Backend Repository**: [GitHub - Backend](https://github.com/adityathodsare/safev-backend)
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please follow these steps:
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -164,51 +252,30 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-### Development Guidelines
-
-- Follow the existing code style
-- Write unit tests for new features
-- Update documentation as needed
-- Ensure all tests pass before submitting PR
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Authors
-
-- **Aditya Thodsare** - [GitHub](https://github.com/adityathodsare)
-
 ## 🙏 Acknowledgments
 
-- Thanks to all contributors who have helped shape SafeV
-- Inspired by best practices from OWASP and security community
-- Built with modern JavaScript security principles
+- Thanks to the open-source community for libraries and tools
+- Inspired by real-world vehicle safety challenges
+- Built with passion to make every second count in emergencies
 
 ## 📞 Support
 
-If you have any questions or need help, please:
+For questions or support:
+- Open an [Issue](https://github.com/adityathodsare/safev/issues)
+- Email: [your-email@example.com]
 
-- Open an issue on [GitHub Issues](https://github.com/adityathodsare/safev/issues)
-- Check the [documentation](https://github.com/adityathodsare/safev/wiki)
-- Join our community discussions
+## 🌟 Show Your Support
 
-## 🔒 Security
-
-If you discover a security vulnerability, please send an email to [your-email@example.com]. All security vulnerabilities will be promptly addressed.
-
-## 📈 Roadmap
-
-- [ ] Add more validation rules
-- [ ] Implement machine learning-based threat detection
-- [ ] Add support for more frameworks
-- [ ] Improve documentation and examples
-- [ ] Add CLI tool for quick security checks
-
-## ⭐ Star History
-
-If you find this project helpful, please consider giving it a star!
+If you find this project useful, please consider giving it a ⭐ on GitHub!
 
 ---
 
-Made with ❤️ by [Aditya Thodsare](https://github.com/adityathodsare)
+**"From observing real-world challenges to crafting a working system – this was more than a project. It was an aim to make every second count when it matters the most."**
+
+---
+
+Made with ❤️ by Team SAFE-V
