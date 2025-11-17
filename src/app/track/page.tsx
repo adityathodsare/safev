@@ -6,34 +6,19 @@ interface LocationData {
   latitude: number;
   longitude: number;
   accuracy: number;
+  speed: number | null;
+  heading: number | null;
   timestamp: number;
 }
 
-export default function MaharashtraGPSTracker() {
+export default function RakshakGPSTracker() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const markerRef = useRef<any>(null);
   const [location, setLocation] = useState<LocationData | null>(null);
   const [isTracking, setIsTracking] = useState(false);
   const [error, setError] = useState<string>("");
   const [watchId, setWatchId] = useState<number | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-
-  // Maharashtra bounds
-  const maharashtraBounds = {
-    north: 22.0,
-    south: 15.6,
-    east: 80.9,
-    west: 72.6,
-  };
-
-  const isInMaharashtra = (lat: number, lng: number) => {
-    return (
-      lat >= maharashtraBounds.south &&
-      lat <= maharashtraBounds.north &&
-      lng >= maharashtraBounds.west &&
-      lng <= maharashtraBounds.east
-    );
-  };
+  const [locationHistory, setLocationHistory] = useState<LocationData[]>([]);
 
   useEffect(() => {
     const loadMap = () => {
@@ -59,28 +44,15 @@ export default function MaharashtraGPSTracker() {
       if (mapRef.current && (window as any).L) {
         const L = (window as any).L;
 
-        // Create map
-        const map = L.map(mapRef.current).setView([19.7515, 75.7139], 7);
+        // Create map with dark theme
+        const map = L.map(mapRef.current, {
+          zoomControl: true,
+        }).setView([20.5937, 78.9629], 5); // India center
 
-        // Add tile layer
+        // Light theme tile layer
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution: "© OpenStreetMap contributors",
-        }).addTo(map);
-
-        // Add Maharashtra boundary (approximate)
-        const maharashtraBoundary = [
-          [22.0, 72.6],
-          [22.0, 80.9],
-          [15.6, 80.9],
-          [15.6, 72.6],
-          [22.0, 72.6],
-        ];
-
-        L.polygon(maharashtraBoundary, {
-          color: "#ef4444",
-          weight: 2,
-          opacity: 0.8,
-          fillOpacity: 0.1,
+          maxZoom: 19,
         }).addTo(map);
 
         // Store map reference
@@ -105,17 +77,21 @@ export default function MaharashtraGPSTracker() {
 
     setIsTracking(true);
     setError("");
+    setLocationHistory([]);
 
     const success = (position: GeolocationPosition) => {
-      const { latitude, longitude, accuracy } = position.coords;
+      const { latitude, longitude, accuracy, speed, heading } = position.coords;
       const locationData: LocationData = {
         latitude,
         longitude,
         accuracy,
+        speed,
+        heading,
         timestamp: Date.now(),
       };
 
       setLocation(locationData);
+      setLocationHistory((prev) => [...prev, locationData].slice(-50)); // Keep last 50 points
 
       // Update map
       if (
@@ -131,17 +107,83 @@ export default function MaharashtraGPSTracker() {
           map.removeLayer((mapRef.current as any).currentMarker);
         }
 
-        // Add new marker
-        const marker = L.marker([latitude, longitude]).addTo(map);
-        marker.bindPopup(
-          `Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-        );
+        // Remove old path
+        if ((mapRef.current as any).pathPolyline) {
+          map.removeLayer((mapRef.current as any).pathPolyline);
+        }
+
+        // Create custom vehicle icon
+        const vehicleIcon = L.divIcon({
+          className: "custom-vehicle-marker",
+          html: `
+            <div style="
+              position: relative;
+              width: 40px;
+              height: 40px;
+              transform: rotate(${heading || 0}deg);
+            ">
+              <div style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 32px;
+                filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+              ">🚗</div>
+            </div>
+          `,
+          iconSize: [40, 40],
+          iconAnchor: [20, 20],
+        });
+
+        // Add new marker with vehicle icon
+        const marker = L.marker([latitude, longitude], {
+          icon: vehicleIcon,
+        }).addTo(map);
+
+        const popupContent = `
+          <div style="color: #1f2937; background: #ffffff; padding: 8px; border-radius: 4px; font-size: 12px; border: 1px solid #e5e7eb;">
+            <strong style="color: #111827;">📍 Current Location</strong><br/>
+            <span style="color: #3b82f6;">Lat:</span> ${latitude.toFixed(
+              6
+            )}<br/>
+            <span style="color: #3b82f6;">Lng:</span> ${longitude.toFixed(
+              6
+            )}<br/>
+            ${
+              speed !== null
+                ? `<span style="color: #3b82f6;">Speed:</span> ${(
+                    speed * 3.6
+                  ).toFixed(1)} km/h`
+                : ""
+            }
+          </div>
+        `;
+        marker.bindPopup(popupContent);
 
         // Store marker reference
         (mapRef.current as any).currentMarker = marker;
 
+        // Draw path if we have history
+        if (locationHistory.length > 1) {
+          const pathCoords = [...locationHistory, locationData].map((loc) => [
+            loc.latitude,
+            loc.longitude,
+          ]);
+          const polyline = L.polyline(pathCoords, {
+            color: "#3b82f6",
+            weight: 3,
+            opacity: 0.7,
+            smoothFactor: 1,
+          }).addTo(map);
+          (mapRef.current as any).pathPolyline = polyline;
+        }
+
         // Center map
-        map.setView([latitude, longitude], 12);
+        map.setView(
+          [latitude, longitude],
+          map.getZoom() < 15 ? 15 : map.getZoom()
+        );
       }
     };
 
@@ -169,401 +211,243 @@ export default function MaharashtraGPSTracker() {
   const resetMap = () => {
     if (mapRef.current && (mapRef.current as any).leafletMap) {
       const map = (mapRef.current as any).leafletMap;
-      map.setView([19.7515, 75.7139], 7);
+      map.setView([20.5937, 78.9629], 5);
 
       if ((mapRef.current as any).currentMarker) {
         map.removeLayer((mapRef.current as any).currentMarker);
         (mapRef.current as any).currentMarker = null;
       }
+      if ((mapRef.current as any).pathPolyline) {
+        map.removeLayer((mapRef.current as any).pathPolyline);
+        (mapRef.current as any).pathPolyline = null;
+      }
     }
     setLocation(null);
     setError("");
+    setLocationHistory([]);
   };
 
-  // Responsive and dark mode styles (always dark)
-  const buttonStyle = {
-    padding: "10px 20px",
-    borderRadius: "6px",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "1rem",
-    fontWeight: 500,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "8px",
-    transition: "all 0.2s",
+  const formatTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
-
-  const primaryButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#2563eb",
-    color: "white",
-  };
-
-  const dangerButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#b91c1c",
-    color: "white",
-  };
-
-  const outlineButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "transparent",
-    color: "#d1d5db",
-    border: "1px solid #374151",
-  };
-
-  const cardStyle = {
-    backgroundColor: "#18181b",
-    borderRadius: "8px",
-    border: "1px solid #27272a",
-    boxShadow: "0 1px 3px 0 rgba(0,0,0,0.5)",
-    overflow: "hidden",
-  };
-
-  const cardHeaderStyle = {
-    padding: "20px 24px 0 24px",
-    borderBottom: "none",
-  };
-
-  const cardContentStyle = {
-    padding: "20px 24px 24px 24px",
-  };
-
-  const badgeStyle = {
-    display: "inline-flex",
-    alignItems: "center",
-    borderRadius: "9999px",
-    fontSize: "12px",
-    fontWeight: 500,
-    padding: "4px 10px",
-  };
-
-  const successBadgeStyle = {
-    ...badgeStyle,
-    backgroundColor: "#14532d",
-    color: "#bbf7d0",
-  };
-
-  const secondaryBadgeStyle = {
-    ...badgeStyle,
-    backgroundColor: "#27272a",
-    color: "#d1d5db",
-  };
-
-  // Responsive container style with top padding for navbar (navbar is fixed at top-10)
-  const containerStyle = {
-    minHeight: "100vh",
-    backgroundColor: "#09090b",
-    padding: "16px",
-    paddingTop: "100px", // enough for navbar + gap
-    transition: "background 0.3s",
-  };
-
-  // Responsive max width
-  const mainStyle = {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    width: "100%",
-  };
-
-  // Responsive map style
-  const mapStyle = {
-    width: "100%",
-    height: "50vw",
-    maxHeight: "500px",
-    minHeight: "300px",
-    borderRadius: "8px",
-    border: "1px solid #27272a",
-    background: "#18181b",
-  };
-
-  // Responsive grid for location info
-  const infoGridStyle = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: "16px",
-  };
-
-  // Responsive font sizes
-  const headerFontSize = "clamp(1.5rem, 4vw, 2.2rem)";
-  const subHeaderFontSize = "clamp(1.1rem, 2.5vw, 1.3rem)";
-
-  // Media queries for mobile
-  const mediaQueryStyle = `
-    @media (max-width: 600px) {
-      .card-content, .card-header { padding: 12px !important; }
-      .map-div { min-height: 200px !important; }
-      .info-grid { grid-template-columns: 1fr !important; }
-    }
-  `;
 
   return (
-    <div style={containerStyle}>
-      <style>{mediaQueryStyle}</style>
-      <div style={mainStyle}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute w-96 h-96 bg-blue-500/5 rounded-full blur-3xl top-10 left-10 animate-pulse"></div>
+        <div
+          className="absolute w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl bottom-10 right-10 animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+      </div>
+
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none"></div>
+
+      <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 max-w-7xl mx-auto">
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <h1
-            style={{
-              fontSize: headerFontSize,
-              fontWeight: "bold",
-              margin: "0 0 8px 0",
-              color: "#fafafa",
-              transition: "color 0.3s",
-            }}
-          >
-            Maharashtra GPS Tracker
-          </h1>
-          <p style={{ color: "#d1d5db", margin: 0 }}>
-            Track your location within Maharashtra state boundaries
-          </p>
-        </div>
-
-        {/* Controls Card */}
-        <div style={{ ...cardStyle, marginBottom: "24px" }}>
-          <div className="card-header" style={cardHeaderStyle}>
-            <h2
-              style={{
-                fontSize: subHeaderFontSize,
-                fontWeight: 600,
-                margin: 0,
-                color: "#fafafa",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              📍 GPS Controls
-            </h2>
-          </div>
-          <div className="card-content" style={cardContentStyle}>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "8px",
-                marginBottom: "16px",
-              }}
-            >
-              {!isTracking ? (
-                <button
-                  onClick={startTracking}
-                  style={primaryButtonStyle}
-                  onMouseOver={(e) =>
-                    ((e.target as HTMLElement).style.backgroundColor =
-                      "#1d4ed8")
-                  }
-                  onMouseOut={(e) =>
-                    ((e.target as HTMLElement).style.backgroundColor =
-                      "#2563eb")
-                  }
-                >
-                  📍 Start Tracking
-                </button>
-              ) : (
-                <button
-                  onClick={stopTracking}
-                  style={dangerButtonStyle}
-                  onMouseOver={(e) =>
-                    ((e.target as HTMLElement).style.backgroundColor =
-                      "#991b1b")
-                  }
-                  onMouseOut={(e) =>
-                    ((e.target as HTMLElement).style.backgroundColor =
-                      "#b91c1c")
-                  }
-                >
-                  ⏹️ Stop Tracking
-                </button>
-              )}
-              <button
-                onClick={resetMap}
-                style={outlineButtonStyle}
-                onMouseOver={(e) =>
-                  ((e.target as HTMLElement).style.backgroundColor = "#18181b")
-                }
-                onMouseOut={(e) =>
-                  ((e.target as HTMLElement).style.backgroundColor =
-                    "transparent")
-                }
-              >
-                🔄 Reset Map
-              </button>
-            </div>
-
-            {error && (
-              <div
-                style={{
-                  padding: "12px",
-                  backgroundColor: "#7f1d1d",
-                  border: "1px solid #991b1b",
-                  borderRadius: "6px",
-                  marginBottom: "16px",
-                }}
-              >
-                <p style={{ color: "#fecaca", fontSize: "14px", margin: 0 }}>
-                  {error}
-                </p>
-              </div>
-            )}
-
-            {location && (
-              <div className="info-grid" style={infoGridStyle}>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      margin: "0 0 4px 0",
-                      color: "#fafafa",
-                    }}
-                  >
-                    Latitude
-                  </p>
-                  <p style={{ fontSize: "14px", color: "#d1d5db", margin: 0 }}>
-                    {location.latitude.toFixed(6)}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      margin: "0 0 4px 0",
-                      color: "#fafafa",
-                    }}
-                  >
-                    Longitude
-                  </p>
-                  <p style={{ fontSize: "14px", color: "#d1d5db", margin: 0 }}>
-                    {location.longitude.toFixed(6)}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      margin: "0 0 4px 0",
-                      color: "#fafafa",
-                    }}
-                  >
-                    Accuracy
-                  </p>
-                  <p style={{ fontSize: "14px", color: "#d1d5db", margin: 0 }}>
-                    {location.accuracy.toFixed(0)}m
-                  </p>
-                </div>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      margin: "0 0 4px 0",
-                      color: "#fafafa",
-                    }}
-                  >
-                    Status
-                  </p>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                  RAKSHAK
+                </h1>
+                <div className="flex items-center gap-2 px-3 py-1 bg-gray-800/50 backdrop-blur-sm rounded-full border border-gray-700/50">
                   <span
-                    style={
-                      isInMaharashtra(location.latitude, location.longitude)
-                        ? successBadgeStyle
-                        : secondaryBadgeStyle
-                    }
-                  >
-                    {isInMaharashtra(location.latitude, location.longitude)
-                      ? "✅ In Maharashtra"
-                      : "❌ Outside Maharashtra"}
+                    className={`inline-block w-2 h-2 rounded-full ${
+                      isTracking ? "bg-green-400 animate-pulse" : "bg-gray-600"
+                    }`}
+                  ></span>
+                  <span className="text-gray-400 text-xs sm:text-sm font-medium">
+                    {isTracking ? "Tracking Active" : "Standby"}
                   </span>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Map Card */}
-        <div style={{ ...cardStyle, marginBottom: "24px" }}>
-          <div className="card-header" style={cardHeaderStyle}>
-            <h2
-              style={{
-                fontSize: subHeaderFontSize,
-                fontWeight: 600,
-                margin: 0,
-                color: "#fafafa",
-              }}
-            >
-              🗺️ Map View
-            </h2>
-          </div>
-          <div className="card-content" style={cardContentStyle}>
-            <div style={{ position: "relative" }}>
-              <div ref={mapRef} className="map-div" style={mapStyle} />
-              {!mapLoaded && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    color: "#d1d5db",
-                    fontSize: "16px",
-                  }}
-                >
-                  Loading map...
-                </div>
-              )}
+              <p className="text-gray-400 text-sm sm:text-base">
+                Live Location Tracking System
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Instructions Card */}
-        <div style={cardStyle}>
-          <div className="card-header" style={cardHeaderStyle}>
-            <h2
-              style={{
-                fontSize: subHeaderFontSize,
-                fontWeight: 600,
-                margin: 0,
-                color: "#fafafa",
-              }}
-            >
-              📋 How to Use
-            </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Map Section - Takes 2 columns on desktop */}
+          <div className="lg:col-span-2">
+            <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800/50 overflow-hidden">
+              <div className="p-4 sm:p-6 border-b border-gray-800/50">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-200 flex items-center gap-2">
+                    🗺️ Live Map View
+                  </h2>
+                  <div className="flex gap-2">
+                    {!isTracking ? (
+                      <button
+                        onClick={startTracking}
+                        className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 shadow-lg shadow-blue-500/20"
+                      >
+                        <span>📍</span>
+                        <span className="hidden sm:inline">Start Tracking</span>
+                        <span className="sm:hidden">Start</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={stopTracking}
+                        className="px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 shadow-lg shadow-red-500/20"
+                      >
+                        <span>⏹️</span>
+                        <span className="hidden sm:inline">Stop Tracking</span>
+                        <span className="sm:hidden">Stop</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={resetMap}
+                      className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 border border-gray-700"
+                    >
+                      <span>🔄</span>
+                      <span className="hidden sm:inline">Reset</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                <div
+                  ref={mapRef}
+                  className="w-full h-[300px] sm:h-[400px] lg:h-[500px]"
+                  style={{ background: "#f9fafb" }}
+                />
+                {!mapLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
+                    <div className="text-center">
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
+                      <p className="text-gray-400 text-sm">Loading map...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {error && (
+                <div className="p-4 bg-red-500/10 border-t border-red-500/20">
+                  <p className="text-red-400 text-sm flex items-center gap-2">
+                    <span>⚠️</span>
+                    {error}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="card-content" style={cardContentStyle}>
-            <ol
-              style={{
-                paddingLeft: "20px",
-                margin: 0,
-                color: "#d1d5db",
-                fontSize: "14px",
-                lineHeight: 1.6,
-              }}
-            >
-              <li style={{ marginBottom: "8px" }}>
-                Click "Start Tracking" to begin GPS location tracking
-              </li>
-              <li style={{ marginBottom: "8px" }}>
-                Allow location access when prompted by your browser
-              </li>
-              <li style={{ marginBottom: "8px" }}>
-                Your current location will be displayed on the map with a marker
-              </li>
-              <li style={{ marginBottom: "8px" }}>
-                The red boundary shows the approximate borders of Maharashtra
-              </li>
-              <li style={{ marginBottom: "8px" }}>
-                Your location status will show if you're inside or outside
-                Maharashtra
-              </li>
-              <li style={{ marginBottom: "8px" }}>
-                Click "Stop Tracking" to stop location updates
-              </li>
-              <li>Use "Reset Map" to return to the default view</li>
-            </ol>
+
+          {/* Info Panel - Takes 1 column on desktop */}
+          <div className="space-y-4 sm:space-y-6">
+            {/* Location Data Card */}
+            <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800/50 p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-gray-200 mb-4 flex items-center gap-2">
+                📊 Location Data
+              </h3>
+
+              {location ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500 mb-1">Latitude</p>
+                      <p className="text-sm font-mono text-blue-400">
+                        {location.latitude.toFixed(6)}
+                      </p>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500 mb-1">Longitude</p>
+                      <p className="text-sm font-mono text-blue-400">
+                        {location.longitude.toFixed(6)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-800/50 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 mb-1">Accuracy</p>
+                    <p className="text-sm font-semibold text-green-400">
+                      ±{location.accuracy.toFixed(0)}m
+                    </p>
+                  </div>
+
+                  {location.speed !== null && location.speed > 0 && (
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500 mb-1">Speed</p>
+                      <p className="text-sm font-semibold text-cyan-400">
+                        {(location.speed * 3.6).toFixed(1)} km/h
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="bg-gray-800/50 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 mb-1">Last Update</p>
+                    <p className="text-sm text-gray-300">
+                      {formatTime(location.timestamp)}
+                    </p>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-lg p-3">
+                    <p className="text-xs text-blue-400 mb-1">
+                      Tracking Points
+                    </p>
+                    <p className="text-lg font-bold text-blue-400">
+                      {locationHistory.length}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-3">🚗</div>
+                  <p className="text-gray-500 text-sm">
+                    Start tracking to view location data
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Stats */}
+            <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-sm rounded-2xl border border-blue-500/20 p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-blue-400 mb-4 flex items-center gap-2">
+                ⚡ Quick Stats
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-400">GPS Status</span>
+                  <span
+                    className={`text-sm font-semibold ${
+                      isTracking ? "text-green-400" : "text-gray-500"
+                    }`}
+                  >
+                    {isTracking ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-400">Map Theme</span>
+                  <span className="text-sm font-semibold text-gray-300">
+                    Dark Mode
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-400">Update Rate</span>
+                  <span className="text-sm font-semibold text-gray-300">
+                    Real-time
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-6 text-center">
+          <p className="text-gray-600 text-xs sm:text-sm">
+            🔒 Secure • 🌐 Real-time • 📱 Mobile Optimized
+          </p>
         </div>
       </div>
     </div>
