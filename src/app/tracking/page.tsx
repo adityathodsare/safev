@@ -1,186 +1,129 @@
+"use client";
+
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useNavigation } from "@/context/NavigationContext";
+import { Search, Shield, ChevronRight } from "lucide-react";
 
-export default function TrackingErrorPage() {
-  const [copied, setCopied] = useState(false);
-  const demoUCOD = "SAFEV1";
+export default function TrackingPage() {
+  const [ucod, setUcod] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+  const router = useRouter();
+  const { navigateWithLoader } = useNavigation();
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(demoUCOD);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (ucod.trim().toLowerCase() === "SAFEV1") {
+      navigateWithLoader(router, "/tracking/choose");
+    } else {
+      navigateWithLoader(router, "/tracking/error");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0f1c] via-[#0d1224] to-[#0a0f1c] text-cyan-300 flex items-center justify-center px-4 py-8 relative overflow-hidden">
-      {/* Animated background particles */}
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0f1c] via-[#0f172a] to-[#1e293b] flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+      {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse top-0 -left-48"></div>
-        <div className="absolute w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse bottom-0 -right-48 animation-delay-2000"></div>
-        <div className="absolute w-64 h-64 bg-violet-500/10 rounded-full blur-3xl animate-pulse top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animation-delay-1000"></div>
+        <div className="absolute top-1/4 -left-12 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 -right-12 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Floating elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-2 h-2 bg-cyan-400 rounded-full top-1/4 left-1/4 animate-float"></div>
-        <div className="absolute w-3 h-3 bg-pink-400 rounded-full top-3/4 right-1/4 animate-float animation-delay-1000"></div>
-        <div className="absolute w-2 h-2 bg-violet-400 rounded-full bottom-1/4 left-3/4 animate-float animation-delay-2000"></div>
-      </div>
-
-      <div className="max-w-xl w-full text-center p-6 sm:p-10 border border-pink-600/50 rounded-2xl shadow-[0_0_30px_rgba(236,72,153,0.3)] bg-[#0f172a]/90 backdrop-blur-sm relative z-10 animate-fadeIn">
-        {/* Warning icon with animation */}
-        <div className="mb-6 flex justify-center">
-          <div className="relative">
-            <div className="absolute inset-0 bg-pink-500/20 rounded-full blur-xl animate-pulse"></div>
-            <div className="relative text-6xl sm:text-7xl animate-bounce">
-              ⚠️
-            </div>
+      <div className="relative w-full max-w-md">
+        {/* Header Section */}
+        <div className="text-center mb-8 space-y-3">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-pink-500/20 border border-cyan-500/30 mb-4 backdrop-blur-sm">
+            <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-cyan-400" />
           </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-pink-500 leading-tight">
+            Device Tracking
+          </h1>
+          <p className="text-sm sm:text-base text-cyan-300/70 max-w-sm mx-auto px-4">
+            Enter your unique device code to track and manage your device
+          </p>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-400 to-pink-500 animate-gradient leading-tight">
-          Device Not Found
-        </h1>
+        {/* Form Card */}
+        <div className="relative bg-[#0f172a]/50 backdrop-blur-xl border border-cyan-500/30 p-6 sm:p-8 lg:p-10 rounded-2xl shadow-2xl transition-all duration-300 hover:border-cyan-500/50 hover:shadow-cyan-500/20">
+          {/* Glow effect */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-pink-500 rounded-2xl opacity-0 hover:opacity-10 blur transition duration-300"></div>
 
-        <p className="text-base sm:text-lg mb-8 font-mono text-cyan-400/90 px-2">
-          The UCOD you entered doesn't match any of our registered devices.
-        </p>
-
-        <div className="text-sm sm:text-base font-mono space-y-4 text-cyan-400/90 text-left bg-black/30 p-4 sm:p-6 rounded-xl border border-cyan-500/20 mb-8">
-          <div className="flex items-start gap-3 hover:text-cyan-300 transition-colors">
-            <span className="text-xl shrink-0">🔍</span>
-            <p>Double-check the UCOD on the back or inside of your device.</p>
-          </div>
-
-          <div className="flex items-start gap-3 hover:text-cyan-300 transition-colors">
-            <span className="text-xl shrink-0">📦</span>
-            <p>
-              You can also scan the QR code printed on your box for accuracy.
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3 hover:text-cyan-300 transition-colors">
-            <span className="text-xl shrink-0">🧪</span>
-            <div className="flex-1">
-              <p className="mb-2">
-                Want to see how it works? Try this sample UCOD:
-              </p>
-              <button
-                onClick={handleCopy}
-                className="group relative text-pink-400 font-bold tracking-wider bg-black px-4 py-2 rounded-lg border border-pink-600 shadow-lg inline-flex items-center gap-2 hover:bg-pink-950/50 transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)]"
+          <div className="relative space-y-6">
+            {/* Input Section */}
+            <div className="space-y-2">
+              <label
+                htmlFor="ucod"
+                className="block text-sm font-medium text-cyan-300/90 mb-2"
               >
-                <span>{demoUCOD}</span>
+                Device UCOD
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search
+                    className={`w-5 h-5 transition-colors duration-200 ${
+                      isFocused ? "text-cyan-400" : "text-cyan-600"
+                    }`}
+                  />
+                </div>
+                <input
+                  id="ucod"
+                  type="text"
+                  value={ucod}
+                  onChange={(e) => setUcod(e.target.value)}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSubmit(e as any);
+                    }
+                  }}
+                  placeholder="Enter device UCOD"
+                  className="w-full pl-12 pr-4 py-3.5 sm:py-4 rounded-xl text-cyan-100 bg-[#0a0f1c]/80 border border-cyan-500/40 placeholder-cyan-600/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-500/20 transition-all duration-200 text-sm sm:text-base"
+                  required
+                />
+              </div>
+              <p className="text-xs sm:text-sm text-cyan-500/60 mt-2 flex items-center gap-1.5">
                 <svg
-                  className="w-4 h-4 transition-transform group-hover:scale-110"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  className="w-3.5 h-3.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
                 >
                   <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
                   />
                 </svg>
-                {copied && (
-                  <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs px-3 py-1 rounded-lg shadow-lg animate-fadeIn whitespace-nowrap">
-                    Copied! ✓
-                  </span>
-                )}
-              </button>
+                UCOD is located on the back of your device
+              </p>
             </div>
-          </div>
 
-          <div className="flex items-start gap-3 hover:text-cyan-300 transition-colors">
-            <span className="text-xl shrink-0">📞</span>
-            <p>
-              Still facing issues?{" "}
-              <a
-                href="/contact"
-                className="text-pink-400 underline hover:text-pink-300 transition-all hover:shadow-[0_2px_8px_rgba(236,72,153,0.3)]"
-              >
-                Contact our support team
-              </a>
-            </p>
+            {/* Submit Button */}
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!ucod.trim()}
+              className="group w-full py-3.5 sm:py-4 rounded-xl font-semibold text-[#0a0f1c] bg-gradient-to-r from-cyan-400 via-blue-400 to-pink-500 hover:from-pink-500 hover:via-blue-400 hover:to-cyan-400 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg hover:shadow-xl hover:shadow-cyan-500/30 flex items-center justify-center gap-2 text-sm sm:text-base"
+            >
+              <span>Track Device</span>
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <a
-            href="/tracking"
-            className="group relative px-6 py-3 rounded-lg bg-gradient-to-r from-pink-500 to-cyan-400 text-black font-semibold hover:from-cyan-400 hover:to-pink-500 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-[0_0_25px_rgba(236,72,153,0.5)] overflow-hidden"
-          >
-            <span className="relative z-10">Try Again</span>
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-          </a>
-
-          <a
-            href="/"
-            className="group relative px-6 py-3 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-400 text-white font-semibold hover:opacity-90 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] overflow-hidden"
-          >
-            <span className="relative z-10">Back to Home</span>
-            <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-          </a>
+        {/* Footer Info */}
+        <div className="mt-6 text-center">
+          <p className="text-xs sm:text-sm text-cyan-400/50">
+            Need help? Contact{" "}
+            <a
+              href="/contact"
+              className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2 transition-colors"
+            >
+              support
+            </a>
+          </p>
         </div>
-
-        {/* Decorative corner elements */}
-        <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-cyan-500/30 rounded-tl-2xl"></div>
-        <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-pink-500/30 rounded-br-2xl"></div>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes gradient {
-          0%,
-          100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.6s ease-out;
-        }
-
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 3s ease infinite;
-        }
-
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-
-        .animation-delay-1000 {
-          animation-delay: 1s;
-        }
-
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
     </div>
   );
 }
