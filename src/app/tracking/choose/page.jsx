@@ -57,10 +57,10 @@ export default function Page() {
             <div className="flex flex-col items-center justify-center min-h-[140px] sm:min-h-[160px]">
               <div className="mb-4 text-pink-400 text-4xl sm:text-5xl">🚨</div>
               <span className="text-pink-400 text-xl sm:text-2xl font-bold mb-2 text-center">
-                AGNIVAR
+                P.R.O.T.E.K
               </span>
               <span className="text-gray-300 text-sm sm:text-base text-center">
-                Accident Detection
+                Proactive Rollover Observer & Tracking Emergency Kit
               </span>
               <div className="absolute -bottom-4 -right-4 text-7xl sm:text-8xl opacity-5 text-pink-400 font-black">
                 02
