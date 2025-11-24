@@ -13,7 +13,7 @@ export default function TrackingPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (ucod.trim().toLowerCase() === "sigma001") {
+    if (ucod.trim().toLowerCase() === "SAFEV1") {
       navigateWithLoader(router, "/tracking/choose");
     } else {
       navigateWithLoader(router, "/tracking/error");
