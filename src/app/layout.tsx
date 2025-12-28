@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     "GPS Accident Tracking",
     "Drunk Driving Detection",
   ],
+  verification: {
+    google: "bYKpAg9RD4Qg0148KYs86YUCpw1hm3zBXraKDy81gVQ",
+  },
   openGraph: {
     title: "SAFEV – Smart Accident Detection & Vehicle Safety System",
     description:
