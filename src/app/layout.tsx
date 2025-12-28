@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   keywords: [
     "SAFEV",
     "Smart Vehicle Safety",
+    "safev team nexagen",
+    "safev nexagen",
     "Accident Detection System",
     "IoT Vehicle Monitoring",
     "ESP32 Accident Detection",
