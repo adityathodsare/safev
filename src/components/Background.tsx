@@ -191,26 +191,6 @@ function Background() {
             </p>
 
             {/* Trust indicators */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl mx-auto">
-              <div className="bg-neutral-900/50 backdrop-blur-sm rounded-lg p-3 border border-neutral-800 hover:border-blue-500/50 transition-all">
-                <div className="text-2xl font-bold text-blue-400">99.9%</div>
-                <div className="text-xs text-neutral-500">Accuracy</div>
-              </div>
-              <div className="bg-neutral-900/50 backdrop-blur-sm rounded-lg p-3 border border-neutral-800 hover:border-emerald-500/50 transition-all">
-                <div className="text-2xl font-bold text-emerald-400">
-                  &lt;2s
-                </div>
-                <div className="text-xs text-neutral-500">Response</div>
-              </div>
-              <div className="bg-neutral-900/50 backdrop-blur-sm rounded-lg p-3 border border-neutral-800 hover:border-purple-500/50 transition-all">
-                <div className="text-2xl font-bold text-purple-400">24/7</div>
-                <div className="text-xs text-neutral-500">Monitoring</div>
-              </div>
-              <div className="bg-neutral-900/50 backdrop-blur-sm rounded-lg p-3 border border-neutral-800 hover:border-amber-500/50 transition-all">
-                <div className="text-2xl font-bold text-amber-400">IoT</div>
-                <div className="text-xs text-neutral-500">Powered</div>
-              </div>
-            </div>
           </div>
         </div>
       </BackgroundLines>

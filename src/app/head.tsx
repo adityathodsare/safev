@@ -1,7 +1,7 @@
 export default function Head() {
   return (
     <>
-      <title>SAFEV</title>
+      <title>SAFEV nexagen</title>
       <meta
         name="description"
         content="SAFEV is an IoT-based smart vehicle safety system with accident detection, GPS tracking, alcohol detection, gas leak alerts, and real-time emergency notifications."

@@ -1,37 +1,65 @@
-import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaBriefcase } from "react-icons/fa";
 
 export default function TeamSection() {
   const team = [
     {
       name: "Aditya Thodsare",
-      role: "Team Leader & Full Stack Developer",
+      role: "Full Stack Developer & IOT system designer",
       description:
         "Backend architecture, IoT integration, cloud infrastructure, and system design",
-      skills: ["Spring Boot", "React", "Next.js", "IoT", "ESP32"],
+      skills: [
+        "Full Stack Developer",
+        "Java",
+        "Spring Boot",
+        "Event Driven Microservices",
+        "Docker",
+        "AWS",
+        "React",
+        "Next.js",
+      ],
       github: "https://github.com/adityathodsare",
-      linkedin: "https://linkedin.com/in/adityathodsare",
+      linkedin: "https://www.linkedin.com/in/aditya-thodsare-475366289/",
+      portfolio: "https://aditya-thodsare-portfolio.vercel.app/",
       image: "/img/3.jpg",
       isLeader: true,
     },
     {
       name: "Khushi Sharma",
-      role: "Frontend & UI Developer",
+      role: "Frontend & UI/UX Developer",
       description:
         "User interface design, responsive layouts, user experience optimization",
-      skills: ["React", "Next.js", "Tailwind CSS", "UI/UX"],
-      github: "https://github.com/khushisharma",
-      linkedin: "https://linkedin.com/in/khushisharma",
+      skills: [
+        "SQL",
+        "Figma",
+        "UI/UX Developer",
+        "Next.js",
+        "React",
+        "Tailwind CSS",
+      ],
+      github: "https://github.com",
+      linkedin: "https://linkedin.com",
+      portfolio: "https:",
       image: "/img/2.jpg",
       isLeader: false,
     },
     {
       name: "Kirti Shelke",
-      role: "Hardware & IoT Engineer",
+      role: "MERN Stack Developer & Hardware Engineer",
       description:
-        "Sensor integration, embedded systems, hardware prototyping, circuit design",
-      skills: ["IoT", "ESP32", "Sensors", "Arduino"],
-      github: "https://github.com/kirtishelke",
-      linkedin: "https://linkedin.com/in/kirtishelke",
+        "Full stack development, sensor integration, embedded systems, hardware prototyping",
+      skills: [
+        "PHP",
+        "Java",
+        "MERN Stack Developer",
+        "Node.js",
+        "Express",
+        "React",
+        "IoT",
+        "ESP32",
+      ],
+      github: "https://github.com/",
+      linkedin: "https://linkedin.com/",
+      portfolio: "https:",
       image: "/img/1.jpg",
       isLeader: false,
     },
@@ -146,26 +174,33 @@ export default function TeamSection() {
                 </div>
 
                 {/* Social Links */}
-                <div className="flex gap-3 pt-2 border-t border-gray-800">
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-800">
+                  <a
+                    href={member.portfolio}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center py-2 rounded-lg bg-gray-900 hover:bg-purple-600 text-gray-400 hover:text-white border border-gray-800 hover:border-purple-600 transition-all group/btn"
+                    aria-label={`${member.name}'s Portfolio`}
+                  >
+                    <FaBriefcase className="w-4 h-4" />
+                  </a>
                   <a
                     href={member.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center w-full py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white border border-gray-800 hover:border-gray-700 transition-all group/btn"
+                    className="flex items-center justify-center py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white border border-gray-800 hover:border-gray-700 transition-all group/btn"
                     aria-label={`${member.name}'s GitHub`}
                   >
-                    <FaGithub className="w-5 h-5 mr-2" />
-                    <span className="text-sm font-medium">GitHub</span>
+                    <FaGithub className="w-4 h-4" />
                   </a>
                   <a
                     href={member.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center w-full py-2 rounded-lg bg-gray-900 hover:bg-blue-600 text-gray-400 hover:text-white border border-gray-800 hover:border-blue-600 transition-all group/btn"
+                    className="flex items-center justify-center py-2 rounded-lg bg-gray-900 hover:bg-blue-600 text-gray-400 hover:text-white border border-gray-800 hover:border-blue-600 transition-all group/btn"
                     aria-label={`${member.name}'s LinkedIn`}
                   >
-                    <FaLinkedin className="w-5 h-5 mr-2" />
-                    <span className="text-sm font-medium">LinkedIn</span>
+                    <FaLinkedin className="w-4 h-4" />
                   </a>
                 </div>
               </div>

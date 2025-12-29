@@ -332,7 +332,7 @@ function Navbar({ className }: { className?: string }) {
                 </div>
 
                 <div
-                  onClick={() => handleNavigation("/contact")}
+                  onClick={() => handleNavigation("/register")}
                   className="px-4 py-3 rounded-lg text-white hover:bg-gray-800 cursor-pointer transition-colors font-medium"
                 >
                   Contact Us
@@ -342,7 +342,7 @@ function Navbar({ className }: { className?: string }) {
                   onClick={() => handleNavigation("/logout")}
                   className="px-4 py-3 rounded-lg bg-red-600 text-white hover:bg-red-700 cursor-pointer transition-colors font-medium text-center"
                 >
-                  Logout
+                  register
                 </div>
               </div>
             </motion.div>

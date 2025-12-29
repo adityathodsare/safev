@@ -122,7 +122,14 @@ export default function RakshakGPSTracker() {
       setThingSpeakData(data);
 
       if (data.feeds && data.feeds.length > 0) {
-        const historyData: LocationData[] = data.feeds.map((feed) => ({
+        // Sort feeds by timestamp in ascending order (oldest to newest)
+        const sortedFeeds = [...data.feeds].sort((a, b) => {
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+        });
+
+        const historyData: LocationData[] = sortedFeeds.map((feed) => ({
           latitude: parseFloat(feed.field1),
           longitude: parseFloat(feed.field2),
           accuracy: 10,
@@ -271,12 +278,27 @@ export default function RakshakGPSTracker() {
       (mapRef.current as any).markerLayers.push(vehicleMarker);
 
       if (mode === "history" && history.length > 1) {
+        // Filter only data from the last 24 hours
+        const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+        const recentHistory = history.filter(
+          (loc) => loc.timestamp >= twentyFourHoursAgo
+        );
+
+        // Calculate total points and how many to show (limit to reasonable number)
+        const totalPoints = recentHistory.length;
+        const showEvery = Math.max(1, Math.floor(totalPoints / 50)); // Show max 50 points
+
         // Add expressive red dot markers for historical positions (excluding the latest one)
-        history.slice(0, -1).forEach((loc, index) => {
+        // Process in chronological order (oldest to newest) and show sequence number
+        recentHistory.slice(0, -1).forEach((loc, index) => {
+          // Only show every Nth point to avoid overcrowding
+          if (index % showEvery !== 0) return;
+
           // Calculate color intensity based on recency (newer = brighter red)
-          const recency = index / (history.length - 1);
+          const recency = index / (recentHistory.length - 1);
           const intensity = Math.floor(200 + 55 * recency);
           const size = 8 + 4 * recency; // 8px to 12px based on recency
+          const sequenceNumber = index + 1; // 1-based index
 
           const dotIcon = L.divIcon({
             className: "history-dot",
@@ -290,7 +312,13 @@ export default function RakshakGPSTracker() {
                 box-shadow: 0 2px 8px rgba(220, 38, 38, 0.6);
                 cursor: pointer;
                 transition: all 0.3s ease;
-              "></div>
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: ${size - 4}px;
+                font-weight: bold;
+                color: white;
+              ">${sequenceNumber}</div>
             `,
             iconSize: [size, size],
             iconAnchor: [size / 2, size / 2],
@@ -300,13 +328,23 @@ export default function RakshakGPSTracker() {
             icon: dotIcon,
           }).addTo(map);
 
+          // Calculate percentage complete (0% to 100%)
+          const progressPercent = (
+            ((index + 1) / recentHistory.length) *
+            100
+          ).toFixed(1);
+
           const dotPopupContent = `
             <div style="color: #1f2937; background: white; padding: 10px; border-radius: 6px; font-size: 12px; border: 1px solid #e5e7eb; min-width: 180px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
               <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
                 <div style="width: 8px; height: 8px; background: #dc2626; border-radius: 50%;"></div>
-                <strong style="color: #111827; font-size: 13px;">📍 Historical Position</strong>
+                <strong style="color: #111827; font-size: 13px;">📍 Point ${sequenceNumber} of ${totalPoints}</strong>
               </div>
               <div style="display: grid; gap: 4px;">
+                <div>
+                  <span style="color: #6b7280;">Journey Progress: </span>
+                  <span style="color: #3b82f6; font-weight: 600;">${progressPercent}%</span>
+                </div>
                 <div>
                   <span style="color: #6b7280;">Latitude: </span>
                   <span style="color: #1f2937; font-family: monospace;">${loc.latitude.toFixed(
@@ -337,12 +375,36 @@ export default function RakshakGPSTracker() {
                     loc.timestamp
                   )}</span>
                 </div>
+                <div style="margin-top: 4px; padding-top: 4px; border-top: 1px solid #e5e7eb;">
+                  <span style="color: #6b7280; font-size: 11px;">${getTimeAgo(
+                    loc.timestamp
+                  )}</span>
+                </div>
               </div>
             </div>
           `;
           dotMarker.bindPopup(dotPopupContent);
           (mapRef.current as any).markerLayers.push(dotMarker);
         });
+
+        // Draw a polyline connecting all historical points in chronological order
+        if (recentHistory.length > 1) {
+          const pathCoordinates = recentHistory.map((loc) => [
+            loc.latitude,
+            loc.longitude,
+          ]);
+          const pathPolyline = L.polyline(pathCoordinates, {
+            color: "#3b82f6",
+            weight: 3,
+            opacity: 0.7,
+            dashArray: "5, 10",
+            lineCap: "round",
+            lineJoin: "round",
+          }).addTo(map);
+
+          (mapRef.current as any).pathPolyline = pathPolyline;
+          (mapRef.current as any).markerLayers.push(pathPolyline);
+        }
       }
 
       // Center map on latest location with appropriate zoom
@@ -350,6 +412,27 @@ export default function RakshakGPSTracker() {
         [latestLocation.latitude, latestLocation.longitude],
         mode === "live" ? 18 : 16
       );
+    }
+  };
+
+  const getTimeAgo = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+
+    if (diff < 60000) {
+      // Less than 1 minute
+      return "Just now";
+    } else if (diff < 3600000) {
+      // Less than 1 hour
+      const minutes = Math.floor(diff / 60000);
+      return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+    } else if (diff < 86400000) {
+      // Less than 24 hours
+      const hours = Math.floor(diff / 3600000);
+      return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+    } else {
+      const days = Math.floor(diff / 86400000);
+      return `${days} day${days !== 1 ? "s" : ""} ago`;
     }
   };
 
@@ -701,6 +784,19 @@ export default function RakshakGPSTracker() {
                       </p>
                     </div>
                   </div>
+                  {trackingMode === "history" && locationHistory.length > 0 && (
+                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                      <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                        Time Range
+                      </p>
+                      <p className="text-sm font-semibold text-white">
+                        {formatDate(locationHistory[0].timestamp)} to{" "}
+                        {formatDate(
+                          locationHistory[locationHistory.length - 1].timestamp
+                        )}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -726,17 +822,32 @@ export default function RakshakGPSTracker() {
                   </div>
                 </div>
                 {trackingMode === "history" && (
-                  <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
-                    <div className="w-6 h-6 bg-gradient-to-br from-red-500 to-red-600 rounded-full border-2 border-white shadow"></div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">
-                        Historical Positions
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        Past 24-hour travel points
-                      </p>
+                  <>
+                    <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
+                      <div className="w-6 h-6 bg-gradient-to-br from-red-500 to-red-600 rounded-full border-2 border-white shadow flex items-center justify-center text-white text-xs font-bold">
+                        1
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          Historical Positions
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          Numbered by travel sequence
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                    <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
+                      <div className="w-8 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          Travel Path
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          Route taken (chronological)
+                        </p>
+                      </div>
+                    </div>
+                  </>
                 )}
                 <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
                   <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>

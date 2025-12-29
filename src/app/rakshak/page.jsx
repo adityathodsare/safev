@@ -200,7 +200,7 @@ export default function RakshakPage() {
         {/* Bottom Info */}
         <div className="text-center mt-8 sm:mt-12">
           <p className="text-gray-600 text-xs sm:text-sm">
-            © 2025 Rakshak Security Systems • All Rights Reserved
+            © 2026 Rakshak Security Systems • All Rights Reserved
           </p>
         </div>
       </div>
