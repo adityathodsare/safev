@@ -22,8 +22,8 @@ const AlcoholDetection = () => {
   const [sensorData, setSensorData] = useState([]);
   const [latestData, setLatestData] = useState(null);
 
-  const channelID = "2898066";
-  const apiKey = "AMIH0BBIRQ7HE59A";
+  const channelID = "3234684";
+  const apiKey = "CUIZ4UY1OAKLLVXJ";
 
   const fetchData = async () => {
     try {
