@@ -240,7 +240,7 @@ export default function Page() {
 
       <WhyChooseUs />
       <UpcomingFeatures />
-      <TeamSection />
+
       <Footer />
     </main>
   );

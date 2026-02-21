@@ -171,14 +171,14 @@ function Navbar({ className }: { className?: string }) {
           scrolled
             ? "py-2 bg-black/95 backdrop-blur-md shadow-xl"
             : "py-4 bg-black",
-          className
+          className,
         )}
       >
         <div className="container mx-auto px-4 flex justify-between items-center">
           {/* Team Name on the left */}
           <div className="flex items-center">
             <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              Team NexaGen - SAFEV
+              SAFE-V
             </span>
           </div>
 
@@ -196,11 +196,7 @@ function Navbar({ className }: { className?: string }) {
                 <div onClick={() => handleNavigation("/prototype")}>
                   <HoveredLink href="/prototype">Prototype</HoveredLink>
                 </div>
-                <div onClick={() => handleNavigation("/aboutus/aboutteam")}>
-                  <HoveredLink href="/aboutus/aboutteam">
-                    About Team
-                  </HoveredLink>
-                </div>
+
                 <div onClick={() => handleNavigation("/tracking")}>
                   <HoveredLink href="/tracking">Track Data</HoveredLink>
                 </div>
@@ -238,7 +234,7 @@ function Navbar({ className }: { className?: string }) {
       <div
         className={cn(
           "md:hidden fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-black",
-          scrolled ? "py-2 shadow-xl" : "py-3"
+          scrolled ? "py-2 shadow-xl" : "py-3",
         )}
       >
         <div className="container mx-auto px-4">
@@ -308,12 +304,6 @@ function Navbar({ className }: { className?: string }) {
                     >
                       Prototype
                     </div>
-                    <div
-                      onClick={() => handleNavigation("/aboutus/aboutteam")}
-                      className="px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 cursor-pointer transition-colors"
-                    >
-                      About Team
-                    </div>
 
                     <div
                       onClick={() => handleNavigation("/tracking")}
@@ -354,7 +344,7 @@ function Navbar({ className }: { className?: string }) {
       <div
         className={cn(
           "transition-all duration-300 bg-black",
-          isMobile ? "h-16" : scrolled ? "h-16" : "h-20"
+          isMobile ? "h-16" : scrolled ? "h-16" : "h-20",
         )}
       ></div>
     </>
