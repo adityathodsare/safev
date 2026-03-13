@@ -196,7 +196,6 @@ function Navbar({ className }: { className?: string }) {
                 <div onClick={() => handleNavigation("/prototype")}>
                   <HoveredLink href="/prototype">Prototype</HoveredLink>
                 </div>
-
                 <div onClick={() => handleNavigation("/tracking")}>
                   <HoveredLink href="/tracking">Track Data</HoveredLink>
                 </div>
