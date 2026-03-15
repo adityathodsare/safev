@@ -239,7 +239,7 @@ function Navbar({ className }: { className?: string }) {
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
             <div className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              Team NexaGen - SAFEV
+              SAFEV
             </div>
             <button
               onClick={toggleMobileMenu}
