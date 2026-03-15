@@ -76,26 +76,6 @@
 5. **Next.js** frontend displays real-time monitoring dashboard
 6. Alert notifications sent via **Telegram** and **Email** when thresholds are exceeded
 
-## 🚀 Quick Start
-
-### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### Backend
-```bash
-cd backend
-./mvnw spring-boot:run
-```
-
-### ESP32 Setup
-- Configure WiFi credentials
-- Set ThingSpeak API keys
-- Upload firmware to ESP32
-
 ## 🔗 Links
 
 - **Live Dashboard**: [https://safev.vercel.app](https://safev.vercel.app)
