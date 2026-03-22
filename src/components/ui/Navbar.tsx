@@ -216,13 +216,13 @@ function Navbar({ className }: { className?: string }) {
               ></MenuItem>
             </div>
             <div
-              onClick={() => handleNavigation("/logout")}
+              onClick={() => handleNavigation("/Register")}
               className="bg-red-600 hover:bg-red-700 transition-colors rounded-lg p-1 text-white"
             >
               <MenuItem
                 setActive={setActive}
                 active={active}
-                item={"Logout"}
+                item={"register"}
               ></MenuItem>
             </div>
           </Menu>
