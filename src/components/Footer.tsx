@@ -26,9 +26,9 @@ function Footer() {
               SAFEV
             </h2>
             <p className="text-gray-400 leading-relaxed text-sm">
-              Team NexaGen - A squad of sigma engineers (Khushi Bhau, Kirti
-              Bhau, Aditya Bhau) building next-gen IoT vehicle safety solutions.
-              Buy our product now and join the safety revolution!
+              SAFEV is a cutting-edge vehicle safety system designed to protect
+              drivers and passengers from potential accidents. build and develop
+              by Aditya Thodsare
             </p>
 
             {/* Social Links */}
@@ -363,7 +363,7 @@ function Footer() {
             <p className="flex items-center gap-2">
               <span>© {currentYear}</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold">
-                Team NexaGen
+                SAFE-V - Aditya Thodsare
               </span>
               <span>• All rights reserved</span>
             </p>
