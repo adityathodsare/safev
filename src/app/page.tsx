@@ -4,6 +4,7 @@ import HowToUseGuide from "@/components/HowToUseGuide";
 import WhySafev from "@/components/WhySafev";
 import Features from "@/components/Features";
 import TechStack from "@/components/TechStack";
+import CreatorSection from "@/components/Creatorsection";
 export default function Page() {
   return (
     <main className="min-h-screen bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden">
@@ -18,6 +19,7 @@ export default function Page() {
       <Features />
       <TechStack />
       <HowToUseGuide />
+      <CreatorSection />
 
       <Footer />
     </main>
