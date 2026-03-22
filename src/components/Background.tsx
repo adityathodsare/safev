@@ -146,7 +146,16 @@ function Background() {
               style={{ animationDelay: "0.5s" }}
             >
               <button
-                onClick={() => navigateWithLoader(router, "/remaining")}
+                onClick={() => {
+                  const section = document.getElementById("creator");
+
+                  if (section) {
+                    section.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  }
+                }}
                 className="group relative w-full px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 hover:from-amber-700 hover:via-orange-700 hover:to-red-700 text-white text-base sm:text-lg font-semibold rounded-xl shadow-2xl hover:shadow-amber-500/50 transform hover:scale-105 transition-all duration-300 ease-out border border-amber-400/30 hover:border-amber-300/50 backdrop-blur-sm overflow-hidden"
               >
                 {/* Shimmer effect */}
@@ -172,7 +181,7 @@ function Background() {
                       d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                  Working On...
+                  developed by
                 </span>
               </button>
             </div>

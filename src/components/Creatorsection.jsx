@@ -303,7 +303,7 @@ export default function CreatorSection() {
         .cr-copy-btn.ok{color:#4ade80;border-color:rgba(74,222,128,0.4);}
       `}</style>
 
-      <div className="cr">
+      <div id="creator" className="cr">
         <div className="cr-glow-main" />
         <div className="cr-glow-left" />
         <div className="cr-glow-right" />
