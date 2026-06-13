@@ -3,13 +3,10 @@ import { useState, useEffect } from "react";
 import {
   FaWineGlassAlt,
   FaTemperatureHigh,
+  FaTint,
   FaBurn,
   FaCar,
-  FaBolt,
   FaExclamationTriangle,
-  FaRedo,
-  FaHistory,
-  FaFire,
 } from "react-icons/fa";
 import {
   LineChart,
@@ -19,7 +16,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 
 const AlcoholDetection = () => {
@@ -27,97 +23,73 @@ const AlcoholDetection = () => {
   const [latestData, setLatestData] = useState(null);
   const [liveMode, setLiveMode] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // ThingSpeak Configuration
-  const channelID = "3234684";
-  const apiKey = "CUIZ4UY1OAKLLVXJ";
+  const channelID = "3407232";
+  const apiKey = "UFVCOV4G37H5S9HN";
 
   const fetchLiveData = async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await fetch(
-        `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&results=20`,
+        `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&results=7`
       );
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
       const data = await res.json();
 
-      if (!data.feeds || data.feeds.length === 0) {
-        throw new Error("No data available from the sensor");
-      }
-
       const formatted = data.feeds.map((feed) => ({
-        time: new Date(feed.created_at).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        }),
-        timestamp: new Date(feed.created_at).getTime(),
-        alcoholLevel: parseFloat(feed.field1) || 0,
-        temperature: parseFloat(feed.field3) || 0,
-        fireDetected: parseFloat(feed.field4) || 0,
-        engineAllowed: parseFloat(feed.field5) || 0,
-        acPower: parseFloat(feed.field6) || 0,
+        time: new Date(feed.created_at).toLocaleTimeString(),
+        temperature: parseFloat(feed.field1),
+        humidity: parseFloat(feed.field2),
+        alcoholLevel: parseFloat(feed.field3),
+        // Inverted: ThingSpeak sends 1 = safe (no fire) → display 0
+        //           ThingSpeak sends 0 = fire present  → display 1
+        fireDetected: parseInt(feed.field4) === 0 ? 1 : 0,
+        engineAllowed: parseInt(feed.field5),
+        // Scale all to a comparable range so every wave is visible:
+        // temp ~38-39  → ×50 gives ~1900-1950  (sits in alcohol band)
+        // humidity ~34-37 → ×50 gives ~1700-1850
+        // alcoholLevel ~1500-4095 → raw (dominant wave)
+        // fire 0/1 (inverted) → ×2000 gives 0 or 2000
+        // engine 0/1 → ×1800 gives 0 or 1800 (slightly below fire so distinguishable)
+        temp_scaled: parseFloat(feed.field1) * 50,
+        humidity_scaled: parseFloat(feed.field2) * 50,
+        fire_scaled: (parseInt(feed.field4) === 0 ? 1 : 0) * 2000,
+        engine_scaled: parseInt(feed.field5) * 1800,
       }));
 
-      // Sort by timestamp (newest first)
-      formatted.sort((a, b) => b.timestamp - a.timestamp);
-
       setSensorData(formatted);
-      setLatestData(formatted[0]); // Latest is first after sorting
+      setLatestData(formatted[formatted.length - 1]);
       setLoading(false);
     } catch (err) {
-      console.error("Error fetching data:", err);
-      setError(err.message);
+      console.log("Error fetching data");
       setLoading(false);
     }
   };
 
   const fetch24hData = async () => {
     setLoading(true);
-    setError(null);
     try {
       const res = await fetch(
-        `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&days=1&sum=daily`,
+        `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&days=1`
       );
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
       const data = await res.json();
 
-      if (!data.feeds || data.feeds.length === 0) {
-        throw new Error("No historical data available");
-      }
-
       const formatted = data.feeds.map((feed) => ({
-        time: new Date(feed.created_at).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        timestamp: new Date(feed.created_at).getTime(),
-        alcoholLevel: parseFloat(feed.field1) || 0,
-        temperature: parseFloat(feed.field3) || 0,
-        fireDetected: parseFloat(feed.field4) || 0,
-        engineAllowed: parseFloat(feed.field5) || 0,
-        acPower: parseFloat(feed.field6) || 0,
+        time: new Date(feed.created_at).toLocaleTimeString(),
+        temperature: parseFloat(feed.field1),
+        humidity: parseFloat(feed.field2),
+        alcoholLevel: parseFloat(feed.field3),
+        fireDetected: parseInt(feed.field4) === 0 ? 1 : 0,
+        engineAllowed: parseInt(feed.field5),
+        temp_scaled: parseFloat(feed.field1) * 50,
+        humidity_scaled: parseFloat(feed.field2) * 50,
+        fire_scaled: (parseInt(feed.field4) === 0 ? 1 : 0) * 2000,
+        engine_scaled: parseInt(feed.field5) * 1800,
       }));
-
-      // Sort by timestamp
-      formatted.sort((a, b) => a.timestamp - b.timestamp);
 
       setSensorData(formatted);
       setLatestData(formatted[formatted.length - 1]);
       setLoading(false);
-    } catch (err) {
-      console.error("Error fetching 24hr data:", err);
-      setError(err.message);
+    } catch {
+      console.log("Error fetching 24hr data");
       setLoading(false);
     }
   };
@@ -125,266 +97,142 @@ const AlcoholDetection = () => {
   useEffect(() => {
     if (liveMode) {
       fetchLiveData();
-      const interval = setInterval(fetchLiveData, 15000); // 15 seconds interval
+      const interval = setInterval(fetchLiveData, 10000);
       return () => clearInterval(interval);
     }
   }, [liveMode]);
 
   const sensors = [
     {
-      id: "alcohol",
-      name: "Alcohol Level",
-      value: latestData?.alcoholLevel,
-      unit: "ppm",
-      icon: FaWineGlassAlt,
-      color: "from-cyan-500 to-blue-600",
-      bgColor: "bg-gradient-to-br from-cyan-500/20 to-blue-600/20",
-      borderColor: "border-cyan-500/40",
-      iconColor: "text-cyan-400",
-      threshold: 2300,
-      safeRange: "0 - 2300 ppm",
-      dangerColor: "text-red-400",
-      isDanger: (val) => val > 2300,
-    },
-    {
-      id: "temperature",
       name: "Temperature",
       value: latestData?.temperature,
       unit: "°C",
       icon: FaTemperatureHigh,
-      color: "from-purple-500 to-violet-600",
-      bgColor: "bg-gradient-to-br from-purple-500/20 to-violet-600/20",
-      borderColor: "border-purple-500/40",
-      iconColor: "text-purple-400",
-      safeRange: "20 - 40 °C",
-      isDanger: (val) => val > 40 || val < 20,
+      color: "from-orange-500 to-red-600",
+      bgColor: "bg-orange-500/10",
+      borderColor: "border-orange-500/30",
+      iconColor: "text-orange-400",
     },
     {
-      id: "fire",
+      name: "Humidity",
+      value: latestData?.humidity,
+      unit: "%",
+      icon: FaTint,
+      color: "from-blue-500 to-cyan-600",
+      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-500/30",
+      iconColor: "text-blue-400",
+    },
+    {
+      name: "Alcohol Level",
+      value: latestData?.alcoholLevel,
+      unit: "ppm",
+      icon: FaWineGlassAlt,
+      color: "from-cyan-500 to-teal-600",
+      bgColor: "bg-cyan-500/10",
+      borderColor: "border-cyan-500/30",
+      iconColor: "text-cyan-400",
+    },
+    {
       name: "Fire Status",
       value: latestData?.fireDetected,
       unit: "",
       icon: FaBurn,
       color: "from-red-500 to-orange-600",
-      bgColor: "bg-gradient-to-br from-red-500/20 to-orange-600/20",
-      borderColor: "border-red-500/40",
+      bgColor: "bg-red-500/10",
+      borderColor: "border-red-500/30",
       iconColor: "text-red-400",
-      isDanger: (val) => val === 1,
-      statusText: (val) => (val === 1 ? "DETECTED" : "SAFE"),
     },
     {
-      id: "engine",
       name: "Engine Status",
       value: latestData?.engineAllowed,
       unit: "",
       icon: FaCar,
-      color: "from-blue-500 to-indigo-600",
-      bgColor: "bg-gradient-to-br from-blue-500/20 to-indigo-600/20",
-      borderColor: "border-blue-500/40",
-      iconColor: "text-blue-400",
-      statusText: (val) => (val === 1 ? "ALLOWED" : "BLOCKED"),
-      isDanger: (val) => val === 0,
-    },
-    {
-      id: "ac",
-      name: "AC Power",
-      value: latestData?.acPower,
-      unit: "",
-      icon: FaBolt,
-      color: "from-yellow-500 to-orange-500",
-      bgColor: "bg-gradient-to-br from-yellow-500/20 to-orange-500/20",
-      borderColor: "border-yellow-500/40",
-      iconColor: "text-yellow-400",
-      statusText: (val) => (val === 1 ? "ON" : "OFF"),
-      isDanger: (val) => false,
+      color: "from-green-500 to-emerald-600",
+      bgColor: "bg-green-500/10",
+      borderColor: "border-green-500/30",
+      iconColor: "text-green-400",
     },
   ];
 
-  const getAlertStatus = () => {
-    if (!latestData) return null;
-
-    const alerts = [];
-    if (latestData.alcoholLevel > 2300) {
-      alerts.push({
-        type: "alcohol",
-        message: "HIGH ALCOHOL LEVEL DETECTED",
-        description: "Alcohol concentration exceeds safe limits",
-        severity: "high",
-        icon: FaWineGlassAlt,
-      });
-    }
-    if (latestData.fireDetected === 1) {
-      alerts.push({
-        type: "fire",
-        message: "FIRE DETECTED",
-        description: "Fire sensor has been triggered",
-        severity: "critical",
-        icon: FaFire,
-      });
-    }
-    if (latestData.engineAllowed === 0 && latestData.alcoholLevel > 2300) {
-      alerts.push({
-        type: "engine",
-        message: "ENGINE DISABLED",
-        description: "Engine blocked due to high alcohol level",
-        severity: "medium",
-        icon: FaCar,
-      });
-    }
-
-    return alerts.length > 0 ? alerts : null;
-  };
-
-  const alerts = getAlertStatus();
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-950 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-700"></div>
       </div>
 
-      <div className="relative z-10 flex flex-col items-center px-4 py-8 sm:px-6 lg:px-8">
+      <div className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         {/* Header */}
-        <div className="text-center mb-8 sm:mb-12 space-y-4 w-full max-w-6xl">
+        <div className="text-center mb-8 sm:mb-12 space-y-3">
           <div className="inline-block">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent animate-gradient">
-              M.A.D.A.K.S.H
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent animate-gradient">
+              M.A.D.A.K.S.H – Monitoring Alcohol Detection &amp; Kinetic Safety Hub
             </h1>
-            <p className="text-lg sm:text-xl text-gray-300 mt-2">
-              Monitoring Alcohol Detection & Kinetic Safety Hub
-            </p>
-            <div className="h-1 w-48 mx-auto bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-full mt-4"></div>
+            <div className="h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-full mt-2"></div>
           </div>
-
-          {/* Live Status */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {liveMode && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 backdrop-blur-sm rounded-full border border-emerald-500/30">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-emerald-400 text-sm font-medium">
-                  Live Updates Active
-                </span>
-              </div>
-            )}
-
-            <div className="text-gray-400 text-sm">
-              Last updated:{" "}
-              {latestData ? new Date().toLocaleTimeString() : "Loading..."}
+          <p className="text-gray-400 text-sm sm:text-base">
+            Real-time IoT Monitoring &amp; Analytics
+          </p>
+          {liveMode && (
+            <div className="flex items-center justify-center gap-2 text-emerald-400 text-xs sm:text-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              Live Updates Active
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="w-full max-w-4xl mb-6">
-            <div className="bg-red-500/10 backdrop-blur-sm border border-red-500/30 rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FaExclamationTriangle className="text-red-400 text-xl" />
-                  <div>
-                    <h3 className="font-semibold text-red-300">
-                      Connection Error
-                    </h3>
-                    <p className="text-red-400/80 text-sm">{error}</p>
-                  </div>
+        {/* Alert – High Alcohol */}
+        {latestData && latestData.alcoholLevel > 2300 && (
+          <div className="w-full max-w-6xl mb-6 sm:mb-8 animate-slideDown">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-600 to-orange-600 p-1">
+              <div className="bg-slate-900/90 backdrop-blur-xl rounded-xl p-4 sm:p-6">
+                <div className="flex items-center justify-center gap-3 sm:gap-4">
+                  <FaExclamationTriangle className="text-2xl sm:text-3xl animate-bounce" />
+                  <span className="font-bold text-base sm:text-lg lg:text-xl text-center">
+                    🚨 HIGH ALCOHOL LEVEL DETECTED — Safety Alert!
+                  </span>
                 </div>
-                <button
-                  onClick={liveMode ? fetchLiveData : fetch24hData}
-                  className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-colors text-sm font-medium"
-                >
-                  Retry
-                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Alert Banners */}
-        {alerts && alerts.length > 0 && (
-          <div className="w-full max-w-6xl mb-8 space-y-4 animate-slideDown">
-            {alerts.map((alert, index) => (
-              <div
-                key={index}
-                className={`relative overflow-hidden rounded-2xl p-1 ${
-                  alert.severity === "critical"
-                    ? "bg-gradient-to-r from-red-600 to-orange-600"
-                    : alert.severity === "high"
-                      ? "bg-gradient-to-r from-orange-600 to-yellow-600"
-                      : "bg-gradient-to-r from-blue-600 to-cyan-600"
-                }`}
-              >
-                <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-5 sm:p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`p-3 rounded-xl ${
-                          alert.severity === "critical"
-                            ? "bg-red-500/20"
-                            : alert.severity === "high"
-                              ? "bg-orange-500/20"
-                              : "bg-blue-500/20"
-                        }`}
-                      >
-                        <alert.icon
-                          className={`text-2xl ${
-                            alert.severity === "critical"
-                              ? "text-red-400"
-                              : alert.severity === "high"
-                                ? "text-orange-400"
-                                : "text-blue-400"
-                          }`}
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg sm:text-xl">
-                          🚨 {alert.message}
-                        </h3>
-                        <p className="text-gray-300 text-sm mt-1">
-                          {alert.description}
-                        </p>
-                      </div>
-                    </div>
-                    <div
-                      className={`px-4 py-2 rounded-lg font-bold text-sm ${
-                        alert.severity === "critical"
-                          ? "bg-red-500/30 text-red-200"
-                          : alert.severity === "high"
-                            ? "bg-orange-500/30 text-orange-200"
-                            : "bg-blue-500/30 text-blue-200"
-                      }`}
-                    >
-                      {alert.severity.toUpperCase()}
-                    </div>
-                  </div>
+        {/* Alert – Fire */}
+        {latestData && latestData.fireDetected === 1 && (
+          <div className="w-full max-w-6xl mb-6 sm:mb-8 animate-slideDown">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-600 to-yellow-600 p-1">
+              <div className="bg-slate-900/90 backdrop-blur-xl rounded-xl p-4 sm:p-6">
+                <div className="flex items-center justify-center gap-3 sm:gap-4">
+                  <FaBurn className="text-2xl sm:text-3xl animate-bounce" />
+                  <span className="font-bold text-base sm:text-lg lg:text-xl text-center">
+                    🔥 FIRE DETECTED — Emergency Alert!
+                  </span>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
         )}
 
         {/* Control Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8 sm:mb-10 w-full max-w-md">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-10 w-full max-w-md">
           <button
             onClick={() => {
               setLiveMode(true);
               fetchLiveData();
             }}
-            className={`flex-1 px-6 py-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-[1.02] active:scale-95 ${
+            className={`flex-1 px-6 py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 ${
               liveMode
-                ? "bg-gradient-to-r from-cyan-600 to-blue-600 shadow-lg shadow-cyan-500/30"
-                : "bg-gray-800/50 backdrop-blur-sm border border-gray-700 hover:border-cyan-500/50"
+                ? "bg-gradient-to-r from-blue-600 to-cyan-600 shadow-lg shadow-blue-500/50"
+                : "bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:border-slate-600"
             }`}
           >
-            <div className="flex items-center justify-center gap-3">
-              <FaRedo
-                className={`text-lg ${liveMode ? "animate-spin-slow" : ""}`}
-              />
+            <div className="flex items-center justify-center gap-2">
+              <span>🔄</span>
               <span>Live Mode</span>
             </div>
           </button>
@@ -394,245 +242,200 @@ const AlcoholDetection = () => {
               setLiveMode(false);
               fetch24hData();
             }}
-            className={`flex-1 px-6 py-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-[1.02] active:scale-95 ${
+            className={`flex-1 px-6 py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 ${
               !liveMode
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/30"
-                : "bg-gray-800/50 backdrop-blur-sm border border-gray-700 hover:border-purple-500/50"
+                ? "bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50"
+                : "bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:border-slate-600"
             }`}
           >
-            <div className="flex items-center justify-center gap-3">
-              <FaHistory />
+            <div className="flex items-center justify-center gap-2">
+              <span>📆</span>
               <span>24 Hours</span>
             </div>
           </button>
         </div>
 
-        {/* Sensor Cards Grid - PERFECTLY ALIGNED */}
+        {/* Sensor Cards */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-96 space-y-6">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-20 w-20 border-t-2 border-b-2 border-cyan-500"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <FaWineGlassAlt className="text-cyan-400 text-2xl" />
-              </div>
-            </div>
-            <p className="text-gray-400">Loading sensor data...</p>
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 max-w-7xl w-full mb-8 sm:mb-12">
-            {sensors.map((sensor, index) => {
-              const isDanger = sensor.isDanger
-                ? sensor.isDanger(sensor.value)
-                : false;
-              const hasExtraInfo = sensor.threshold || sensor.safeRange;
-
-              return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-7xl w-full mb-8 sm:mb-12">
+            {sensors.map((sensor, i) => (
+              <div
+                key={i}
+                className="group relative animate-fadeIn"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
                 <div
-                  key={sensor.id}
-                  className="group relative animate-fadeIn"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className={`absolute inset-0 bg-gradient-to-br ${sensor.color} opacity-0 group-hover:opacity-20 rounded-2xl blur-xl transition-opacity duration-500`}
+                ></div>
+                <div
+                  className={`relative bg-slate-900/50 backdrop-blur-xl border ${sensor.borderColor} rounded-2xl p-5 sm:p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl`}
                 >
-                  {/* Glow effect on hover */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${sensor.color} opacity-0 group-hover:opacity-20 rounded-2xl blur-xl transition-opacity duration-500`}
-                  ></div>
-
-                  {/* Card with fixed height structure */}
-                  <div className="relative bg-gray-900/60 backdrop-blur-xl border border-gray-800/50 rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-gray-900/30 h-full flex flex-col min-h-[280px]">
-                    {/* Top Section: Icon and Status */}
-                    <div className="flex items-start justify-between mb-6">
-                      <div className={`p-3 rounded-xl ${sensor.bgColor}`}>
-                        <sensor.icon
-                          className={`text-2xl ${isDanger ? "text-red-400" : sensor.iconColor}`}
-                        />
-                      </div>
-                      <div
-                        className={`px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r ${sensor.color} text-white`}
-                      >
-                        {sensor.statusText
-                          ? sensor.statusText(sensor.value)
-                          : "LIVE"}
-                      </div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 rounded-xl ${sensor.bgColor}`}>
+                      <sensor.icon
+                        className={`text-2xl sm:text-3xl ${sensor.iconColor}`}
+                      />
                     </div>
-
-                    {/* Middle Section: Name and Value */}
-                    <div className="mb-6">
-                      <h3 className="text-gray-400 text-sm font-medium mb-3">
-                        {sensor.name}
-                      </h3>
-                      <div className="flex items-baseline gap-2">
-                        <span
-                          className={`text-3xl font-bold ${
-                            isDanger ? "text-red-400" : "text-white"
-                          }`}
-                        >
-                          {sensor.value !== null && sensor.value !== undefined
-                            ? sensor.value.toFixed(sensor.unit ? 1 : 0)
-                            : "--"}
-                        </span>
-                        {sensor.unit && (
-                          <span className="text-lg text-gray-500">
-                            {sensor.unit}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Bottom Section: Info Lines - ALWAYS 2 LINES FOR PERFECT ALIGNMENT */}
-                    <div className="mt-auto space-y-3 pt-4 border-t border-gray-800/50">
-                      {/* Line 1: Dynamic based on sensor type */}
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-500">
-                          {sensor.threshold
-                            ? "Threshold"
-                            : sensor.safeRange
-                              ? "Safe Range"
-                              : "Current Status"}
-                        </span>
-                        <span
-                          className={`font-medium ${
-                            isDanger
-                              ? "text-red-400"
-                              : sensor.id === "temperature"
-                                ? "text-green-400"
-                                : "text-gray-300"
-                          }`}
-                        >
-                          {sensor.threshold
-                            ? `${sensor.threshold} ppm`
-                            : sensor.safeRange
-                              ? sensor.safeRange
-                              : sensor.statusText
-                                ? sensor.statusText(sensor.value)
-                                : "ACTIVE"}
-                        </span>
-                      </div>
-
-                      {/* Line 2: Safety Status (Always Present) */}
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-500">Safety Status</span>
-                        <span
-                          className={`font-medium flex items-center gap-1.5 ${
-                            isDanger ? "text-red-400" : "text-green-400"
-                          }`}
-                        >
-                          {isDanger ? (
-                            <>
-                              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                              ALERT
-                            </>
-                          ) : (
-                            <>
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                              NORMAL
-                            </>
-                          )}
-                        </span>
-                      </div>
+                    <div
+                      className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${sensor.color} text-white`}
+                    >
+                      LIVE
                     </div>
                   </div>
+                  <h3 className="text-gray-400 text-xs sm:text-sm font-medium mb-2">
+                    {sensor.name}
+                  </h3>
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-br from-white to-gray-300 bg-clip-text text-transparent">
+                    {sensor.value?.toFixed(2)}
+                    <span className="text-base sm:text-lg text-gray-500 ml-1">
+                      {sensor.unit}
+                    </span>
+                  </p>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
 
         {/* Graph Section */}
         <div className="w-full max-w-7xl">
-          <div className="bg-gray-900/60 backdrop-blur-xl border border-gray-800 rounded-2xl p-6 lg:p-8 shadow-2xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                  Sensor Data Trends
-                </h2>
-                <p className="text-gray-400 text-sm mt-1">
-                  {liveMode ? "Last 20 readings" : "Last 24 hours"}
-                </p>
-              </div>
-              <div className="flex items-center gap-4 mt-4 sm:mt-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
-                  <span className="text-xs text-gray-400">Alcohol Level</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                  <span className="text-xs text-gray-400">Temperature</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span className="text-xs text-gray-400">Fire Status</span>
-                </div>
-              </div>
+          <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-2xl">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              Sensor Data Trends
+            </h2>
+            <div className="flex flex-wrap gap-4 mb-4 text-xs text-gray-400">
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-orange-400"></span>
+                Temperature (×50)
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-blue-400"></span>
+                Humidity (×50)
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-cyan-400"></span>
+                Alcohol (ppm)
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-red-400"></span>
+                Fire (×2000)
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-green-400"></span>
+                Engine (×1800)
+              </span>
             </div>
-
             <div className="w-full overflow-x-auto">
-              <ResponsiveContainer width="100%" height={400}>
+              <ResponsiveContainer
+                width="100%"
+                height={300}
+                className="sm:h-[350px] lg:h-[400px]"
+              >
                 <LineChart
-                  data={sensorData.slice().reverse()} // Show in chronological order
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  data={sensorData}
+                  margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
                 >
+                  <defs>
+                    <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#FB923C" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#FB923C" stopOpacity={0.1} />
+                    </linearGradient>
+                    <linearGradient id="colorHum" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#60A5FA" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#60A5FA" stopOpacity={0.1} />
+                    </linearGradient>
+                    <linearGradient id="colorAlc" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#22D3EE" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#22D3EE" stopOpacity={0.1} />
+                    </linearGradient>
+                    <linearGradient id="colorFire" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#F87171" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#F87171" stopOpacity={0.1} />
+                    </linearGradient>
+                    <linearGradient id="colorEng" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4ADE80" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#4ADE80" stopOpacity={0.1} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="#374151"
+                    stroke="#334155"
                     opacity={0.3}
                   />
                   <XAxis
                     dataKey="time"
-                    stroke="#6B7280"
-                    tick={{ fill: "#9CA3AF", fontSize: 12 }}
-                    minTickGap={30}
+                    tick={{ fill: "#94a3b8", fontSize: 12 }}
+                    stroke="#475569"
                   />
                   <YAxis
-                    stroke="#6B7280"
-                    tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                    tick={{ fill: "#94a3b8", fontSize: 12 }}
+                    stroke="#475569"
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#111827",
-                      border: "1px solid #374151",
+                      backgroundColor: "#1e293b",
+                      border: "1px solid #334155",
                       borderRadius: "12px",
-                      backdropFilter: "blur(10px)",
+                      boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
                     }}
-                    labelStyle={{ color: "#D1D5DB", fontWeight: 600 }}
+                    labelStyle={{ color: "#cbd5e1" }}
                     formatter={(value, name) => {
-                      const units = {
-                        "Alcohol Level (ppm)": " ppm",
-                        "Temperature (°C)": "°C",
-                        "Fire Detected": "",
-                        "Engine Allowed": "",
-                        "AC Power": "",
-                      };
-                      return [value + (units[name] || ""), name];
+                      if (name === "Temperature (°C)") return [(value / 50).toFixed(1), "°C"];
+                      if (name === "Humidity (%)") return [(value / 50).toFixed(1), "%"];
+                      if (name === "Alcohol Level (ppm)") return [value, "ppm"];
+                      if (name === "Fire Status") return [value / 2000, ""];
+                      if (name === "Engine Status") return [value / 1800, ""];
+                      return [value, ""];
                     }}
                   />
-                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="temp_scaled"
+                    stroke="#FB923C"
+                    strokeWidth={3}
+                    dot={{ fill: "#FB923C", r: 4 }}
+                    activeDot={{ r: 6 }}
+                    name="Temperature (°C)"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="humidity_scaled"
+                    stroke="#60A5FA"
+                    strokeWidth={3}
+                    dot={{ fill: "#60A5FA", r: 4 }}
+                    activeDot={{ r: 6 }}
+                    name="Humidity (%)"
+                  />
                   <Line
                     type="monotone"
                     dataKey="alcoholLevel"
+                    stroke="#22D3EE"
+                    strokeWidth={3}
+                    dot={{ fill: "#22D3EE", r: 4 }}
+                    activeDot={{ r: 6 }}
                     name="Alcohol Level (ppm)"
-                    stroke="#06B6D4"
-                    strokeWidth={2}
-                    dot={{ fill: "#06B6D4", r: 3 }}
-                    activeDot={{ r: 6 }}
                   />
                   <Line
                     type="monotone"
-                    dataKey="temperature"
-                    name="Temperature (°C)"
-                    stroke="#8B5CF6"
-                    strokeWidth={2}
-                    dot={{ fill: "#8B5CF6", r: 3 }}
+                    dataKey="fire_scaled"
+                    stroke="#F87171"
+                    strokeWidth={3}
+                    dot={{ fill: "#F87171", r: 4 }}
                     activeDot={{ r: 6 }}
+                    name="Fire Status"
                   />
                   <Line
                     type="monotone"
-                    dataKey="fireDetected"
-                    name="Fire Detected"
-                    stroke="#EF4444"
-                    strokeWidth={2}
-                    dot={{ fill: "#EF4444", r: 3 }}
+                    dataKey="engine_scaled"
+                    stroke="#4ADE80"
+                    strokeWidth={3}
+                    dot={{ fill: "#4ADE80", r: 4 }}
                     activeDot={{ r: 6 }}
-                    strokeDasharray="5 5"
+                    name="Engine Status"
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -641,20 +444,13 @@ const AlcoholDetection = () => {
         </div>
 
         {/* Footer */}
-        <footer className="mt-12 sm:mt-16 text-center space-y-3">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-gray-400">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
-              <span>Connected to ThingSpeak IoT Platform</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span>Channel ID: {channelID}</span>
-            </div>
+        <footer className="mt-12 sm:mt-16 text-center space-y-2">
+          <div className="flex items-center justify-center gap-2 text-gray-400 text-xs sm:text-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Powered by ThingSpeak IoT Platform</span>
           </div>
           <p className="text-gray-600 text-xs">
-            M.A.D.A.K.S.H – Real-time Alcohol Detection & Safety Monitoring
-            System
+            Real-time monitoring &amp; analytics dashboard
           </p>
         </footer>
       </div>
@@ -671,7 +467,7 @@ const AlcoholDetection = () => {
         }
         @keyframes slideDown {
           from {
-            transform: translateY(-20px);
+            transform: translateY(-100%);
             opacity: 0;
           }
           to {
@@ -682,19 +478,11 @@ const AlcoholDetection = () => {
         @keyframes fadeIn {
           from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(20px);
           }
           to {
             opacity: 1;
             transform: translateY(0);
-          }
-        }
-        @keyframes spin-slow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
           }
         }
         .animate-gradient {
@@ -702,14 +490,11 @@ const AlcoholDetection = () => {
           animation: gradient 3s ease infinite;
         }
         .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
+          animation: slideDown 0.5s ease-out;
         }
         .animate-fadeIn {
-          animation: fadeIn 0.4s ease-out forwards;
+          animation: fadeIn 0.6s ease-out forwards;
           opacity: 0;
-        }
-        .animate-spin-slow {
-          animation: spin-slow 2s linear infinite;
         }
       `}</style>
     </div>
