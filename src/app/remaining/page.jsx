@@ -185,7 +185,7 @@ export default function RemainingFeaturesPage() {
       case "Strategic Planning":
         return "bg-emerald-900/30 text-emerald-400 border border-emerald-700";
       default:
-        return "bg-gray-800/30 text-gray-400 border border-gray-600";
+        return "bg-gray-800/30 text-theme-secondary border border-gray-600";
     }
   };
 
@@ -195,7 +195,7 @@ export default function RemainingFeaturesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black">
+    <div className="page-container">
       {/* Header */}
       <div className="bg-gray-800/50 backdrop-blur-sm shadow-xl border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -208,7 +208,7 @@ export default function RemainingFeaturesPage() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                   SafeV
                 </h1>
-                <p className="text-gray-400">
+                <p className="text-theme-secondary">
                   Vehicle Safety & Monitoring System
                 </p>
               </div>
@@ -228,7 +228,7 @@ export default function RemainingFeaturesPage() {
           <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-4">
             Upcoming Features & Development Roadmap
           </h2>
-          <p className="text-xl text-gray-300 max-w-4xl mx-auto">
+          <p className="text-xl text-theme-secondary max-w-4xl mx-auto">
             Comprehensive development plan from software features to hardware
             design and complete product lifecycle management
           </p>
@@ -261,8 +261,8 @@ export default function RemainingFeaturesPage() {
                 <h3 className="text-lg font-bold text-white mb-1">
                   {feature.title}
                 </h3>
-                <p className="text-xs text-gray-400 mb-3">{feature.subtitle}</p>
-                <p className="text-gray-300 leading-relaxed text-sm">
+                <p className="text-xs text-theme-secondary mb-3">{feature.subtitle}</p>
+                <p className="text-theme-secondary leading-relaxed text-sm">
                   {feature.description}
                 </p>
               </div>
@@ -277,7 +277,7 @@ export default function RemainingFeaturesPage() {
                   {feature.capabilities.map((capability, index) => (
                     <li
                       key={index}
-                      className="flex items-start text-xs text-gray-300"
+                      className="flex items-start text-xs text-theme-secondary"
                     >
                       <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5 mr-2 flex-shrink-0"></div>
                       {capability}
@@ -311,30 +311,30 @@ export default function RemainingFeaturesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             <div className="text-center p-4 bg-yellow-900/20 border border-yellow-700/30 rounded-xl backdrop-blur-sm">
               <div className="text-yellow-400 font-bold text-lg">Phase 1</div>
-              <div className="text-gray-300 mt-1">Software Features</div>
-              <div className="text-xs text-gray-400 mt-2">Q3 2025</div>
+              <div className="text-theme-secondary mt-1">Software Features</div>
+              <div className="text-xs text-theme-secondary mt-2">Q3 2025</div>
             </div>
             <div className="text-center p-4 bg-blue-900/20 border border-blue-700/30 rounded-xl backdrop-blur-sm">
               <div className="text-blue-400 font-bold text-lg">Phase 2</div>
-              <div className="text-gray-300 mt-1">Backend & AI</div>
-              <div className="text-xs text-gray-400 mt-2">Q4 2025</div>
+              <div className="text-theme-secondary mt-1">Backend & AI</div>
+              <div className="text-xs text-theme-secondary mt-2">Q4 2025</div>
             </div>
             <div className="text-center p-4 bg-cyan-900/20 border border-cyan-700/30 rounded-xl backdrop-blur-sm">
               <div className="text-cyan-400 font-bold text-lg">Hardware</div>
-              <div className="text-gray-300 mt-1">PCB Design</div>
-              <div className="text-xs text-gray-400 mt-2">Learning Phase</div>
+              <div className="text-theme-secondary mt-1">PCB Design</div>
+              <div className="text-xs text-theme-secondary mt-2">Learning Phase</div>
             </div>
             <div className="text-center p-4 bg-green-900/20 border border-green-700/30 rounded-xl backdrop-blur-sm">
               <div className="text-green-400 font-bold text-lg">Phase 3</div>
-              <div className="text-gray-300 mt-1">Integration</div>
-              <div className="text-xs text-gray-400 mt-2">Q1 2026</div>
+              <div className="text-theme-secondary mt-1">Integration</div>
+              <div className="text-xs text-theme-secondary mt-2">Q1 2026</div>
             </div>
             <div className="text-center p-4 bg-emerald-900/20 border border-emerald-700/30 rounded-xl backdrop-blur-sm">
               <div className="text-emerald-400 font-bold text-lg">
                 Production
               </div>
-              <div className="text-gray-300 mt-1">Market Launch</div>
-              <div className="text-xs text-gray-400 mt-2">
+              <div className="text-theme-secondary mt-1">Market Launch</div>
+              <div className="text-xs text-theme-secondary mt-2">
                 Strategic Planning
               </div>
             </div>
@@ -353,7 +353,7 @@ export default function RemainingFeaturesPage() {
                 <Monitor className="w-4 h-4 mr-2" />
                 Frontend
               </h4>
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-theme-secondary space-y-1">
                 <div>• Next.js</div>
                 <div>• React</div>
                 <div>• Tailwind CSS</div>
@@ -365,7 +365,7 @@ export default function RemainingFeaturesPage() {
                 <Server className="w-4 h-4 mr-2" />
                 Backend
               </h4>
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-theme-secondary space-y-1">
                 <div>• Flask/Django</div>
                 <div>• OpenCV</div>
                 <div>• TensorFlow</div>
@@ -377,7 +377,7 @@ export default function RemainingFeaturesPage() {
                 <CircuitBoard className="w-4 h-4 mr-2" />
                 Hardware
               </h4>
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-theme-secondary space-y-1">
                 <div>• ESP32-CAM</div>
                 <div>• KiCad</div>
                 <div>• JLCPCB/PCBWay</div>
@@ -389,7 +389,7 @@ export default function RemainingFeaturesPage() {
                 <Zap className="w-4 h-4 mr-2" />
                 Production
               </h4>
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-theme-secondary space-y-1">
                 <div>• Manufacturing</div>
                 <div>• Quality Control</div>
                 <div>• Supply Chain</div>
@@ -425,7 +425,7 @@ export default function RemainingFeaturesPage() {
       {/* Footer */}
       <div className="mt-16 bg-gray-900/50 backdrop-blur-sm border-t border-gray-800 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">
+          <p className="text-theme-secondary">
             SafeV © 2025 - Comprehensive vehicle safety solution from concept to
             production
           </p>

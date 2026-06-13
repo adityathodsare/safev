@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/ui/Navbar";
 import { AuthProvider } from "../context/AuthContext";
 import { NavigationProvider } from "../context/NavigationContext";
+import { ThemeProvider } from "../context/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,14 +60,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme')||'dark';var r=document.documentElement;r.classList.remove('dark','light');r.classList.add(t);}catch(e){document.documentElement.classList.add('dark');}})();`,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NavigationProvider>
-          <Navbar />
-          <AuthProvider>{children}</AuthProvider>
-        </NavigationProvider>
+        <ThemeProvider>
+          <NavigationProvider>
+            <Navbar />
+            <AuthProvider>{children}</AuthProvider>
+          </NavigationProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

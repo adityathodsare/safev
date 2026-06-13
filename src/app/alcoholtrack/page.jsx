@@ -17,8 +17,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useTheme } from "@/context/ThemeContext";
 
 const AlcoholDetection = () => {
+  const { theme } = useTheme();
   const [sensorData, setSensorData] = useState([]);
   const [latestData, setLatestData] = useState(null);
   const [liveMode, setLiveMode] = useState(true);
@@ -155,8 +157,15 @@ const AlcoholDetection = () => {
     },
   ];
 
+  const gridStroke = theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(15,23,42,0.05)";
+  const tickColor = theme === "dark" ? "#94a3b8" : "#475569";
+  const axisStroke = theme === "dark" ? "#475569" : "#94a3b8";
+  const tooltipBg = theme === "dark" ? "#090d16" : "#ffffff";
+  const tooltipBorder = theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.08)";
+  const tooltipLabel = theme === "dark" ? "#cbd5e1" : "#334155";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden">
+    <div className="page-container relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -172,7 +181,7 @@ const AlcoholDetection = () => {
             </h1>
             <div className="h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-full mt-2"></div>
           </div>
-          <p className="text-gray-400 text-sm sm:text-base">
+          <p className="text-theme-secondary text-sm sm:text-base">
             Real-time IoT Monitoring &amp; Analytics
           </p>
           {liveMode && (
@@ -190,7 +199,7 @@ const AlcoholDetection = () => {
         {latestData && latestData.alcoholLevel > 2300 && (
           <div className="w-full max-w-6xl mb-6 sm:mb-8 animate-slideDown">
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-600 to-orange-600 p-1">
-              <div className="bg-slate-900/90 backdrop-blur-xl rounded-xl p-4 sm:p-6">
+              <div className="glass-card rounded-xl p-4 sm:p-6">
                 <div className="flex items-center justify-center gap-3 sm:gap-4">
                   <FaExclamationTriangle className="text-2xl sm:text-3xl animate-bounce" />
                   <span className="font-bold text-base sm:text-lg lg:text-xl text-center">
@@ -206,7 +215,7 @@ const AlcoholDetection = () => {
         {latestData && latestData.fireDetected === 1 && (
           <div className="w-full max-w-6xl mb-6 sm:mb-8 animate-slideDown">
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-600 to-yellow-600 p-1">
-              <div className="bg-slate-900/90 backdrop-blur-xl rounded-xl p-4 sm:p-6">
+              <div className="glass-card rounded-xl p-4 sm:p-6">
                 <div className="flex items-center justify-center gap-3 sm:gap-4">
                   <FaBurn className="text-2xl sm:text-3xl animate-bounce" />
                   <span className="font-bold text-base sm:text-lg lg:text-xl text-center">
@@ -228,7 +237,7 @@ const AlcoholDetection = () => {
             className={`flex-1 px-6 py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 ${
               liveMode
                 ? "bg-gradient-to-r from-blue-600 to-cyan-600 shadow-lg shadow-blue-500/50"
-                : "bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:border-slate-600"
+                : "glass-card hover:border-blue-500/30"
             }`}
           >
             <div className="flex items-center justify-center gap-2">
@@ -245,7 +254,7 @@ const AlcoholDetection = () => {
             className={`flex-1 px-6 py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 ${
               !liveMode
                 ? "bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50"
-                : "bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:border-slate-600"
+                : "glass-card hover:border-blue-500/30"
             }`}
           >
             <div className="flex items-center justify-center gap-2">
@@ -272,7 +281,7 @@ const AlcoholDetection = () => {
                   className={`absolute inset-0 bg-gradient-to-br ${sensor.color} opacity-0 group-hover:opacity-20 rounded-2xl blur-xl transition-opacity duration-500`}
                 ></div>
                 <div
-                  className={`relative bg-slate-900/50 backdrop-blur-xl border ${sensor.borderColor} rounded-2xl p-5 sm:p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl`}
+                  className={`relative glass-card p-5 sm:p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl`}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className={`p-3 rounded-xl ${sensor.bgColor}`}>
@@ -286,12 +295,12 @@ const AlcoholDetection = () => {
                       LIVE
                     </div>
                   </div>
-                  <h3 className="text-gray-400 text-xs sm:text-sm font-medium mb-2">
+                  <h3 className="text-theme-secondary text-xs sm:text-sm font-medium mb-2">
                     {sensor.name}
                   </h3>
-                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-br from-white to-gray-300 bg-clip-text text-transparent">
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-theme">
                     {sensor.value?.toFixed(2)}
-                    <span className="text-base sm:text-lg text-gray-500 ml-1">
+                    <span className="text-base sm:text-lg text-theme-secondary ml-1">
                       {sensor.unit}
                     </span>
                   </p>
@@ -303,11 +312,11 @@ const AlcoholDetection = () => {
 
         {/* Graph Section */}
         <div className="w-full max-w-7xl">
-          <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-2xl">
+          <div className="glass-card p-4 sm:p-6 lg:p-8 shadow-xl">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               Sensor Data Trends
             </h2>
-            <div className="flex flex-wrap gap-4 mb-4 text-xs text-gray-400">
+            <div className="flex flex-wrap gap-4 mb-4 text-xs text-theme-secondary">
               <span className="flex items-center gap-1">
                 <span className="w-3 h-3 rounded-full bg-orange-400"></span>
                 Temperature (×50)
@@ -361,28 +370,17 @@ const AlcoholDetection = () => {
                       <stop offset="95%" stopColor="#4ADE80" stopOpacity={0.1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#334155"
-                    opacity={0.3}
-                  />
-                  <XAxis
-                    dataKey="time"
-                    tick={{ fill: "#94a3b8", fontSize: 12 }}
-                    stroke="#475569"
-                  />
-                  <YAxis
-                    tick={{ fill: "#94a3b8", fontSize: 12 }}
-                    stroke="#475569"
-                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} opacity={0.3} />
+                  <XAxis dataKey="time" tick={{ fill: tickColor, fontSize: 12 }} stroke={axisStroke} />
+                  <YAxis tick={{ fill: tickColor, fontSize: 12 }} stroke={axisStroke} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#1e293b",
-                      border: "1px solid #334155",
+                      backgroundColor: tooltipBg,
+                      border: `1px solid ${tooltipBorder}`,
                       borderRadius: "12px",
-                      boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+                      boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
                     }}
-                    labelStyle={{ color: "#cbd5e1" }}
+                    labelStyle={{ color: tooltipLabel }}
                     formatter={(value, name) => {
                       if (name === "Temperature (°C)") return [(value / 50).toFixed(1), "°C"];
                       if (name === "Humidity (%)") return [(value / 50).toFixed(1), "%"];
@@ -445,58 +443,15 @@ const AlcoholDetection = () => {
 
         {/* Footer */}
         <footer className="mt-12 sm:mt-16 text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 text-gray-400 text-xs sm:text-sm">
+          <div className="flex items-center justify-center gap-2 text-theme-secondary text-xs sm:text-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>Powered by ThingSpeak IoT Platform</span>
           </div>
-          <p className="text-gray-600 text-xs">
+          <p className="text-theme-secondary text-xs">
             Real-time monitoring &amp; analytics dashboard
           </p>
         </footer>
       </div>
-
-      <style jsx>{`
-        @keyframes gradient {
-          0%,
-          100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-        @keyframes slideDown {
-          from {
-            transform: translateY(-100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-gradient {
-          background-size: 200% auto;
-          animation: gradient 3s ease infinite;
-        }
-        .animate-slideDown {
-          animation: slideDown 0.5s ease-out;
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.6s ease-out forwards;
-          opacity: 0;
-        }
-      `}</style>
     </div>
   );
 };

@@ -7,12 +7,12 @@ import TechStack from "@/components/TechStack";
 import CreatorSection from "@/components/Creatorsection";
 export default function Page() {
   return (
-    <main className="min-h-screen bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden">
+    <main className="page-container antialiased relative overflow-hidden">
       {/* HERO */}
       <BackGround />
 
       {/* SEO TEXT SECTION (VERY IMPORTANT) - Enhanced */}
-      <section className="max-w-5xl mx-auto px-4 py-20 text-gray-300 relative z-10">
+      <section className="max-w-5xl mx-auto px-4 py-20 text-theme-secondary relative z-10">
         {/* Background gradient effect */}
       </section>
       <WhySafev />

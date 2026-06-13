@@ -13,14 +13,14 @@ export function BackgroundBeamsWithCollisionDemo() {
       <div className="relative flex flex-col items-center justify-center w-full min-h-screen px-4 md:px-8 lg:px-16">
         {/* Contact Heading */}
         <h2
-          className="relative z-20 text-center font-bold text-black dark:text-white font-sans tracking-tight 
+          className="relative z-20 text-center font-bold text-theme font-sans tracking-tight 
           text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-tight md:leading-[1.2]"
         >
           Contact Us
         </h2>
 
         {/* Instruction */}
-        <p className="text-lg md:text-xl text-center text-gray-700 dark:text-gray-300 mt-2">
+        <p className="text-lg md:text-xl text-center text-theme-secondary mt-2">
           Reach out to us for any inquiries or support.
         </p>
 
@@ -60,7 +60,7 @@ export function BackgroundBeamsWithCollisionDemo() {
           </a>
 
           {/* Phone Number */}
-          <div className="flex items-center space-x-3 text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
+          <div className="flex items-center space-x-3 text-xl md:text-2xl font-semibold text-theme">
             <FaPhoneAlt size={24} />
             <span>+91 82638 78470</span>
           </div>

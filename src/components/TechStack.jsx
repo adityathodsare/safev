@@ -799,224 +799,186 @@ export default function TechStack() {
   const total = SECTIONS.reduce((a, s) => a + s.techs.length, 0);
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        .ts *,.ts *::before,.ts *::after{box-sizing:border-box;margin:0;padding:0;}
-        .ts{
-          font-family:'Inter',sans-serif;
-          background:#000;color:#fff;
-          position:relative;overflow:hidden;
-          padding:96px 20px 108px;
-        }
+    <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24 bg-theme text-theme transition-colors duration-300">
+      {/* Background glows */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute w-[800px] h-[600px] bg-purple-600/10 dark:bg-purple-600/30 rounded-full blur-3xl left-1/2 top-[35%] -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute w-[500px] h-[500px] bg-blue-600/5 dark:bg-blue-600/15 rounded-full blur-3xl -right-28 bottom-0" />
+      </div>
 
-        /* glows */
-        .ts-glow1{position:absolute;pointer-events:none;width:800px;height:600px;background:radial-gradient(ellipse at center,rgba(100,30,200,0.32) 0%,rgba(50,10,120,0.18) 45%,transparent 70%);left:50%;top:35%;transform:translate(-50%,-50%);border-radius:50%;}
-        .ts-glow2{position:absolute;pointer-events:none;width:500px;height:500px;background:radial-gradient(ellipse at center,rgba(20,60,160,0.14) 0%,transparent 70%);right:-120px;bottom:0;}
+      {/* Floating accent dashes */}
+      {mounted &&
+        DASH_LINES.map((d, i) => (
+          <div
+            key={i}
+            className="absolute pointer-events-none rounded-sm opacity-40 dark:opacity-80 animate-bounce"
+            style={{
+              left: `${d.x}%`,
+              top: `${d.y}%`,
+              width: d.w,
+              height: 4,
+              background: d.color,
+              transform: `rotate(${d.rot}deg)`,
+              animationDuration: `${3.5 + (i % 3) * 0.9}s`,
+              animationDelay: `${i * 0.28}s`,
+            }}
+          />
+        ))}
 
-        /* dashes */
-        .ts-dash{position:absolute;pointer-events:none;border-radius:3px;opacity:.8;animation:tsDash var(--dur,4s) ease-in-out infinite var(--del,0s);}
-        @keyframes tsDash{0%,100%{transform:translateY(0) rotate(var(--rot));}50%{transform:translateY(-9px) rotate(var(--rot));}}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 glass-card mb-5">
+            <span className="text-xs sm:text-sm font-semibold text-theme-secondary tracking-wide">
+              🛠️ Technology Stack
+            </span>
+          </div>
 
-        .ts-wrap{max-width:1120px;margin:0 auto;position:relative;z-index:2;}
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[56px] font-black tracking-tight leading-tight mb-3.5">
+            <span className="bg-gradient-to-br from-text-primary-light via-cyan-300 to-sky-400 dark:from-white dark:via-cyan-200 dark:to-sky-400 bg-clip-text text-transparent">
+              Modern Tech Architecture
+            </span>
+          </h2>
 
-        /* badge */
-        .ts-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:7px 18px;margin-bottom:20px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:.5px;}
+          <p className="text-sm sm:text-base text-theme-secondary max-w-lg mx-auto leading-relaxed">
+            Every tool powering SafeV — from ESP32 firmware to AI detection to
+            cloud dashboard.
+          </p>
 
-        /* heading */
-        .ts-h{font-size:clamp(30px,5.5vw,56px);font-weight:900;letter-spacing:-2px;line-height:1.07;margin-bottom:14px;}
-        .ts-hg{background:linear-gradient(135deg,#fff 0%,#94e8ff 45%,#38bdf8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-        .ts-sub{font-size:15px;color:rgba(255,255,255,0.38);max-width:500px;margin:0 auto;line-height:1.75;}
+          <div className="flex flex-wrap gap-2.5 justify-center mt-7 mb-14 sm:mb-16">
+            {[
+              { dot: "#22d3ee", text: `${SECTIONS.length} Categories` },
+              { dot: "#22c55e", text: `${total} Technologies` },
+              { dot: "#f97316", text: "Full-stack IoT" },
+              { dot: "#a855f7", text: "Edge AI Ready" },
+            ].map((p) => (
+              <div
+                key={p.text}
+                className="glass-card flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-theme-secondary"
+              >
+                <div
+                  className="w-1.5 h-1.5 rounded-full shrink-0"
+                  style={{
+                    background: p.dot,
+                    boxShadow: `0 0 6px ${p.dot}`,
+                  }}
+                />
+                {p.text}
+              </div>
+            ))}
+          </div>
+        </div>
 
-        /* stat pills */
-        .ts-pills{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:28px 0 64px;}
-        .ts-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.6);}
-        .ts-pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+        {/* All Sections */}
+        {SECTIONS.map((sec) => (
+          <div className="mb-8 sm:mb-9" key={sec.id}>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{
+                  background: sec.bg,
+                  border: `1px solid ${sec.border}`,
+                  color: sec.color,
+                }}
+              >
+                {sec.icon}
+              </div>
+              <div
+                className="text-xs sm:text-sm font-extrabold tracking-widest uppercase"
+                style={{ color: sec.color }}
+              >
+                {sec.label}
+              </div>
+              <div
+                className="text-[11px] font-bold px-2.5 py-0.5 rounded-full tracking-wide"
+                style={{
+                  background: sec.bg,
+                  border: `1px solid ${sec.border}`,
+                  color: sec.color,
+                }}
+              >
+                {sec.techs.length} tools
+              </div>
+              <div className="flex-1 h-px bg-slate-200 dark:bg-white/6" />
+            </div>
 
-        /* section */
-        .ts-section{margin-bottom:36px;}
-        .ts-section-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-        .ts-section-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .ts-section-label{font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;}
-        .ts-section-count{font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;letter-spacing:.5px;}
-        .ts-section-line{flex:1;height:1px;background:rgba(255,255,255,0.06);}
-
-        /* tech grid */
-        .ts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;}
-        @media(max-width:600px){.ts-grid{grid-template-columns:repeat(2,1fr);}}
-
-        /* tech card */
-        .ts-card{
-          border:1px solid rgba(255,255,255,0.07);border-radius:16px;
-          padding:18px 14px 14px;
-          display:flex;flex-direction:column;align-items:flex-start;gap:10px;
-          transition:transform .22s ease,border-color .22s ease,background .22s ease;
-          cursor:default;position:relative;overflow:hidden;
-        }
-        .ts-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ac);opacity:0;transition:opacity .25s;border-radius:16px 16px 0 0;}
-        .ts-card:hover{transform:translateY(-5px) scale(1.01);border-color:var(--ac-dim);}
-        .ts-card:hover::before{opacity:1;}
-        .ts-logo-wrap{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
-        .ts-card-name{font-size:13px;font-weight:800;color:#fff;letter-spacing:-.2px;line-height:1.2;}
-        .ts-card-desc{font-size:11px;color:rgba(255,255,255,0.35);font-weight:500;}
-
-        /* arch */
-        .ts-arch{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:24px;padding:40px 32px;margin-top:56px;}
-        .ts-arch-h{font-size:18px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;text-align:center;}
-        .ts-arch-sub{font-size:13px;color:rgba(255,255,255,0.32);text-align:center;margin-bottom:36px;}
-        .ts-arch-flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;}
-        .ts-arch-step{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 14px;}
-        .ts-arch-circle{width:64px;height:64px;border-radius:16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;transition:all .3s;position:relative;}
-        .ts-arch-step:hover .ts-arch-circle{border-color:var(--ac);background:var(--ac-bg);transform:scale(1.08);}
-        .ts-arch-lbl{font-size:12px;font-weight:800;color:rgba(255,255,255,0.75);text-align:center;}
-        .ts-arch-desc{font-size:10px;color:rgba(255,255,255,0.3);text-align:center;max-width:80px;line-height:1.45;}
-        .ts-arch-conn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;}
-        .ts-arch-arrow{color:rgba(255,255,255,0.18);font-size:16px;animation:archArr 1.6s ease-in-out infinite;}
-        .ts-arch-conn-lbl{font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:.5px;text-transform:uppercase;}
-        @keyframes archArr{0%,100%{opacity:.18;transform:translateX(0);}50%{opacity:.5;transform:translateX(5px);}}
-        @media(max-width:700px){.ts-arch-conn{display:none;}.ts-arch-flow{gap:8px;}.ts-arch-circle{width:52px;height:52px;border-radius:12px;}}
-      `}</style>
-
-      <div className="ts">
-        <div className="ts-glow1" />
-        <div className="ts-glow2" />
-        {mounted &&
-          DASH_LINES.map((d, i) => (
-            <div
-              key={i}
-              className="ts-dash"
-              style={{
-                left: `${d.x}%`,
-                top: `${d.y}%`,
-                width: d.w,
-                height: 4,
-                background: d.color,
-                "--rot": `${d.rot}deg`,
-                "--dur": `${3.5 + (i % 3) * 0.9}s`,
-                "--del": `${i * 0.28}s`,
-                transform: `rotate(${d.rot}deg)`,
-              }}
-            />
-          ))}
-
-        <div className="ts-wrap">
-          {/* Header */}
-          <div style={{ textAlign: "center", marginBottom: 8 }}>
-            <div className="ts-badge">🛠️&nbsp; Technology Stack</div>
-            <h2 className="ts-h">
-              <span className="ts-hg">Modern Tech Architecture</span>
-            </h2>
-            <p className="ts-sub">
-              Every tool powering SafeV — from ESP32 firmware to AI detection to
-              cloud dashboard.
-            </p>
-
-            <div className="ts-pills">
-              {[
-                { dot: "#22d3ee", text: `${SECTIONS.length} Categories` },
-                { dot: "#22c55e", text: `${total} Technologies` },
-                { dot: "#f97316", text: "Full-stack IoT" },
-                { dot: "#a855f7", text: "Edge AI Ready" },
-              ].map((p) => (
-                <div className="ts-pill" key={p.text}>
+            <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-2.5">
+              {sec.techs.map((tech) => (
+                <div
+                  key={tech.name}
+                  className="group glass-card relative overflow-hidden p-4 sm:p-[18px_14px_14px] flex flex-col items-start gap-2.5 cursor-default transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  style={{
+                    borderColor: `${sec.color}22`,
+                  }}
+                >
                   <div
-                    className="ts-pill-dot"
-                    style={{ background: p.dot, boxShadow: `0 0 6px ${p.dot}` }}
+                    className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-2xl"
+                    style={{ backgroundColor: sec.color }}
                   />
-                  {p.text}
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden shrink-0 bg-black/5 dark:bg-black/40"
+                    style={{ backgroundColor: `${tech.bg}88` }}
+                  >
+                    <tech.Logo />
+                  </div>
+                  <div>
+                    <div className="text-[13px] font-extrabold tracking-tight text-theme leading-tight">
+                      {tech.name}
+                    </div>
+                    <div className="text-[11px] font-medium text-theme-secondary mt-0.5">
+                      {tech.desc}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
+        ))}
 
-          {/* All Sections */}
-          {SECTIONS.map((sec) => (
-            <div className="ts-section" key={sec.id}>
-              <div className="ts-section-head">
-                <div
-                  className="ts-section-icon"
-                  style={{
-                    background: sec.bg,
-                    border: `1px solid ${sec.border}`,
-                    color: sec.color,
-                  }}
-                >
-                  {sec.icon}
-                </div>
-                <div className="ts-section-label" style={{ color: sec.color }}>
-                  {sec.label}
-                </div>
-                <div
-                  className="ts-section-count"
-                  style={{
-                    background: sec.bg,
-                    border: `1px solid ${sec.border}`,
-                    color: sec.color,
-                  }}
-                >
-                  {sec.techs.length} tools
-                </div>
-                <div className="ts-section-line" />
-              </div>
+        {/* Architecture Flow */}
+        <div className="glass-card rounded-3xl p-8 sm:p-10 mt-12 sm:mt-14">
+          <div className="text-lg sm:text-xl font-extrabold tracking-tight text-center text-theme mb-1.5">
+            System Architecture Flow
+          </div>
+          <div className="text-xs sm:text-sm text-theme-secondary text-center mb-8 sm:mb-9">
+            How data travels from sensor to screen
+          </div>
 
-              <div className="ts-grid">
-                {sec.techs.map((tech) => (
+          <div className="flex items-center justify-center flex-wrap gap-2 max-[700px]:gap-2">
+            {ARCH.map((step, i) => (
+              <Fragment key={step.label}>
+                <div className="group flex flex-col items-center gap-2 px-3 py-2.5">
                   <div
-                    key={tech.name}
-                    className="ts-card"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl glass-card flex items-center justify-center transition-all duration-300 group-hover:scale-105"
                     style={{
-                      background: tech.bg,
-                      "--ac": sec.color,
-                      "--ac-dim": sec.color + "44",
+                      borderColor: `${step.color}44`,
+                      backgroundColor: `${step.color}08`,
                     }}
                   >
-                    <div
-                      className="ts-logo-wrap"
-                      style={{ background: tech.bg }}
-                    >
-                      <tech.Logo />
+                    <step.Logo />
+                  </div>
+                  <div className="text-xs font-extrabold text-theme text-center">
+                    {step.label}
+                  </div>
+                  <div className="text-[10px] text-theme-secondary text-center max-w-[80px] leading-snug">
+                    {step.sub}
+                  </div>
+                </div>
+                {i < ARCH.length - 1 && (
+                  <div className="hidden sm:flex flex-col items-center gap-0.5 px-1">
+                    <div className="text-base text-slate-400 dark:text-white/20 animate-arch-arrow">
+                      →
                     </div>
-                    <div>
-                      <div className="ts-card-name">{tech.name}</div>
-                      <div className="ts-card-desc">{tech.desc}</div>
+                    <div className="text-[9px] text-slate-400 dark:text-white/20 uppercase tracking-wider">
+                      {step.connLabel}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
-
-          {/* Architecture Flow */}
-          <div className="ts-arch">
-            <div className="ts-arch-h">System Architecture Flow</div>
-            <div className="ts-arch-sub">
-              How data travels from sensor to screen
-            </div>
-            <div className="ts-arch-flow">
-              {ARCH.map((step, i) => (
-                <Fragment key={step.label}>
-                  <div
-                    className="ts-arch-step"
-                    style={{ "--ac": step.color, "--ac-bg": step.color + "14" }}
-                  >
-                    <div className="ts-arch-circle">
-                      <step.Logo />
-                    </div>
-                    <div className="ts-arch-lbl">{step.label}</div>
-                    <div className="ts-arch-desc">{step.sub}</div>
-                  </div>
-                  {i < ARCH.length - 1 && (
-                    <div className="ts-arch-conn">
-                      <div className="ts-arch-arrow">→</div>
-                      <div className="ts-arch-conn-lbl">{step.connLabel}</div>
-                    </div>
-                  )}
-                </Fragment>
-              ))}
-            </div>
+                )}
+              </Fragment>
+            ))}
           </div>
         </div>
       </div>
-    </>
+    </section>
   );
 }

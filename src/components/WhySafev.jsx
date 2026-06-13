@@ -19,6 +19,7 @@ const ACCENT_LINES = [
 export default function WhySafev() {
   const [activeTab, setActiveTab] = useState(null);
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -139,254 +140,258 @@ export default function WhySafev() {
   const activeCase = useCases.find((c) => c.id === activeTab);
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-        .sv *{box-sizing:border-box;margin:0;padding:0;}
-        .sv{font-family:'Inter',sans-serif;background:#000;color:#fff;position:relative;overflow:hidden;padding:72px 20px 100px;}
-        .sv-glow{position:absolute;pointer-events:none;width:700px;height:500px;background:radial-gradient(ellipse at center,rgba(120,40,200,0.38) 0%,rgba(60,20,120,0.22) 40%,transparent 70%);left:50%;top:32%;transform:translate(-50%,-50%);border-radius:50%;}
-        .sv-glow2{position:absolute;pointer-events:none;width:400px;height:400px;background:radial-gradient(ellipse at center,rgba(30,80,200,0.14) 0%,transparent 70%);left:-100px;top:20%;}
-        .sv-dash{position:absolute;pointer-events:none;border-radius:3px;opacity:.9;animation:dashFloat var(--dur,4s) ease-in-out infinite var(--del,0s);}
-        @keyframes dashFloat{0%,100%{transform:translateY(0) rotate(var(--rot))}50%{transform:translateY(-9px) rotate(var(--rot))}}
-        .sv-c{max-width:1100px;margin:0 auto;position:relative;z-index:2;}
-        /* Badge */
-        .sv-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);border-radius:100px;padding:7px 18px;margin-bottom:26px;}
-        .sv-badge span{font-size:12px;font-weight:600;color:#e2e8f0;letter-spacing:.3px;}
-        /* Title */
-        .sv-h1{font-size:clamp(32px,6vw,62px);font-weight:900;line-height:1.07;letter-spacing:-2px;margin-bottom:16px;}
-        .sv-h1 em{color:rgba(255,255,255,0.3);font-style:normal;}
-        .sv-dotrow{font-size:clamp(13px,2vw,15px);color:rgba(255,255,255,0.45);letter-spacing:.3px;margin-bottom:44px;}
-        .sv-dotrow s{text-decoration:none;margin:0 8px;opacity:.35;}
-        /* Stats */
-        .sv-stats{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:56px;}
-        .sv-stat{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:18px 26px;text-align:center;min-width:110px;transition:background .25s,border-color .25s;}
-        .sv-stat:hover{background:rgba(255,255,255,0.07);}
-        .sv-stat-v{font-size:27px;font-weight:900;letter-spacing:-1px;}
-        .sv-stat-l{font-size:11px;color:rgba(255,255,255,0.4);font-weight:500;margin-top:3px;}
-        /* Section label */
-        .sv-stag{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:8px;}
-        .sv-sh{font-size:clamp(20px,3.5vw,34px);font-weight:800;letter-spacing:-.5px;margin-bottom:26px;}
-        /* Grid */
-        .sv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:36px;}
-        @media(max-width:860px){.sv-grid{grid-template-columns:repeat(2,1fr);}}
-        @media(max-width:520px){.sv-grid{grid-template-columns:1fr;}}
-        /* Card */
-        .sv-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:22px 20px;cursor:pointer;transition:all .25s ease;position:relative;overflow:hidden;}
-        .sv-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--ac);opacity:0;transition:opacity .3s;}
-        .sv-card:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);transform:translateY(-3px);}
-        .sv-card:hover::after,.sv-card.on::after{opacity:1;}
-        .sv-card.on{background:rgba(255,255,255,0.05);border-color:var(--ac);box-shadow:0 0 0 1px var(--ac),0 16px 40px rgba(0,0,0,.55);}
-        .sv-card-em{font-size:36px;margin-bottom:11px;display:block;}
-        .sv-card-tt{font-size:16px;font-weight:800;margin-bottom:3px;letter-spacing:-.3px;}
-        .sv-card-who{font-size:12px;color:rgba(255,255,255,0.38);font-weight:500;margin-bottom:9px;}
-        .sv-card-tl{font-size:13px;color:rgba(255,255,255,0.58);line-height:1.55;font-style:italic;margin-bottom:12px;}
-        .sv-wl{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);color:#fbbf24;margin-bottom:10px;}
-        .sv-cta-lnk{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border-radius:100px;border:1px solid var(--ac);color:var(--ac);transition:all .2s;}
-        .sv-card:hover .sv-cta-lnk,.sv-card.on .sv-cta-lnk{background:var(--ac);color:#000;}
-        /* Panel */
-        .sv-panel{border-radius:22px;border:1px solid rgba(255,255,255,0.1);overflow:hidden;margin-bottom:56px;background:rgba(8,8,18,0.85);animation:panIn .35s cubic-bezier(.16,1,.3,1) forwards;}
-        @keyframes panIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-        .sv-pbar{height:3px;}
-        .sv-pbody{display:grid;grid-template-columns:1fr 1fr;}
-        @media(max-width:680px){.sv-pbody{grid-template-columns:1fr;}}
-        .sv-pl{padding:36px;border-right:1px solid rgba(255,255,255,0.07);}
-        @media(max-width:680px){.sv-pl{border-right:none;border-bottom:1px solid rgba(255,255,255,0.07);padding:24px 20px;}}
-        .sv-pveh{font-size:62px;display:block;margin-bottom:18px;animation:vbob 2.5s ease-in-out infinite;}
-        @keyframes vbob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-9px) rotate(2deg)}}
-        .sv-ptitle{font-size:clamp(24px,4vw,38px);font-weight:900;letter-spacing:-1px;margin-bottom:5px;}
-        .sv-pfor{font-size:11px;color:rgba(255,255,255,0.32);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-top:14px;margin-bottom:4px;}
-        .sv-pwho{font-size:14px;color:rgba(255,255,255,0.65);margin-bottom:22px;}
-        .sv-why{border-left:3px solid var(--ac);padding:14px 18px;background:rgba(255,255,255,0.03);border-radius:0 12px 12px 0;}
-        .sv-why-l{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--ac);margin-bottom:7px;}
-        .sv-why-t{font-size:14px;line-height:1.7;color:rgba(255,255,255,0.62);}
-        .sv-pr{padding:36px;}
-        @media(max-width:680px){.sv-pr{padding:24px 20px;}}
-        .sv-fl{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:14px;}
-        .sv-fi{display:flex;align-items:center;gap:11px;padding:11px 14px;margin-bottom:7px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;transition:background .2s,border-color .2s;}
-        .sv-fi:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.11);}
-        .sv-fi-ic{font-size:17px;width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .sv-fi-t{font-size:13.5px;color:rgba(255,255,255,0.72);}
-        .sv-pfoot{border-top:1px solid rgba(255,255,255,0.07);padding:15px 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:rgba(255,255,255,0.015);}
-        @media(max-width:680px){.sv-pfoot{padding:14px 20px;}}
-        .sv-live{display:flex;align-items:center;gap:10px;}
-        .sv-ld{width:8px;height:8px;border-radius:50%;background:#4ade80;position:relative;}
-        .sv-ld::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid #4ade80;animation:lring 1.5s ease-in-out infinite;}
-        @keyframes lring{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(2.2)}}
-        .sv-ll{font-size:12px;font-weight:700;color:#4ade80;letter-spacing:1px;}
-        .sv-ls{font-size:11px;color:rgba(255,255,255,0.28);}
-        .sv-bars{display:flex;align-items:flex-end;gap:3px;}
-        .sv-bar{width:4px;border-radius:2px;animation:bbeat .9s ease-in-out infinite;}
-        @keyframes bbeat{0%,100%{opacity:.3;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
-        /* CTA */
-        .sv-cta{text-align:center;padding-top:12px;}
-        .sv-cta h2{font-size:clamp(26px,4.5vw,50px);font-weight:900;letter-spacing:-1.5px;margin-bottom:12px;}
-        .sv-cta p{font-size:15px;color:rgba(255,255,255,0.38);margin-bottom:30px;}
-        .sv-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-        .sv-btn{display:inline-flex;align-items:center;gap:9px;font-size:15px;font-weight:700;padding:15px 32px;border-radius:10px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;letter-spacing:.2px;}
-        .sv-btn:hover{transform:translateY(-2px);}
-        .sv-btn-a{background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;box-shadow:0 0 28px rgba(124,58,237,.3);}
-        .sv-btn-a:hover{box-shadow:0 8px 40px rgba(124,58,237,.5);}
-        .sv-btn-b{background:linear-gradient(135deg,#0891b2,#0ea5e9);color:#fff;box-shadow:0 0 28px rgba(14,165,233,.25);}
-        .sv-btn-b:hover{box-shadow:0 8px 40px rgba(14,165,233,.45);}
-        .sv-btn-c{background:linear-gradient(135deg,#f97316,#dc2626);color:#fff;box-shadow:0 0 28px rgba(249,115,22,.25);}
-        .sv-btn-c:hover{box-shadow:0 8px 40px rgba(249,115,22,.45);}
-        .sv-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);margin:56px 0;}
-        .sv-close-btn{background:transparent;color:rgba(255,255,255,.55);font-size:13px;font-weight:600;padding:9px 20px;border-radius:8px;border:1px solid rgba(255,255,255,.15);cursor:pointer;transition:all .2s;}
-        .sv-close-btn:hover{background:rgba(255,255,255,.06);color:#fff;}
-      `}</style>
+    <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
+      {/* Background glows */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute w-[700px] h-[500px] bg-purple-600/20 dark:bg-purple-600/30 rounded-full blur-3xl left-1/2 top-[32%] -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute w-[400px] h-[400px] bg-blue-600/10 dark:bg-blue-600/15 rounded-full blur-3xl -left-24 top-[20%]" />
+      </div>
 
-      <div className="sv">
-        <div className="sv-glow" />
-        <div className="sv-glow2" />
+      {/* Floating accent dashes */}
+      {mounted &&
+        ACCENT_LINES.map((d, i) => (
+          <div
+            key={i}
+            className="absolute pointer-events-none rounded-sm opacity-40 dark:opacity-90 animate-bounce"
+            style={{
+              left: `${d.x}%`,
+              top: `${d.y}%`,
+              width: d.w,
+              height: 4,
+              background: d.color,
+              transform: `rotate(${d.rot}deg)`,
+              animationDuration: `${3.5 + (i % 3) * 0.9}s`,
+              animationDelay: `${i * 0.3}s`,
+            }}
+          />
+        ))}
 
-        {/* Floating colored dashes */}
-        {mounted &&
-          ACCENT_LINES.map((d, i) => (
-            <div
-              key={i}
-              className="sv-dash"
-              style={{
-                left: `${d.x}%`,
-                top: `${d.y}%`,
-                width: d.w,
-                height: 4,
-                background: d.color,
-                "--rot": `${d.rot}deg`,
-                "--dur": `${3.5 + (i % 3) * 0.9}s`,
-                "--del": `${i * 0.3}s`,
-                transform: `rotate(${d.rot}deg)`,
-              }}
-            />
-          ))}
-
-        <div className="sv-c">
-          {/* Hero */}
-          <div style={{ textAlign: "center", marginBottom: 48 }}>
-            <div className="sv-badge">
-              <span>🛡️ IoT-Powered Vehicle Safety</span>
-            </div>
-            <h1 className="sv-h1">
-              Who Can Use SafeV?
-              <br />
-              <em>Find Your Use Case.</em>
-            </h1>
-            <p className="sv-dotrow">
-              Real-time accident detection <s>•</s>
-              GPS tracking <s>•</s>
-              Alcohol monitoring <s>•</s>
-              Emergency alerts
-            </p>
-            <div className="sv-stats">
-              {stats.map((s) => (
-                <div className="sv-stat" key={s.label}>
-                  <div className="sv-stat-v" style={{ color: s.color }}>
-                    {s.value}
-                  </div>
-                  <div className="sv-stat-l">{s.label}</div>
-                </div>
-              ))}
-            </div>
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Hero */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 glass-card mb-6">
+            <span className="text-sm font-semibold text-theme">
+              🛡️ IoT-Powered Vehicle Safety
+            </span>
           </div>
 
-          <div style={{ textAlign: "center" }}>
-            <div className="sv-stag">Select your vehicle type</div>
-            <h2 className="sv-sh">Built for every kind of journey</h2>
-          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight text-theme leading-tight mb-4">
+            Who Can Use SafeV?
+            <br />
+            <span className="text-theme-secondary">
+              Find Your Use Case.
+            </span>
+          </h2>
 
-          {/* Cards Grid */}
-          <div className="sv-grid">
-            {useCases.map((uc) => (
+          <p className="text-sm sm:text-base text-theme-secondary mb-10">
+            Real-time accident detection <span className="mx-2 opacity-40">•</span>
+            GPS tracking <span className="mx-2 opacity-40">•</span>
+            Alcohol monitoring <span className="mx-2 opacity-40">•</span>
+            Emergency alerts
+          </p>
+
+          {/* Stats row */}
+          <div className="flex flex-wrap gap-3 justify-center">
+            {stats.map((s) => (
               <div
-                key={uc.id}
-                className={`sv-card ${activeTab === uc.id ? "on" : ""}`}
-                style={{ "--ac": uc.accentColor }}
-                onClick={() => setActiveTab(activeTab === uc.id ? null : uc.id)}
+                key={s.label}
+                className="glass-card px-6 py-4 text-center min-w-[110px] hover:shadow-lg transition-all duration-300"
               >
-                <span className="sv-card-em">{uc.emoji}</span>
-                {uc.customizable && <div className="sv-wl">✨ White-label</div>}
-                <div className="sv-card-tt">{uc.title}</div>
-                <div className="sv-card-who">👤 {uc.who}</div>
-                <div className="sv-card-tl">"{uc.tagline}"</div>
-                <div className="sv-cta-lnk">
-                  {activeTab === uc.id ? "▲ Close" : "Learn more →"}
+                <div
+                  className="text-2xl sm:text-3xl font-black tracking-tight"
+                  style={{ color: s.color }}
+                >
+                  {s.value}
+                </div>
+                <div className="text-xs text-theme-secondary font-medium mt-1">
+                  {s.label}
                 </div>
               </div>
             ))}
           </div>
+        </div>
 
-          {/* Detail Panel */}
-          {activeCase && (
+        {/* Section label */}
+        <div className="text-center mb-8">
+          <p className="text-xs font-bold tracking-[0.2em] uppercase text-theme-secondary mb-2">
+            Select your vehicle type
+          </p>
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-theme">
+            Built for every kind of journey
+          </h3>
+        </div>
+
+        {/* Use case cards grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-8">
+          {useCases.map((uc) => {
+            const isActive = activeTab === uc.id;
+            return (
+              <button
+                key={uc.id}
+                type="button"
+                onClick={() => setActiveTab(isActive ? null : uc.id)}
+                className={`group glass-card p-5 sm:p-6 text-left cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl relative overflow-hidden ${
+                  isActive ? "shadow-xl scale-[1.01]" : ""
+                }`}
+                style={{
+                  borderColor: isActive ? uc.accentColor : undefined,
+                  boxShadow: isActive
+                    ? `0 0 0 1px ${uc.accentColor}, 0 16px 40px rgba(0,0,0,0.25)`
+                    : undefined,
+                }}
+              >
+                <div
+                  className={`absolute bottom-0 left-0 right-0 h-0.5 transition-opacity duration-300 ${
+                    isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}
+                  style={{ backgroundColor: uc.accentColor }}
+                />
+
+                <span className="text-4xl block mb-3">{uc.emoji}</span>
+
+                {uc.customizable && (
+                  <span className="inline-block text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 mb-2">
+                    ✨ White-label
+                  </span>
+                )}
+
+                <div className="text-base font-extrabold text-theme mb-1">
+                  {uc.title}
+                </div>
+                <div className="text-xs text-theme-secondary font-medium mb-2">
+                  👤 {uc.who}
+                </div>
+                <div className="text-sm text-theme-secondary italic leading-relaxed mb-3">
+                  &ldquo;{uc.tagline}&rdquo;
+                </div>
+
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full border transition-all duration-200 group-hover:text-black"
+                  style={{
+                    borderColor: uc.accentColor,
+                    color: isActive ? "#000" : uc.accentColor,
+                    backgroundColor: isActive ? uc.accentColor : "transparent",
+                  }}
+                >
+                  {isActive ? "▲ Close" : "Learn more →"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Accordion detail panel */}
+        {activeCase && (
+          <div
+            key={activeCase.id}
+            className="glass-card overflow-hidden mb-12 animate-fade-in-up shadow-2xl"
+          >
             <div
-              className="sv-panel"
-              key={activeCase.id}
-              style={{ "--ac": activeCase.accentColor }}
-            >
-              <div
-                className="sv-pbar"
-                style={{ background: activeCase.btnGradient }}
-              />
-              <div className="sv-pbody">
-                <div className="sv-pl">
-                  <span className="sv-pveh">{activeCase.emoji}</span>
-                  <div
-                    className="sv-ptitle"
+              className="h-1"
+              style={{ background: activeCase.btnGradient }}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              {/* Left panel */}
+              <div className="p-6 sm:p-8 md:border-r border-slate-200 dark:border-white/10">
+                <span className="text-6xl block mb-4 animate-bounce [animation-duration:2.5s]">
+                  {activeCase.emoji}
+                </span>
+                <h4
+                  className="text-2xl sm:text-3xl font-black tracking-tight mb-1"
+                  style={{ color: activeCase.accentColor }}
+                >
+                  {activeCase.title}
+                </h4>
+                <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-theme-secondary mt-3 mb-1">
+                  Built for
+                </p>
+                <p className="text-sm text-theme mb-5">
+                  {activeCase.who}
+                </p>
+                <div
+                  className="border-l-[3px] pl-4 py-3 rounded-r-xl bg-slate-50/80 dark:bg-white/[0.03]"
+                  style={{ borderColor: activeCase.accentColor }}
+                >
+                  <p
+                    className="text-[10px] font-extrabold tracking-[0.2em] uppercase mb-2"
                     style={{ color: activeCase.accentColor }}
                   >
-                    {activeCase.title}
-                  </div>
-                  <div className="sv-pfor">Built for</div>
-                  <div className="sv-pwho">{activeCase.who}</div>
-                  <div className="sv-why">
-                    <div className="sv-why-l">Why SafeV?</div>
-                    <div className="sv-why-t">{activeCase.why}</div>
-                  </div>
-                </div>
-                <div className="sv-pr">
-                  <div className="sv-fl">Key Features</div>
-                  {activeCase.features.map((f, i) => (
-                    <div className="sv-fi" key={i}>
-                      <div className="sv-fi-ic">{f.icon}</div>
-                      <div className="sv-fi-t">{f.text}</div>
-                    </div>
-                  ))}
+                    Why SafeV?
+                  </p>
+                  <p className="text-sm leading-relaxed text-theme-secondary">
+                    {activeCase.why}
+                  </p>
                 </div>
               </div>
-              <div className="sv-pfoot">
-                <div className="sv-live">
-                  <div className="sv-ld" />
-                  <div>
-                    <div className="sv-ll">LIVE MONITORING</div>
-                    <div className="sv-ls">
-                      Active 24/7 for {activeCase.title}
-                    </div>
-                  </div>
-                </div>
-                <div className="sv-bars">
-                  {[10, 16, 12, 20, 14, 18, 10, 22].map((h, i) => (
+
+              {/* Right panel — features */}
+              <div className="p-6 sm:p-8">
+                <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-theme-secondary mb-4">
+                  Key Features
+                </p>
+                <div className="space-y-2">
+                  {activeCase.features.map((f, i) => (
                     <div
                       key={i}
-                      className="sv-bar"
-                      style={{
-                        height: h,
-                        background: activeCase.accentColor,
-                        animationDelay: `${i * 0.1}s`,
-                      }}
-                    />
+                      className="flex items-center gap-3 p-3 glass-card rounded-xl hover:shadow-md transition-all duration-200"
+                    >
+                      <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-lg shrink-0">
+                        {f.icon}
+                      </div>
+                      <span className="text-sm text-theme">
+                        {f.text}
+                      </span>
+                    </div>
                   ))}
                 </div>
-                <button
-                  className="sv-close-btn"
-                  onClick={() => setActiveTab(null)}
-                >
-                  Close ✕
-                </button>
               </div>
             </div>
-          )}
 
-          <div className="sv-divider" />
-        </div>
+            {/* Footer bar */}
+            <div className="border-t border-slate-200 dark:border-white/10 px-6 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4 bg-slate-50/50 dark:bg-white/[0.02]">
+              <div className="flex items-center gap-3">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                </span>
+                <div>
+                  <p className="text-xs font-bold text-emerald-500 tracking-wider">
+                    LIVE MONITORING
+                  </p>
+                  <p className="text-[11px] text-theme-secondary">
+                    Active 24/7 for {activeCase.title}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-end gap-1">
+                {[10, 16, 12, 20, 14, 18, 10, 22].map((h, i) => (
+                  <div
+                    key={i}
+                    className="w-1 rounded-sm animate-pulse"
+                    style={{
+                      height: h,
+                      backgroundColor: activeCase.accentColor,
+                      animationDelay: `${i * 0.1}s`,
+                    }}
+                  />
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab(null)}
+                className="text-sm font-semibold px-5 py-2 rounded-lg border border-slate-200 dark:border-white/15 text-theme-secondary hover:bg-slate-100 dark:hover:bg-white/5 hover:text-text-primary-light dark:hover:text-text-primary-dark transition-all duration-200"
+              >
+                Close ✕
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-white/10 to-transparent" />
       </div>
-    </>
+    </section>
   );
 }

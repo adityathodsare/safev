@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useNavigation } from "@/context/NavigationContext";
+import { API_BASE_URL } from "@/lib/config";
 
 export default function ConfirmPurchasePage() {
   const router = useRouter();
@@ -21,43 +22,41 @@ export default function ConfirmPurchasePage() {
     setIsProcessing(true);
     const token = localStorage.getItem("jwtToken");
 
-    const res = await fetch("http://localhost:8080/sendmail", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      const res = await fetch(`${API_BASE_URL}/sendmail`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.text();
+      setMessage(data || "Order confirmed successfully!");
+    } catch {
+      setMessage("Could not reach the server. Your order may still be processed — please check your email.");
+    }
 
-    const data = await res.text();
-    setMessage(data);
     setIsProcessing(false);
-
     setTimeout(() => {
-      navigateWithLoader(router, "/success"); // Redirect to success page after confirmation
+      navigateWithLoader(router, "/success");
     }, 2000);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black px-4">
-      <div className="w-full max-w-md bg-zinc-900 border border-violet-500/30 shadow-2xl rounded-2xl p-8">
-        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-violet-500 to-blue-500 text-center mb-6 animate-pulse">
+    <div className="page-container flex flex-col items-center justify-center px-4 py-12">
+      <div className="glass-card w-full max-w-md p-8 shadow-xl">
+        <h2 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-center mb-6">
           Confirm Your Purchase
         </h2>
-        <p className="text-sm text-zinc-300 text-center mb-6">
-          Please review the details before proceeding. Once you confirm, you
-          will receive an email confirmation.
+        <p className="text-sm text-theme-secondary text-center mb-6">
+          Please review the details before proceeding. Once you confirm, you will receive an email confirmation.
         </p>
 
         {message ? (
-          <p className="text-center text-green-400 font-semibold mb-4">
-            {message}
-          </p>
+          <p className="text-center text-emerald-500 font-semibold mb-4">{message}</p>
         ) : (
           <button
             onClick={handleConfirm}
             disabled={isProcessing}
-            className={`w-full px-6 py-3 rounded-lg text-white font-bold transition duration-300 shadow-lg ${
-              isProcessing
-                ? "bg-gray-500 cursor-not-allowed"
-                : "bg-gradient-to-r from-pink-500 via-violet-500 to-blue-500 hover:opacity-90"
+            className={`w-full px-6 py-3 rounded-xl text-white font-bold transition duration-300 ${
+              isProcessing ? "bg-slate-500 cursor-not-allowed" : "btn-primary"
             }`}
           >
             {isProcessing ? "Processing..." : "Confirm Purchase"}

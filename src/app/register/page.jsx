@@ -62,14 +62,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="page-container">
       {/* Header */}
       <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="max-w-3xl mx-auto text-center space-y-2 sm:space-y-3">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 text-transparent bg-clip-text">
             Registration Form
           </h1>
-          <p className="text-sm sm:text-base text-gray-400">
+          <p className="text-sm sm:text-base text-theme-secondary">
             Please fill in all required fields to continue
           </p>
         </div>
@@ -78,20 +78,20 @@ export default function RegisterPage() {
       {/* Form Container */}
       <div className="px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12">
         <div className="max-w-3xl mx-auto">
-          <div className="bg-zinc-900/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-zinc-800 overflow-hidden">
+          <div className="glass-card overflow-hidden shadow-2xl">
             {/* Form Content */}
             <div className="p-5 sm:p-8 lg:p-10">
               <div className="space-y-6 sm:space-y-8">
                 {/* Personal Information Section */}
                 <div className="space-y-4 sm:space-y-5">
-                  <h2 className="text-base sm:text-lg font-semibold text-gray-200 flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-semibold text-theme flex items-center gap-2">
                     <div className="w-1 h-5 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
                     Personal Information
                   </h2>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
-                      <label className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-1">
+                      <label className="text-xs sm:text-sm font-medium text-theme-secondary flex items-center gap-1">
                         First Name <span className="text-pink-400">*</span>
                       </label>
                       <input
@@ -100,13 +100,13 @@ export default function RegisterPage() {
                         required
                         value={formData.firstName}
                         onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                        className="input-field"
                         placeholder="Enter first name"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs sm:text-sm font-medium text-gray-300">
+                      <label className="text-xs sm:text-sm font-medium text-theme-secondary">
                         Middle Name
                       </label>
                       <input
@@ -114,13 +114,13 @@ export default function RegisterPage() {
                         type="text"
                         value={formData.middleName}
                         onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                        className="input-field"
                         placeholder="Enter middle name"
                       />
                     </div>
 
                     <div className="space-y-2 sm:col-span-2">
-                      <label className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-1">
+                      <label className="text-xs sm:text-sm font-medium text-theme-secondary flex items-center gap-1">
                         Last Name <span className="text-pink-400">*</span>
                       </label>
                       <input
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                         required
                         value={formData.lastName}
                         onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                        className="input-field"
                         placeholder="Enter last name"
                       />
                     </div>
@@ -138,14 +138,14 @@ export default function RegisterPage() {
 
                 {/* Contact Information Section */}
                 <div className="space-y-4 sm:space-y-5">
-                  <h2 className="text-base sm:text-lg font-semibold text-gray-200 flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-semibold text-theme flex items-center gap-2">
                     <div className="w-1 h-5 bg-gradient-to-b from-purple-500 to-blue-500 rounded-full"></div>
                     Contact Details
                   </h2>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2 sm:col-span-2">
-                      <label className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-1">
+                      <label className="text-xs sm:text-sm font-medium text-theme-secondary flex items-center gap-1">
                         Email Address <span className="text-pink-400">*</span>
                       </label>
                       <input
@@ -154,13 +154,13 @@ export default function RegisterPage() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                        className="input-field"
                         placeholder="your.email@example.com"
                       />
                     </div>
 
                     <div className="space-y-2 sm:col-span-2">
-                      <label className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-1">
+                      <label className="text-xs sm:text-sm font-medium text-theme-secondary flex items-center gap-1">
                         Phone Number <span className="text-pink-400">*</span>
                       </label>
                       <input
@@ -169,7 +169,7 @@ export default function RegisterPage() {
                         required
                         value={formData.phone}
                         onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                        className="input-field"
                         placeholder="+1 (555) 000-0000"
                       />
                     </div>
@@ -178,14 +178,14 @@ export default function RegisterPage() {
 
                 {/* Address Section */}
                 <div className="space-y-4 sm:space-y-5">
-                  <h2 className="text-base sm:text-lg font-semibold text-gray-200 flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-semibold text-theme flex items-center gap-2">
                     <div className="w-1 h-5 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full"></div>
                     Address Information
                   </h2>
 
                   <div className="space-y-3 sm:space-y-4">
                     <div className="space-y-2">
-                      <label className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-1">
+                      <label className="text-xs sm:text-sm font-medium text-theme-secondary flex items-center gap-1">
                         Address <span className="text-pink-400">*</span>
                       </label>
                       <input
@@ -194,13 +194,13 @@ export default function RegisterPage() {
                         required
                         value={formData.address}
                         onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                        className="input-field"
                         placeholder="House/Flat No, Building Name"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-1">
+                      <label className="text-xs sm:text-sm font-medium text-theme-secondary flex items-center gap-1">
                         Road / Street <span className="text-pink-400">*</span>
                       </label>
                       <input
@@ -209,13 +209,13 @@ export default function RegisterPage() {
                         required
                         value={formData.road}
                         onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                        className="input-field"
                         placeholder="Street name, Area"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs sm:text-sm font-medium text-gray-300">
+                      <label className="text-xs sm:text-sm font-medium text-theme-secondary">
                         Landmark
                       </label>
                       <input
@@ -223,14 +223,14 @@ export default function RegisterPage() {
                         type="text"
                         value={formData.landmark}
                         onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                        className="input-field"
                         placeholder="Nearby landmark (optional)"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                       <div className="space-y-2">
-                        <label className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-1">
+                        <label className="text-xs sm:text-sm font-medium text-theme-secondary flex items-center gap-1">
                           City <span className="text-pink-400">*</span>
                         </label>
                         <input
@@ -239,13 +239,13 @@ export default function RegisterPage() {
                           required
                           value={formData.city}
                           onChange={handleChange}
-                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                          className="input-field"
                           placeholder="City"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-1">
+                        <label className="text-xs sm:text-sm font-medium text-theme-secondary flex items-center gap-1">
                           State <span className="text-pink-400">*</span>
                         </label>
                         <input
@@ -254,13 +254,13 @@ export default function RegisterPage() {
                           required
                           value={formData.state}
                           onChange={handleChange}
-                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                          className="input-field"
                           placeholder="State"
                         />
                       </div>
 
                       <div className="space-y-2 col-span-2 sm:col-span-1">
-                        <label className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-1">
+                        <label className="text-xs sm:text-sm font-medium text-theme-secondary flex items-center gap-1">
                           Pincode <span className="text-pink-400">*</span>
                         </label>
                         <input
@@ -269,7 +269,7 @@ export default function RegisterPage() {
                           required
                           value={formData.pincode}
                           onChange={handleChange}
-                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                          className="input-field"
                           placeholder="Pincode"
                         />
                       </div>
@@ -279,13 +279,13 @@ export default function RegisterPage() {
 
                 {/* Additional Information Section */}
                 <div className="space-y-4 sm:space-y-5">
-                  <h2 className="text-base sm:text-lg font-semibold text-gray-200 flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-semibold text-theme flex items-center gap-2">
                     <div className="w-1 h-5 bg-gradient-to-b from-cyan-500 to-teal-500 rounded-full"></div>
                     Additional Information
                   </h2>
 
                   <div className="space-y-2">
-                    <label className="text-xs sm:text-sm font-medium text-gray-300">
+                    <label className="text-xs sm:text-sm font-medium text-theme-secondary">
                       Query / Message
                     </label>
                     <textarea
@@ -293,7 +293,7 @@ export default function RegisterPage() {
                       value={formData.query}
                       onChange={handleChange}
                       rows={4}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/40 border border-zinc-700 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all resize-none"
+                      className="input-field resize-none"
                       placeholder="Any additional information or queries (optional)"
                     />
                   </div>

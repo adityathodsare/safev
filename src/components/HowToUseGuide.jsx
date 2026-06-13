@@ -63,85 +63,32 @@ const steps = [
 
 function UcodVisual() {
   return (
-    <div style={{ width: "100%", textAlign: "center" }}>
-      <div
-        style={{
-          border: "1.5px dashed rgba(251,191,36,0.4)",
-          borderRadius: 16,
-          padding: 24,
-          background: "rgba(251,191,36,0.04)",
-          marginBottom: 16,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 11,
-            fontFamily: "monospace",
-            color: "#64748b",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            marginBottom: 10,
-          }}
-        >
+    <div className="w-full text-center">
+      <div className="border-[1.5px] border-dashed border-amber-400/40 dark:border-amber-400/40 rounded-2xl p-6 bg-amber-400/5 dark:bg-amber-400/5 mb-4">
+        <div className="text-[11px] font-mono text-theme-secondary tracking-[0.15em] uppercase mb-2.5">
           Device UCOD
         </div>
-        <div
-          style={{
-            display: "inline-block",
-            background: "rgba(251,191,36,0.15)",
-            border: "1px solid rgba(251,191,36,0.3)",
-            borderRadius: 6,
-            padding: "3px 10px",
-            fontSize: 10,
-            color: "#fbbf24",
-            fontFamily: "monospace",
-            marginBottom: 14,
-          }}
-        >
+        <div className="inline-block bg-amber-400/15 border border-amber-400/30 rounded-md px-2.5 py-0.5 text-[10px] text-amber-500 dark:text-amber-400 font-mono mb-3.5">
           UNIQUE IDENTIFIER
         </div>
-        <div
-          style={{
-            fontSize: 36,
-            fontWeight: 800,
-            color: "#fbbf24",
-            fontFamily: "monospace",
-            letterSpacing: "0.18em",
-            animation: "safev-ucod-glow 3s ease-in-out infinite",
-          }}
-        >
+        <div className="text-4xl font-extrabold text-amber-500 dark:text-amber-400 font-mono tracking-[0.18em] animate-ucod-glow">
           SAFEV1
         </div>
-        <div style={{ fontSize: 11, color: "#475569", marginTop: 12 }}>
+        <div className="text-[11px] text-theme-secondary mt-3">
           📍 Printed on the back of your device &amp; box
         </div>
       </div>
-      <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+      <div className="flex gap-2 justify-center">
         {["TRK002", "MTR003", "SAFEV1"].map((c) => (
           <span
             key={c}
-            style={{
-              fontFamily: "monospace",
-              fontSize: 11,
-              color: "#64748b",
-              background: "rgba(255,255,255,0.04)",
-              borderRadius: 4,
-              padding: "3px 8px",
-              border: "1px solid rgba(255,255,255,0.08)",
-            }}
+            className="font-mono text-[11px] text-theme-secondary bg-slate-100 dark:bg-white/5 rounded px-2 py-0.5 border border-slate-200 dark:border-white/10"
           >
             {c}
           </span>
         ))}
       </div>
-      <div
-        style={{
-          fontSize: 10,
-          color: "#334155",
-          marginTop: 8,
-          fontFamily: "monospace",
-        }}
-      >
+      <div className="text-[10px] text-slate-400 dark:text-slate-600 mt-2 font-mono">
         Example UCODs — yours will be unique
       </div>
     </div>
@@ -150,123 +97,37 @@ function UcodVisual() {
 
 function ConnectVisual() {
   return (
-    <div style={{ width: "100%", textAlign: "center" }}>
-      <div
-        style={{
-          width: 130,
-          height: 82,
-          background: "linear-gradient(135deg, #1a2235, #0f1420)",
-          borderRadius: 12,
-          border: "1.5px solid rgba(255,255,255,0.12)",
-          margin: "0 auto 8px",
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-        }}
-      >
-        <div
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: "50%",
-            background: "#0D9488",
-            boxShadow: "0 0 12px rgba(13,148,136,0.9)",
-            position: "absolute",
-            top: 8,
-            right: 10,
-            animation: "safev-blink 1.5s ease-in-out infinite",
-          }}
-        />
-        <div
-          style={{
-            fontSize: 10,
-            fontFamily: "monospace",
-            color: "#475569",
-            letterSpacing: "0.08em",
-          }}
-        >
+    <div className="w-full text-center">
+      <div className="relative w-[130px] h-[82px] bg-gradient-to-br from-slate-700 to-slate-900 dark:from-[#1a2235] dark:to-[#0f1420] rounded-xl border-[1.5px] border-slate-300/30 dark:border-white/12 mx-auto mb-2 flex items-center justify-center shadow-xl">
+        <div className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-teal-600 shadow-[0_0_12px_rgba(13,148,136,0.9)] animate-pulse" />
+        <div className="text-[10px] font-mono text-theme-secondary tracking-wider">
           SAFEV KIT
         </div>
-        <div
-          style={{
-            fontFamily: "monospace",
-            fontSize: 9,
-            background: "rgba(251,191,36,0.15)",
-            border: "1px solid rgba(251,191,36,0.3)",
-            color: "#fbbf24",
-            padding: "3px 8px",
-            borderRadius: 4,
-            position: "absolute",
-            bottom: -13,
-            left: "50%",
-            transform: "translateX(-50%)",
-            whiteSpace: "nowrap",
-          }}
-        >
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 font-mono text-[9px] bg-amber-400/15 border border-amber-400/30 text-amber-500 dark:text-amber-400 px-2 py-0.5 rounded whitespace-nowrap">
           SAFEV1
         </div>
       </div>
-      <div
-        style={{
-          display: "flex",
-          gap: 16,
-          justifyContent: "center",
-          marginTop: 24,
-        }}
-      >
+      <div className="flex gap-4 justify-center mt-6">
         {[
           { label: "USB-C", delay: "0s" },
           { label: "Micro-USB", delay: "0.4s" },
         ].map(({ label, delay }) => (
           <div
             key={label}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 6,
-            }}
+            className="flex flex-col items-center gap-1.5"
           >
             <div
-              style={{
-                width: 3,
-                height: 22,
-                background: "linear-gradient(to bottom, #0D9488, transparent)",
-                borderRadius: 2,
-                animation: `safev-cable 1.2s ease-in-out ${delay} infinite`,
-              }}
+              className="w-0.5 h-[22px] bg-gradient-to-b from-teal-600 to-transparent rounded-sm animate-cable-pulse"
+              style={{ animationDelay: delay }}
             />
-            <div
-              style={{
-                width: 30,
-                height: 15,
-                borderRadius: 3,
-                border: "1.5px solid rgba(255,255,255,0.15)",
-                background: "rgba(255,255,255,0.04)",
-              }}
-            />
-            <div
-              style={{
-                fontSize: 10,
-                fontFamily: "monospace",
-                color: "#64748b",
-              }}
-            >
+            <div className="w-[30px] h-[15px] rounded border-[1.5px] border-slate-300/30 dark:border-white/15 bg-slate-100 dark:bg-white/5" />
+            <div className="text-[10px] font-mono text-theme-secondary">
               {label}
             </div>
           </div>
         ))}
       </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 8,
-          marginTop: 18,
-        }}
-      >
+      <div className="grid grid-cols-2 gap-2 mt-4">
         {[
           {
             label: "POWER LED",
@@ -283,25 +144,19 @@ function ConnectVisual() {
         ].map(({ label, sub, color, bg }) => (
           <div
             key={label}
+            className="rounded-lg p-2 text-center"
             style={{
               background: bg,
               border: `1px solid ${color}33`,
-              borderRadius: 8,
-              padding: 8,
-              textAlign: "center",
             }}
           >
             <div
-              style={{
-                fontSize: 9,
-                fontFamily: "monospace",
-                color,
-                letterSpacing: "0.08em",
-              }}
+              className="text-[9px] font-mono tracking-wider"
+              style={{ color }}
             >
               {label}
             </div>
-            <div style={{ fontSize: 9, color: "#475569", marginTop: 2 }}>
+            <div className="text-[9px] text-theme-secondary mt-0.5">
               {sub}
             </div>
           </div>
@@ -313,110 +168,42 @@ function ConnectVisual() {
 
 function CamerasVisual() {
   return (
-    <div style={{ width: "100%" }}>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 12,
-          marginBottom: 12,
-        }}
-      >
+    <div className="w-full">
+      <div className="grid grid-cols-2 gap-3 mb-3">
         {[
           { title: "External", sub: "Traffic Monitor", delay: "0s" },
           { title: "Internal", sub: "Driver Monitor", delay: "0.6s" },
         ].map(({ title, sub, delay }) => (
           <div
             key={title}
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 12,
-              padding: 16,
-              textAlign: "center",
-            }}
+            className="glass-card rounded-xl p-4 text-center"
           >
-            <div
-              style={{
-                width: 42,
-                height: 32,
-                borderRadius: 6,
-                background: "#0f1420",
-                border: "1px solid rgba(255,255,255,0.1)",
-                margin: "0 auto 8px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <div
-                style={{
-                  width: 11,
-                  height: 11,
-                  borderRadius: "50%",
-                  background: "#0a0f1a",
-                  border: "1.5px solid #22c55e",
-                  boxShadow: "0 0 8px rgba(34,197,94,0.6)",
-                }}
-              />
+            <div className="w-[42px] h-8 rounded-md bg-slate-800 dark:bg-[#0f1420] border border-slate-200 dark:border-white/10 mx-auto mb-2 flex items-center justify-center">
+              <div className="w-[11px] h-[11px] rounded-full bg-slate-900 dark:bg-[#0a0f1a] border-[1.5px] border-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
             </div>
-            <div style={{ fontSize: 12, color: "#e2e8f0", fontWeight: 700 }}>
+            <div className="text-xs font-bold text-text-primary-light dark:text-slate-200">
               {title}
             </div>
-            <div style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>
+            <div className="text-[10px] text-theme-secondary mt-0.5">
               {sub}
             </div>
-            <div
-              style={{
-                fontSize: 10,
-                fontFamily: "monospace",
-                color: "#22c55e",
-                marginTop: 6,
-              }}
-            >
+            <div className="text-[10px] font-mono text-green-500 mt-1.5">
               ● LIVE
             </div>
-            <div
-              style={{
-                height: 2,
-                background: "rgba(34,197,94,0.12)",
-                borderRadius: 2,
-                marginTop: 8,
-                overflow: "hidden",
-              }}
-            >
+            <div className="h-0.5 bg-green-500/10 rounded mt-2 overflow-hidden">
               <div
-                style={{
-                  height: "100%",
-                  background: "#22c55e",
-                  borderRadius: 2,
-                  animation: `safev-scan 2s ease-in-out ${delay} infinite`,
-                }}
+                className="h-full bg-green-500 rounded animate-scan-bar"
+                style={{ animationDelay: delay }}
               />
             </div>
           </div>
         ))}
       </div>
-      <div
-        style={{
-          background: "rgba(34,197,94,0.05)",
-          border: "1px solid rgba(34,197,94,0.15)",
-          borderRadius: 10,
-          padding: "10px 14px",
-          textAlign: "center",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 11,
-            color: "#22c55e",
-            fontFamily: "monospace",
-            letterSpacing: "0.06em",
-          }}
-        >
+      <div className="bg-green-500/5 border border-green-500/15 rounded-[10px] px-3.5 py-2.5 text-center">
+        <div className="text-[11px] text-green-500 font-mono tracking-wider">
           AI MONITORING ACTIVE
         </div>
-        <div style={{ fontSize: 10, color: "#475569", marginTop: 3 }}>
+        <div className="text-[10px] text-theme-secondary mt-0.5">
           Real-time HD streaming enabled
         </div>
       </div>
@@ -426,21 +213,9 @@ function CamerasVisual() {
 
 function TrackVisual() {
   return (
-    <div style={{ width: "100%" }}>
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            background: "rgba(124,58,237,0.15)",
-            border: "1px solid rgba(124,58,237,0.3)",
-            marginBottom: 8,
-          }}
-        >
+    <div className="w-full">
+      <div className="text-center mb-4">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-violet-600/15 border border-violet-600/30 mb-2">
           <svg
             width="20"
             height="20"
@@ -454,90 +229,29 @@ function TrackVisual() {
             <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
           </svg>
         </div>
-        <div
-          style={{
-            fontSize: 11,
-            color: "#64748b",
-            fontFamily: "monospace",
-            letterSpacing: "0.08em",
-          }}
-        >
+        <div className="text-[11px] text-theme-secondary font-mono tracking-wider">
           TRACK DEVICE
         </div>
       </div>
-      <div
-        style={{
-          background: "rgba(0,0,0,0.4)",
-          border: "1px solid rgba(124,58,237,0.2)",
-          borderRadius: 14,
-          padding: 20,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 10,
-            fontFamily: "monospace",
-            color: "#64748b",
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-            marginBottom: 8,
-          }}
-        >
+      <div className="bg-slate-100/80 dark:bg-black/40 border border-violet-600/20 rounded-2xl p-5">
+        <div className="text-[10px] font-mono text-theme-secondary uppercase tracking-widest mb-2">
           Device UCOD
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="flex gap-2">
           <input
             readOnly
             value="SAFEV1"
-            style={{
-              flex: 1,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 10,
-              padding: "10px 14px",
-              color: "#a78bfa",
-              fontFamily: "monospace",
-              fontSize: 16,
-              fontWeight: 700,
-              letterSpacing: "0.15em",
-              outline: "none",
-            }}
+            className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[10px] px-3.5 py-2.5 text-violet-500 dark:text-violet-400 font-mono text-base font-bold tracking-[0.15em] outline-none"
           />
           <button
-            style={{
-              background: "linear-gradient(135deg, #7C3AED, #5B21B6)",
-              border: "none",
-              borderRadius: 10,
-              padding: "10px 18px",
-              color: "#fff",
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
+            type="button"
+            className="bg-gradient-to-br from-violet-600 to-violet-800 border-none rounded-[10px] px-4 py-2.5 text-white text-xs font-bold cursor-pointer whitespace-nowrap"
           >
             Track →
           </button>
         </div>
-        <div
-          style={{
-            fontSize: 10,
-            color: "#334155",
-            marginTop: 8,
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <div
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              background: "#7C3AED",
-              animation: "safev-ping 1.2s ease-in-out infinite",
-            }}
-          />
+        <div className="text-[10px] text-slate-400 dark:text-slate-600 mt-2 flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-ping" />
           UCOD found on back of device
         </div>
       </div>
@@ -555,94 +269,38 @@ function DashboardVisual() {
     { icon: "⚙️", val: "ON", key: "Engine", status: "ALLOWED" },
   ];
   return (
-    <div style={{ width: "100%" }}>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
-          gap: 8,
-          marginBottom: 10,
-        }}
-      >
+    <div className="w-full">
+      <div className="grid grid-cols-3 gap-2 mb-2.5">
         {metrics.map(({ icon, val, key, status }) => (
           <div
             key={key}
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 10,
-              padding: "10px 6px",
-              textAlign: "center",
-            }}
+            className="glass-card rounded-[10px] px-1.5 py-2.5 text-center"
           >
-            <div style={{ fontSize: 15, marginBottom: 3 }}>{icon}</div>
-            <div
-              style={{
-                fontFamily: "monospace",
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#f1f5f9",
-              }}
-            >
+            <div className="text-[15px] mb-0.5">{icon}</div>
+            <div className="font-mono text-xs font-bold text-text-primary-light dark:text-slate-100">
               {val}
             </div>
-            <div style={{ fontSize: 9, color: "#475569", marginTop: 1 }}>
+            <div className="text-[9px] text-theme-secondary mt-px">
               {key}
             </div>
-            <div style={{ fontSize: 9, color: "#22c55e", marginTop: 2 }}>
-              {status}
-            </div>
+            <div className="text-[9px] text-green-500 mt-0.5">{status}</div>
           </div>
         ))}
       </div>
-      <div
-        style={{
-          background: "rgba(255,255,255,0.02)",
-          border: "1px solid rgba(255,255,255,0.06)",
-          borderRadius: 10,
-          padding: "10px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        <div
-          style={{
-            width: 10,
-            height: 10,
-            borderRadius: "50%",
-            background: "#0D9488",
-            flexShrink: 0,
-            animation: "safev-map-ping 1.5s ease-out infinite",
-          }}
-        />
-        <div style={{ flex: 1 }}>
-          <div
-            style={{
-              fontSize: 10,
-              fontFamily: "monospace",
-              color: "#475569",
-              textTransform: "uppercase",
-              letterSpacing: "0.07em",
-            }}
-          >
+      <div className="glass-card rounded-[10px] px-3 py-2.5 flex items-center gap-2.5">
+        <div className="relative w-2.5 h-2.5 shrink-0">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-teal-600 animate-ping opacity-75" />
+          <span className="relative inline-flex w-2.5 h-2.5 rounded-full bg-teal-600" />
+        </div>
+        <div className="flex-1">
+          <div className="text-[10px] font-mono text-theme-secondary uppercase tracking-wider">
             GPS Location
           </div>
-          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             Real-time tracking active
           </div>
         </div>
-        <div
-          style={{
-            fontSize: 9,
-            fontFamily: "monospace",
-            color: "#22c55e",
-            background: "rgba(34,197,94,0.1)",
-            border: "1px solid rgba(34,197,94,0.2)",
-            borderRadius: 4,
-            padding: "2px 6px",
-          }}
-        >
+        <div className="text-[9px] font-mono text-green-500 bg-green-500/10 border border-green-500/20 rounded px-1.5 py-0.5">
           LIVE
         </div>
       </div>
@@ -675,583 +333,272 @@ export default function HowToUseGuide() {
   const pct = Math.round(((current + 1) / steps.length) * 100);
 
   return (
-    <>
-      <style>{`
-        @keyframes safev-ucod-glow {
-          0%,100%{text-shadow:0 0 16px rgba(251,191,36,0.3)}
-          50%{text-shadow:0 0 36px rgba(251,191,36,0.6)}
-        }
-        @keyframes safev-blink {
-          0%,100%{opacity:1} 50%{opacity:0.15}
-        }
-        @keyframes safev-cable {
-          0%,100%{opacity:0.3;transform:scaleY(0.8)} 50%{opacity:1;transform:scaleY(1)}
-        }
-        @keyframes safev-scan {
-          0%{width:0;opacity:0.8} 60%{width:100%;opacity:1} 100%{width:100%;opacity:0}
-        }
-        @keyframes safev-ping {
-          0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.6);opacity:0.3}
-        }
-        @keyframes safev-map-ping {
-          0%{box-shadow:0 0 0 0 rgba(13,148,136,0.6)}
-          70%{box-shadow:0 0 0 10px rgba(13,148,136,0)}
-          100%{box-shadow:0 0 0 0 rgba(13,148,136,0)}
-        }
-        @keyframes safev-fade-up {
-          from{opacity:0;transform:translateY(14px)}
-          to{opacity:1;transform:translateY(0)}
-        }
-        .safev-card-anim { animation: safev-fade-up 0.35s ease both; }
-        .safev-prev-btn:hover:not(:disabled) { background: rgba(255,255,255,0.07) !important; color: #cbd5e1 !important; }
-        .safev-next-btn:hover:not(:disabled) { filter: brightness(1.15); }
-        .safev-cta-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
-        .safev-step-btn { transition: transform 0.15s; }
-        .safev-step-btn:hover { transform: translateY(-2px); }
+    <section className="relative z-10 max-w-[1100px] mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-24">
+      {/* Header */}
+      <div className="text-center mb-12 sm:mb-14">
+        <div className="inline-flex items-center gap-2 glass-card px-4 py-2 mb-5">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#7C3AED"
+            strokeWidth="2"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span className="text-xs sm:text-sm font-semibold text-text-primary-light dark:text-text-secondary-dark">
+            IoT-Powered Vehicle Safety
+          </span>
+        </div>
 
-        @media (max-width: 640px) {
-          .safev-card-grid { grid-template-columns: 1fr !important; }
-          .safev-step-label { display: none !important; }
-          .safev-quick-steps { display: none !important; }
-        }
-      `}</style>
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[54px] font-extrabold text-text-primary-light dark:text-white leading-tight tracking-tight mb-3.5">
+          How to Use{" "}
+          <span className="bg-gradient-to-br from-violet-600 to-teal-600 bg-clip-text text-transparent">
+            SAFEV
+          </span>
+        </h2>
 
-      <section
+        <p className="text-sm sm:text-base text-theme-secondary max-w-lg mx-auto leading-relaxed">
+          Real-time accident detection • GPS tracking • Alcohol monitoring •
+          Emergency alerts
+        </p>
+      </div>
+
+      {/* Step Navigator */}
+      <div className="flex justify-center items-start mb-8 sm:mb-9">
+        {steps.map((step, i) => (
+          <div key={step.id} className="flex items-center">
+            {i > 0 && (
+              <div
+                className={`w-11 h-0.5 -mt-5 transition-colors duration-400 ${
+                  i > current ? "bg-slate-200 dark:bg-white/8" : ""
+                }`}
+                style={
+                  i <= current
+                    ? {
+                        background: `linear-gradient(90deg, ${steps[i - 1].accent}, ${step.accent})`,
+                      }
+                    : undefined
+                }
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => goTo(i)}
+              className="flex flex-col items-center gap-1.5 cursor-pointer bg-transparent border-none p-0 px-0.5 transition-transform duration-150 hover:-translate-y-0.5"
+            >
+              <div
+                className="w-[38px] h-[38px] rounded-full flex items-center justify-center text-[11px] font-bold font-mono transition-all duration-300"
+                style={{
+                  border:
+                    i === current
+                      ? `2px solid ${step.accent}`
+                      : i < current
+                        ? "2px solid rgba(148,163,184,0.4)"
+                        : "2px solid rgba(148,163,184,0.15)",
+                  color:
+                    i === current
+                      ? step.accent
+                      : i < current
+                        ? "#94a3b8"
+                        : "#64748b",
+                  background:
+                    i === current
+                      ? `${step.accent}18`
+                      : "rgba(148,163,184,0.08)",
+                  boxShadow:
+                    i === current ? `0 0 18px ${step.accent}44` : "none",
+                }}
+              >
+                {i < current ? "✓" : String(i + 1).padStart(2, "0")}
+              </div>
+              <div
+                className={`hidden sm:block text-[10px] font-semibold text-center max-w-[60px] leading-snug transition-colors duration-300 ${
+                  i === current
+                    ? "text-text-primary-light dark:text-slate-300"
+                    : "text-slate-400 dark:text-slate-600"
+                }`}
+              >
+                {step.label}
+              </div>
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Step Card */}
+      <div
+        key={animKey}
+        className="glass-card grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-center rounded-[20px] p-7 sm:p-9 relative overflow-hidden animate-fade-in-up shadow-2xl"
         style={{
-          maxWidth: 1100,
-          margin: "0 auto",
-          padding: "72px 24px 80px",
-          position: "relative",
-          zIndex: 10,
+          borderTop: `2px solid ${s.accent}`,
+          boxShadow: `0 0 60px ${s.accent}18`,
         }}
       >
-        {/* ── Header ── */}
-        <div style={{ textAlign: "center", marginBottom: 52 }}>
-          {/* Badge — identical style to homepage IoT badge */}
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: "rgba(0,0,0,0.5)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: 100,
-              padding: "7px 18px",
-              fontSize: 12,
-              color: "#cbd5e1",
-              marginBottom: 20,
-              backdropFilter: "blur(8px)",
-            }}
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#7C3AED"
-              strokeWidth="2"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-            <span style={{ fontWeight: 600 }}>IoT-Powered Vehicle Safety</span>
-          </div>
-
-          {/* Big bold white title — matching homepage H1 weight */}
-          <h2
-            style={{
-              fontSize: "clamp(32px, 5.5vw, 54px)",
-              fontWeight: 800,
-              color: "#ffffff",
-              lineHeight: 1.08,
-              letterSpacing: "-0.02em",
-              marginBottom: 14,
-            }}
-          >
-            How to Use{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #7C3AED 0%, #0D9488 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              SAFEV
-            </span>
-          </h2>
-
-          {/* Subtitle — matching homepage tagline style */}
-          <p
-            style={{
-              fontSize: 15,
-              color: "#94a3b8",
-              maxWidth: 500,
-              margin: "0 auto",
-              lineHeight: 1.65,
-              fontWeight: 400,
-            }}
-          >
-            Real-time accident detection • GPS tracking • Alcohol monitoring •
-            Emergency alerts
-          </p>
-        </div>
-
-        {/* ── Step Navigator ── */}
+        {/* Corner glow */}
         <div
+          className="absolute top-0 right-0 w-[300px] h-[300px] pointer-events-none"
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            gap: 0,
-            marginBottom: 36,
+            background: `radial-gradient(circle, ${s.accent}12 0%, transparent 70%)`,
           }}
-        >
-          {steps.map((step, i) => (
-            <div
-              key={step.id}
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              {i > 0 && (
-                <div
-                  style={{
-                    width: 44,
-                    height: 2,
-                    marginTop: -20,
-                    background:
-                      i <= current
-                        ? `linear-gradient(90deg, ${steps[i - 1].accent}, ${step.accent})`
-                        : "rgba(255,255,255,0.08)",
-                    transition: "background 0.4s",
-                  }}
-                />
-              )}
-              <button
-                className="safev-step-btn"
-                onClick={() => goTo(i)}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 7,
-                  cursor: "pointer",
-                  background: "none",
-                  border: "none",
-                  padding: "0 2px",
-                }}
-              >
-                <div
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: "50%",
-                    border:
-                      i === current
-                        ? `2px solid ${step.accent}`
-                        : i < current
-                          ? "2px solid rgba(255,255,255,0.2)"
-                          : "2px solid rgba(255,255,255,0.08)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    fontFamily: "monospace",
-                    color:
-                      i === current
-                        ? step.accent
-                        : i < current
-                          ? "#94a3b8"
-                          : "#334155",
-                    background:
-                      i === current
-                        ? `${step.accent}18`
-                        : "rgba(255,255,255,0.03)",
-                    boxShadow:
-                      i === current ? `0 0 18px ${step.accent}44` : "none",
-                    transition: "all 0.3s",
-                  }}
-                >
-                  {i < current ? "✓" : String(i + 1).padStart(2, "0")}
-                </div>
-                <div
-                  className="safev-step-label"
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 600,
-                    color: i === current ? "#cbd5e1" : "#334155",
-                    textAlign: "center",
-                    maxWidth: 60,
-                    lineHeight: 1.3,
-                    transition: "color 0.3s",
-                  }}
-                >
-                  {step.label}
-                </div>
-              </button>
-            </div>
-          ))}
-        </div>
+        />
 
-        {/* ── Step Card ── */}
-        <div
-          key={animKey}
-          className="safev-card-anim safev-card-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 40,
-            alignItems: "center",
-            background: "rgba(6, 10, 20, 0.88)",
-            border: "1px solid rgba(255,255,255,0.07)",
-            borderTop: `2px solid ${s.accent}`,
-            borderRadius: 20,
-            padding: "36px 36px",
-            backdropFilter: "blur(16px)",
-            boxShadow: `0 0 60px ${s.accent}18`,
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Corner glow */}
+        {/* Visual pane */}
+        <div className="relative bg-slate-100/60 dark:bg-black/45 border border-slate-200 dark:border-white/7 rounded-2xl p-7 min-h-[270px] flex items-center justify-center overflow-hidden">
           <div
+            className="absolute inset-0 pointer-events-none"
             style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              width: 300,
-              height: 300,
-              background: `radial-gradient(circle, ${s.accent}12 0%, transparent 70%)`,
-              pointerEvents: "none",
+              background: `radial-gradient(ellipse at 50% 0%, ${s.accent}0a 0%, transparent 65%)`,
             }}
           />
+          <StepVisual visual={s.visual} />
+        </div>
 
-          {/* Visual pane */}
-          <div
-            style={{
-              background: "rgba(0,0,0,0.45)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 16,
-              padding: 28,
-              minHeight: 270,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
+        {/* Text pane */}
+        <div>
+          <div className="flex items-center gap-2.5 mb-3.5">
             <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: `radial-gradient(ellipse at 50% 0%, ${s.accent}0a 0%, transparent 65%)`,
-                pointerEvents: "none",
-              }}
+              className="text-[10px] font-mono tracking-[0.12em] font-bold"
+              style={{ color: s.accent }}
+            >
+              STEP {String(s.id).padStart(2, "0")}
+            </div>
+            <div
+              className="flex-1 h-px"
+              style={{ background: `${s.accent}30` }}
             />
-            <StepVisual visual={s.visual} />
           </div>
 
-          {/* Text pane */}
-          <div>
+          <h3 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-text-primary-light dark:text-white leading-tight tracking-tight mb-3.5">
+            {s.title}
+          </h3>
+
+          <p className="text-sm text-theme-secondary leading-relaxed mb-5">
+            {s.desc}
+          </p>
+
+          {/* Detail box */}
+          <div
+            className="glass-card rounded-r-[10px] rounded-l-none border-l-2 px-4 py-3 mb-3.5"
+            style={{ borderLeftColor: s.accent }}
+          >
             <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                marginBottom: 14,
-              }}
+              className="text-[9px] font-mono uppercase tracking-[0.12em] mb-1.5 font-bold"
+              style={{ color: s.accent }}
             >
+              Details
+            </div>
+            <div className="text-xs text-theme-secondary leading-relaxed">
+              {s.detail}
+            </div>
+          </div>
+
+          {/* Tip */}
+          <div className="bg-amber-400/5 border border-amber-400/15 rounded-[10px] px-3.5 py-2.5 text-xs text-stone-500 dark:text-stone-400 leading-relaxed mb-5">
+            <span className="text-amber-500 dark:text-amber-400 font-bold">
+              💡 Tip:{" "}
+            </span>
+            {s.tip}
+          </div>
+
+          {/* Progress */}
+          <div>
+            <div className="flex justify-between text-[11px] text-slate-400 dark:text-slate-600 font-mono mb-1.5">
+              <span>Setup progress</span>
+              <span style={{ color: s.accent }}>
+                {current + 1} / {steps.length}
+              </span>
+            </div>
+            <div className="h-1 bg-slate-200 dark:bg-white/6 rounded-full overflow-hidden">
               <div
+                className="h-full rounded-full transition-[width] duration-500 ease-out"
                 style={{
-                  fontSize: 10,
-                  fontFamily: "monospace",
-                  color: s.accent,
-                  letterSpacing: "0.12em",
-                  fontWeight: 700,
+                  width: `${pct}%`,
+                  background: `linear-gradient(90deg, #7C3AED, ${s.accent})`,
                 }}
-              >
-                STEP {String(s.id).padStart(2, "0")}
-              </div>
-              <div
-                style={{ flex: 1, height: 1, background: `${s.accent}30` }}
               />
             </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Title — bold like homepage */}
-            <h3
-              style={{
-                fontSize: "clamp(20px, 2.5vw, 26px)",
-                fontWeight: 800,
-                color: "#ffffff",
-                lineHeight: 1.15,
-                letterSpacing: "-0.02em",
-                marginBottom: 14,
-              }}
-            >
-              {s.title}
-            </h3>
+      {/* Nav Buttons */}
+      <div className="flex justify-between mt-6">
+        <button
+          type="button"
+          onClick={prev}
+          disabled={current === 0}
+          className="glass-card px-6 py-3 text-sm font-bold text-theme-secondary rounded-xl transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:bg-slate-100 dark:enabled:hover:bg-white/10 enabled:hover:text-text-primary-light dark:enabled:hover:text-slate-300"
+        >
+          ← Previous
+        </button>
 
-            <p
-              style={{
-                fontSize: 14,
-                color: "#94a3b8",
-                lineHeight: 1.72,
-                marginBottom: 20,
-                fontWeight: 400,
-              }}
-            >
-              {s.desc}
-            </p>
+        <button
+          type="button"
+          onClick={next}
+          disabled={current === steps.length - 1}
+          className="px-7 py-3 text-sm font-bold text-white rounded-xl transition-all duration-200 disabled:opacity-35 disabled:cursor-not-allowed enabled:hover:brightness-110"
+          style={{
+            background: `linear-gradient(135deg, ${s.accent}ee, ${s.accent}99)`,
+          }}
+        >
+          Next →
+        </button>
+      </div>
 
-            {/* Detail box */}
-            <div
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                borderLeft: `2px solid ${s.accent}`,
-                borderRadius: "0 10px 10px 0",
-                padding: "12px 16px",
-                marginBottom: 14,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 9,
-                  fontFamily: "monospace",
-                  color: s.accent,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.12em",
-                  marginBottom: 6,
-                  fontWeight: 700,
-                }}
-              >
-                Details
-              </div>
-              <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.65 }}>
-                {s.detail}
-              </div>
-            </div>
-
-            {/* Tip */}
-            <div
-              style={{
-                background: "rgba(251,191,36,0.04)",
-                border: "1px solid rgba(251,191,36,0.15)",
-                borderRadius: 10,
-                padding: "11px 14px",
-                fontSize: 12,
-                color: "#78716c",
-                lineHeight: 1.65,
-                marginBottom: 22,
-              }}
-            >
-              <span style={{ color: "#fbbf24", fontWeight: 700 }}>
-                💡 Tip:{" "}
-              </span>
-              {s.tip}
-            </div>
-
-            {/* Progress */}
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: 11,
-                  color: "#334155",
-                  fontFamily: "monospace",
-                  marginBottom: 7,
-                }}
-              >
-                <span>Setup progress</span>
-                <span style={{ color: s.accent }}>
-                  {current + 1} / {steps.length}
-                </span>
-              </div>
-              <div
-                style={{
-                  height: 4,
-                  background: "rgba(255,255,255,0.06)",
-                  borderRadius: 100,
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    width: `${pct}%`,
-                    height: "100%",
-                    background: `linear-gradient(90deg, #7C3AED, ${s.accent})`,
-                    borderRadius: 100,
-                    transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
-                  }}
-                />
-              </div>
-            </div>
+      {/* Quick Start Strip */}
+      <div className="glass-card mt-8 sm:mt-9 rounded-2xl px-6 sm:px-7 py-5 sm:py-6 flex items-center justify-between gap-5 flex-wrap">
+        <div>
+          <div className="text-[15px] font-extrabold text-text-primary-light dark:text-white mb-0.5">
+            Quick Reference
+          </div>
+          <div className="text-xs text-theme-secondary">
+            Five steps, under 5 minutes
           </div>
         </div>
 
-        {/* ── Nav Buttons — styled like homepage CTA buttons ── */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: 24,
-          }}
-        >
-          <button
-            className="safev-prev-btn"
-            onClick={prev}
-            disabled={current === 0}
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 12,
-              padding: "12px 24px",
-              color: "#64748b",
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: current === 0 ? "not-allowed" : "pointer",
-              transition: "all 0.2s",
-              opacity: current === 0 ? 0.3 : 1,
-            }}
-          >
-            ← Previous
-          </button>
-
-          <button
-            className="safev-next-btn"
-            onClick={next}
-            disabled={current === steps.length - 1}
-            style={{
-              background: `linear-gradient(135deg, ${s.accent}ee, ${s.accent}99)`,
-              border: "none",
-              borderRadius: 12,
-              padding: "12px 28px",
-              color: "#fff",
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: current === steps.length - 1 ? "not-allowed" : "pointer",
-              transition: "all 0.2s",
-              opacity: current === steps.length - 1 ? 0.35 : 1,
-            }}
-          >
-            Next →
-          </button>
-        </div>
-
-        {/* ── Quick Start Strip ── */}
-        <div
-          style={{
-            marginTop: 36,
-            background: "rgba(0,0,0,0.4)",
-            border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 16,
-            padding: "22px 28px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 20,
-            flexWrap: "wrap",
-            backdropFilter: "blur(8px)",
-          }}
-        >
-          <div>
-            <div
-              style={{
-                fontSize: 15,
-                fontWeight: 800,
-                color: "#ffffff",
-                marginBottom: 3,
-              }}
-            >
-              Quick Reference
-            </div>
-            <div style={{ fontSize: 12, color: "#475569" }}>
-              Five steps, under 5 minutes
-            </div>
-          </div>
-
-          <div
-            className="safev-quick-steps"
-            style={{ display: "flex", gap: 6, alignItems: "center" }}
-          >
-            {["UCOD", "Connect", "Camera", "Track", "Monitor"].map(
-              (label, i) => (
-                <div
-                  key={label}
-                  style={{ display: "flex", alignItems: "center", gap: 6 }}
-                >
-                  {i > 0 && (
-                    <span style={{ color: "#1e293b", fontSize: 13 }}>→</span>
-                  )}
+        <div className="hidden md:flex gap-1.5 items-center">
+          {["UCOD", "Connect", "Camera", "Track", "Monitor"].map(
+            (label, i) => (
+              <div key={label} className="flex items-center gap-1.5">
+                {i > 0 && (
+                  <span className="text-slate-300 dark:text-slate-700 text-[13px]">
+                    →
+                  </span>
+                )}
+                <div className="flex items-center gap-1.5 text-[11px] text-theme-secondary font-mono">
                   <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 5,
-                      fontSize: 11,
-                      color: "#475569",
-                      fontFamily: "monospace",
-                    }}
+                    className="w-[22px] h-[22px] rounded-full glass-card flex items-center justify-center text-[10px] font-extrabold"
+                    style={{ color: steps[i].accent }}
                   >
-                    <div
-                      style={{
-                        width: 22,
-                        height: 22,
-                        borderRadius: "50%",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 10,
-                        color: steps[i].accent,
-                        fontWeight: 800,
-                      }}
-                    >
-                      {i + 1}
-                    </div>
-                    {label}
+                    {i + 1}
                   </div>
+                  {label}
                 </div>
-              ),
-            )}
-          </div>
-
-          {/* CTA — teal gradient matching homepage "Track Data" button */}
-          <button
-            className="safev-cta-btn"
-            onClick={() => goTo(0)}
-            style={{
-              background: "linear-gradient(135deg, #0D9488, #0f766e)",
-              border: "none",
-              borderRadius: 12,
-              padding: "12px 24px",
-              color: "#fff",
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-              transition: "all 0.2s",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-            Start Setup
-          </button>
+              </div>
+            ),
+          )}
         </div>
-      </section>
-    </>
+
+        <button
+          type="button"
+          onClick={() => goTo(0)}
+          className="bg-gradient-to-br from-teal-600 to-teal-800 border-none rounded-xl px-6 py-3 text-white text-sm font-bold cursor-pointer whitespace-nowrap transition-all duration-200 hover:brightness-110 hover:-translate-y-px flex items-center gap-2"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+          Start Setup
+        </button>
+      </div>
+    </section>
   );
 }

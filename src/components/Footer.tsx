@@ -14,7 +14,7 @@ function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-black border-t border-gray-900 relative overflow-hidden">
+    <footer className="bg-theme border-t border-slate-200 dark:border-white/10 relative overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900/20 pointer-events-none" />
 
@@ -25,7 +25,7 @@ function Footer() {
             <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">
               SAFEV
             </h2>
-            <p className="text-gray-400 leading-relaxed text-sm">
+            <p className="text-theme-secondary leading-relaxed text-sm">
               SAFEV is a cutting-edge vehicle safety system designed to protect
               drivers and passengers from potential accidents. build and develop
               by Aditya Thodsare
@@ -35,21 +35,21 @@ function Footer() {
             <div className="flex gap-3 pt-2">
               <a
                 href="#"
-                className="w-10 h-10 rounded-lg bg-gray-900 hover:bg-blue-600 flex items-center justify-center text-gray-400 hover:text-white border border-gray-800 hover:border-blue-600 transition-all transform hover:scale-110"
+                className="w-10 h-10 rounded-lg bg-theme-muted hover:bg-blue-600 flex items-center justify-center text-theme-secondary hover:text-white border border-theme hover:border-blue-600 transition-all transform hover:scale-110"
                 aria-label="Facebook"
               >
                 <FaFacebook className="w-5 h-5" />
               </a>
               <a
                 href="#"
-                className="w-10 h-10 rounded-lg bg-gray-900 hover:bg-blue-400 flex items-center justify-center text-gray-400 hover:text-white border border-gray-800 hover:border-blue-400 transition-all transform hover:scale-110"
+                className="w-10 h-10 rounded-lg bg-theme-muted hover:bg-blue-400 flex items-center justify-center text-theme-secondary hover:text-white border border-theme hover:border-blue-400 transition-all transform hover:scale-110"
                 aria-label="Twitter"
               >
                 <FaTwitter className="w-5 h-5" />
               </a>
               <a
                 href="#"
-                className="w-10 h-10 rounded-lg bg-gray-900 hover:bg-pink-600 flex items-center justify-center text-gray-400 hover:text-white border border-gray-800 hover:border-pink-600 transition-all transform hover:scale-110"
+                className="w-10 h-10 rounded-lg bg-theme-muted hover:bg-pink-600 flex items-center justify-center text-theme-secondary hover:text-white border border-theme hover:border-pink-600 transition-all transform hover:scale-110"
                 aria-label="Instagram"
               >
                 <FaInstagram className="w-5 h-5" />
@@ -58,7 +58,7 @@ function Footer() {
                 href="https://github.com/adityathodsare"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-lg bg-gray-900 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white border border-gray-800 hover:border-gray-700 transition-all transform hover:scale-110"
+                className="w-10 h-10 rounded-lg bg-theme-muted hover:bg-theme-secondary flex items-center justify-center text-theme-secondary hover:text-white border border-theme transition-all transform hover:scale-110"
                 aria-label="GitHub"
               >
                 <FaGithub className="w-5 h-5" />
@@ -67,7 +67,7 @@ function Footer() {
                 href="https://linkedin.com/in/adityathodsare"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-lg bg-gray-900 hover:bg-blue-600 flex items-center justify-center text-gray-400 hover:text-white border border-gray-800 hover:border-blue-600 transition-all transform hover:scale-110"
+                className="w-10 h-10 rounded-lg bg-theme-muted hover:bg-blue-600 flex items-center justify-center text-theme-secondary hover:text-white border border-theme hover:border-blue-600 transition-all transform hover:scale-110"
                 aria-label="LinkedIn"
               >
                 <FaLinkedin className="w-5 h-5" />
@@ -97,7 +97,7 @@ function Footer() {
               <li>
                 <a
                   href="/"
-                  className="text-gray-400 hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
+                  className="text-theme-secondary hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
                 >
                   <svg
                     className="w-4 h-4 group-hover:translate-x-1 transition-transform"
@@ -118,7 +118,7 @@ function Footer() {
               <li>
                 <a
                   href="/about"
-                  className="text-gray-400 hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
+                  className="text-theme-secondary hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
                 >
                   <svg
                     className="w-4 h-4 group-hover:translate-x-1 transition-transform"
@@ -139,7 +139,7 @@ function Footer() {
               <li>
                 <a
                   href="/buy"
-                  className="text-gray-400 hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
+                  className="text-theme-secondary hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
                 >
                   <svg
                     className="w-4 h-4 group-hover:translate-x-1 transition-transform"
@@ -160,7 +160,7 @@ function Footer() {
               <li>
                 <a
                   href="/tracking"
-                  className="text-gray-400 hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
+                  className="text-theme-secondary hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
                 >
                   <svg
                     className="w-4 h-4 group-hover:translate-x-1 transition-transform"
@@ -181,7 +181,7 @@ function Footer() {
               <li>
                 <a
                   href="/contact"
-                  className="text-gray-400 hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
+                  className="text-theme-secondary hover:text-blue-400 transition-colors duration-300 flex items-center gap-2 group"
                 >
                   <svg
                     className="w-4 h-4 group-hover:translate-x-1 transition-transform"
@@ -221,7 +221,7 @@ function Footer() {
               Features
             </h2>
             <ul className="space-y-3">
-              <li className="text-gray-400 flex items-start gap-2 text-sm">
+              <li className="text-theme-secondary flex items-start gap-2 text-sm">
                 <svg
                   className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0"
                   fill="currentColor"
@@ -235,7 +235,7 @@ function Footer() {
                 </svg>
                 Accident Detection
               </li>
-              <li className="text-gray-400 flex items-start gap-2 text-sm">
+              <li className="text-theme-secondary flex items-start gap-2 text-sm">
                 <svg
                   className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0"
                   fill="currentColor"
@@ -249,7 +249,7 @@ function Footer() {
                 </svg>
                 GPS Tracking
               </li>
-              <li className="text-gray-400 flex items-start gap-2 text-sm">
+              <li className="text-theme-secondary flex items-start gap-2 text-sm">
                 <svg
                   className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0"
                   fill="currentColor"
@@ -263,7 +263,7 @@ function Footer() {
                 </svg>
                 Alcohol Detection
               </li>
-              <li className="text-gray-400 flex items-start gap-2 text-sm">
+              <li className="text-theme-secondary flex items-start gap-2 text-sm">
                 <svg
                   className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0"
                   fill="currentColor"
@@ -277,7 +277,7 @@ function Footer() {
                 </svg>
                 Gas Leak Alerts
               </li>
-              <li className="text-gray-400 flex items-start gap-2 text-sm">
+              <li className="text-theme-secondary flex items-start gap-2 text-sm">
                 <svg
                   className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0"
                   fill="currentColor"
@@ -291,7 +291,7 @@ function Footer() {
                 </svg>
                 Emergency Response
               </li>
-              <li className="text-gray-400 flex items-start gap-2 text-sm">
+              <li className="text-theme-secondary flex items-start gap-2 text-sm">
                 <svg
                   className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0"
                   fill="currentColor"
@@ -327,7 +327,7 @@ function Footer() {
               Contact Us
             </h2>
             <ul className="space-y-4 text-sm">
-              <li className="flex items-start gap-3 text-gray-400 hover:text-white transition-colors group">
+              <li className="flex items-start gap-3 text-theme-secondary hover:text-white transition-colors group">
                 <FaMapMarkerAlt className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform" />
                 <span>
                   Pune, Maharashtra, India
@@ -339,7 +339,7 @@ function Footer() {
                 <FaEnvelope className="w-5 h-5 text-blue-400 flex-shrink-0" />
                 <a
                   href="mailto:thodsareaditya@gmail.com"
-                  className="text-gray-400 hover:text-blue-400 transition-colors"
+                  className="text-theme-secondary hover:text-blue-400 transition-colors"
                 >
                   thodsareaditya@gmail.com
                 </a>
@@ -348,7 +348,7 @@ function Footer() {
                 <FaPhone className="w-5 h-5 text-purple-400 flex-shrink-0" />
                 <a
                   href="tel:+918263878470"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-theme-secondary hover:text-purple-400 transition-colors"
                 >
                   +91 82638 78470
                 </a>
@@ -358,8 +358,8 @@ function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-gray-900">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-gray-400 text-sm">
+        <div className="pt-8 border-t border-slate-200 dark:border-white/10">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-theme-secondary text-sm">
             <p className="flex items-center gap-2">
               <span>© {currentYear}</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold">

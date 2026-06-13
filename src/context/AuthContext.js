@@ -21,7 +21,8 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (email, password) => {
-    const res = await fetch("http://localhost:8080/login", {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    const res = await fetch(`${apiUrl}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: email, password }),
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setToken(null);
     localStorage.removeItem("jwtToken");
-    navigateWithLoader(router, "/login");
+    navigateWithLoader(router, "/register");
   };
 
   return (

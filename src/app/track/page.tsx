@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 interface LocationData {
   latitude: number;
@@ -36,7 +37,9 @@ interface ThingSpeakData {
 }
 
 export default function RakshakGPSTracker() {
+  const { theme } = useTheme();
   const mapRef = useRef<HTMLDivElement>(null);
+  const tileLayerRef = useRef<any>(null);
   const [location, setLocation] = useState<LocationData | null>(null);
   const [isTracking, setIsTracking] = useState(false);
   const [error, setError] = useState<string>("");
@@ -81,11 +84,21 @@ export default function RakshakGPSTracker() {
           zoomControl: true,
         }).setView([20.5937, 78.9629], 5); // India center
 
-        // Light theme tile layer
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "© OpenStreetMap contributors",
+        // Theme-aware tile layer
+        const tileUrl =
+          theme === "dark"
+            ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+        const tileLayer = L.tileLayer(tileUrl, {
+          attribution:
+            theme === "dark"
+              ? "© OpenStreetMap © CARTO"
+              : "© OpenStreetMap contributors",
           maxZoom: 19,
         }).addTo(map);
+
+        tileLayerRef.current = tileLayer;
 
         // Store map reference
         (mapRef.current as any).leafletMap = map;
@@ -98,6 +111,30 @@ export default function RakshakGPSTracker() {
       // Cleanup if needed
     };
   }, []);
+
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current || !(window as any).L) return;
+    const L = (window as any).L;
+    const map = (mapRef.current as any).leafletMap;
+    if (!map) return;
+
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
+    }
+
+    const tileUrl =
+      theme === "dark"
+        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+    tileLayerRef.current = L.tileLayer(tileUrl, {
+      attribution:
+        theme === "dark"
+          ? "© OpenStreetMap © CARTO"
+          : "© OpenStreetMap contributors",
+      maxZoom: 19,
+    }).addTo(map);
+  }, [theme, mapLoaded]);
 
   // Fetch data from ThingSpeak
   const fetchThingSpeakData = async (mode: "live" | "history" = "live") => {
@@ -494,7 +531,7 @@ export default function RakshakGPSTracker() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 relative overflow-hidden">
+    <div className="page-container relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl top-10 left-10 animate-pulse"></div>
@@ -528,7 +565,7 @@ export default function RakshakGPSTracker() {
                     isTracking ? "bg-green-400 animate-pulse" : "bg-slate-600"
                   }`}
                 ></span>
-                <span className="text-slate-300 text-sm font-medium">
+                <span className="text-theme text-sm font-medium">
                   {isTracking
                     ? `ACTIVE - ${
                         trackingMode === "live"
@@ -539,7 +576,7 @@ export default function RakshakGPSTracker() {
                 </span>
               </div>
             </div>
-            <p className="text-slate-400 text-lg sm:text-xl max-w-2xl">
+            <p className="text-theme-secondary text-lg sm:text-xl max-w-2xl">
               Real-time Vehicle Monitoring System with NEO-6M GPS & ThingSpeak
               Integration
             </p>
@@ -549,17 +586,17 @@ export default function RakshakGPSTracker() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Map Section - Takes 2 columns on desktop */}
           <div className="lg:col-span-2">
-            <div className="bg-slate-900/60 backdrop-blur-sm rounded-3xl border border-slate-700/50 overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-slate-700/50">
+            <div className="glass-card overflow-hidden shadow-2xl">
+              <div className="p-6 border-b border-slate-200/50 dark:border-white/10">
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                    <h2 className="text-xl font-bold text-theme flex items-center gap-3">
                       <div className="p-2 bg-blue-500/20 rounded-xl">🗺️</div>
                       {trackingMode === "live"
                         ? "Live Vehicle Tracking"
                         : "24-Hour Travel History"}
                     </h2>
-                    <p className="text-slate-400 text-sm mt-1">
+                    <p className="text-theme-secondary text-sm mt-1">
                       {trackingMode === "live"
                         ? "Monitoring current vehicle position in real-time"
                         : "Viewing complete travel route from the past 24 hours"}
@@ -609,7 +646,7 @@ export default function RakshakGPSTracker() {
                     )}
                     <button
                       onClick={resetMap}
-                      className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2 border border-slate-700 hover:scale-105"
+                      className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2 border border-slate-700 hover:scale-105"
                     >
                       <span className="text-lg">🔄</span>
                       <span>Reset</span>
@@ -621,30 +658,29 @@ export default function RakshakGPSTracker() {
               <div className="relative">
                 <div
                   ref={mapRef}
-                  className="w-full h-[400px] sm:h-[500px] lg:h-[600px] rounded-b-2xl"
-                  style={{ background: "#f8fafc" }}
+                  className="w-full h-[400px] sm:h-[500px] lg:h-[600px] rounded-b-2xl bg-slate-100 dark:bg-card-dark"
                 />
                 {!mapLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm rounded-b-2xl">
+                  <div className="absolute inset-0 flex items-center justify-center bg-theme/80 backdrop-blur-sm rounded-b-2xl">
                     <div className="text-center">
                       <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-                      <p className="text-slate-300 text-lg font-semibold">
+                      <p className="text-theme text-lg font-semibold">
                         Loading Map...
                       </p>
-                      <p className="text-slate-500 text-sm">
+                      <p className="text-theme-secondary text-sm">
                         Initializing GPS tracking system
                       </p>
                     </div>
                   </div>
                 )}
                 {isLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm rounded-b-2xl">
+                  <div className="absolute inset-0 flex items-center justify-center bg-theme/80 backdrop-blur-sm rounded-b-2xl">
                     <div className="text-center">
                       <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mb-4"></div>
-                      <p className="text-slate-300 text-lg font-semibold">
+                      <p className="text-theme text-lg font-semibold">
                         Fetching GPS Data
                       </p>
-                      <p className="text-slate-500 text-sm">
+                      <p className="text-theme-secondary text-sm">
                         Connecting to ThingSpeak...
                       </p>
                     </div>
@@ -666,8 +702,8 @@ export default function RakshakGPSTracker() {
           {/* Info Panel - Takes 1 column on desktop */}
           <div className="space-y-6 sm:space-y-8">
             {/* Current Location Card */}
-            <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-sm rounded-3xl border border-blue-500/20 p-6 shadow-2xl">
-              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-3">
+            <div className="glass-card p-6 shadow-2xl">
+              <h3 className="text-lg font-bold text-theme mb-4 flex items-center gap-3">
                 <div className="p-2 bg-blue-500/20 rounded-xl">📍</div>
                 Current Vehicle Location
               </h3>
@@ -675,16 +711,16 @@ export default function RakshakGPSTracker() {
               {location ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                      <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                    <div className="glass-card rounded-xl p-4">
+                      <p className="text-xs text-theme-secondary mb-2 uppercase tracking-wide">
                         Latitude
                       </p>
                       <p className="text-lg font-mono font-bold text-blue-400">
                         {location.latitude.toFixed(6)}
                       </p>
                     </div>
-                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                      <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                    <div className="glass-card rounded-xl p-4">
+                      <p className="text-xs text-theme-secondary mb-2 uppercase tracking-wide">
                         Longitude
                       </p>
                       <p className="text-lg font-mono font-bold text-blue-400">
@@ -694,8 +730,8 @@ export default function RakshakGPSTracker() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                      <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                    <div className="glass-card rounded-xl p-4">
+                      <p className="text-xs text-theme-secondary mb-2 uppercase tracking-wide">
                         GPS Accuracy
                       </p>
                       <p className="text-sm font-semibold text-green-400 flex items-center gap-2">
@@ -705,8 +741,8 @@ export default function RakshakGPSTracker() {
                     </div>
 
                     {location.speed !== null && (
-                      <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                        <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                      <div className="glass-card rounded-xl p-4">
+                        <p className="text-xs text-theme-secondary mb-2 uppercase tracking-wide">
                           Speed
                         </p>
                         <p className="text-lg font-bold text-red-400 flex items-center gap-2">
@@ -718,13 +754,13 @@ export default function RakshakGPSTracker() {
                   </div>
 
                   <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                    <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                    <p className="text-xs text-theme-secondary mb-2 uppercase tracking-wide">
                       Last Update
                     </p>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-theme">
                       {formatTime(location.timestamp)}
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-theme-secondary">
                       {formatDate(location.timestamp)}
                     </p>
                   </div>
@@ -733,7 +769,7 @@ export default function RakshakGPSTracker() {
                     <p className="text-xs text-blue-300 mb-2 uppercase tracking-wide">
                       Data Points Collected
                     </p>
-                    <p className="text-2xl font-bold text-white text-center">
+                    <p className="text-2xl font-bold text-theme text-center">
                       {locationHistory.length}
                     </p>
                   </div>
@@ -741,7 +777,7 @@ export default function RakshakGPSTracker() {
               ) : (
                 <div className="text-center py-8">
                   <div className="text-5xl mb-4">🚙</div>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-theme-secondary text-sm">
                     Start tracking to view live vehicle location
                   </p>
                 </div>
@@ -751,30 +787,30 @@ export default function RakshakGPSTracker() {
             {/* ThingSpeak Data Card */}
             {thingSpeakData && (
               <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-3xl border border-green-500/20 p-6 shadow-2xl">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-3">
+                <h3 className="text-lg font-bold text-theme mb-4 flex items-center gap-3">
                   <div className="p-2 bg-green-500/20 rounded-xl">📡</div>
                   ThingSpeak Data Source
                 </h3>
                 <div className="space-y-4">
                   <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                    <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                    <p className="text-xs text-theme-secondary mb-2 uppercase tracking-wide">
                       Channel Name
                     </p>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-theme">
                       {thingSpeakData.channel.name}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                      <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                    <div className="glass-card rounded-xl p-4">
+                      <p className="text-xs text-theme-secondary mb-2 uppercase tracking-wide">
                         Total Entries
                       </p>
                       <p className="text-lg font-bold text-green-400">
                         {thingSpeakData.feeds.length}
                       </p>
                     </div>
-                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                      <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                    <div className="glass-card rounded-xl p-4">
+                      <p className="text-xs text-theme-secondary mb-2 uppercase tracking-wide">
                         Tracking Mode
                       </p>
                       <p className="text-sm font-semibold text-cyan-400">
@@ -785,11 +821,11 @@ export default function RakshakGPSTracker() {
                     </div>
                   </div>
                   {trackingMode === "history" && locationHistory.length > 0 && (
-                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                      <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
+                    <div className="glass-card rounded-xl p-4">
+                      <p className="text-xs text-theme-secondary mb-2 uppercase tracking-wide">
                         Time Range
                       </p>
-                      <p className="text-sm font-semibold text-white">
+                      <p className="text-sm font-semibold text-theme">
                         {formatDate(locationHistory[0].timestamp)} to{" "}
                         {formatDate(
                           locationHistory[locationHistory.length - 1].timestamp
@@ -803,20 +839,20 @@ export default function RakshakGPSTracker() {
 
             {/* Map Legend */}
             <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-3xl border border-purple-500/20 p-6 shadow-2xl">
-              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-3">
+              <h3 className="text-lg font-bold text-theme mb-4 flex items-center gap-3">
                 <div className="p-2 bg-purple-500/20 rounded-xl">🎯</div>
                 Map Legend
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
                   <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                    <span className="text-white text-sm">🚙</span>
+                    <span className="text-theme text-sm">🚙</span>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-theme">
                       Current Vehicle
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-theme-secondary">
                       Live position with animation
                     </p>
                   </div>
@@ -828,10 +864,10 @@ export default function RakshakGPSTracker() {
                         1
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-white">
+                        <p className="text-sm font-semibold text-theme">
                           Historical Positions
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-theme-secondary">
                           Numbered by travel sequence
                         </p>
                       </div>
@@ -839,10 +875,10 @@ export default function RakshakGPSTracker() {
                     <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
                       <div className="w-8 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
                       <div>
-                        <p className="text-sm font-semibold text-white">
+                        <p className="text-sm font-semibold text-theme">
                           Travel Path
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-theme-secondary">
                           Route taken (chronological)
                         </p>
                       </div>
@@ -852,10 +888,10 @@ export default function RakshakGPSTracker() {
                 <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
                   <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                   <div>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-theme">
                       Active Tracking
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-theme-secondary">
                       Real-time data streaming
                     </p>
                   </div>
@@ -868,11 +904,11 @@ export default function RakshakGPSTracker() {
         {/* Footer */}
         <div className="mt-12 text-center">
           <div className="inline-flex flex-col items-center gap-2">
-            <p className="text-slate-600 text-sm">
+            <p className="text-theme-secondary text-sm">
               🛡️ Secure Tracking • 📡 NEO-6M GPS • 🌐 ThingSpeak Cloud • 🚙
               Real-time Monitoring
             </p>
-            <p className="text-slate-700 text-xs">
+            <p className="text-theme-secondary text-xs">
               Rakshak GPS Tracking System v2.0
             </p>
           </div>

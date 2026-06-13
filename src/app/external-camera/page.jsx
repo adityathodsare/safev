@@ -1,22 +1,33 @@
 "use client";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { CAMERA_API_URL } from "@/lib/config";
 
 /* ─────────────────────────────────────────────────
    CONFIG & THEME
 ───────────────────────────────────────────────── */
-const API = "http://localhost:8000";
 const REFRESH_MS = 20000;
 
-// Darker palette
-const BG = "#020509";
-const BG2 = "#050a12";
-const BG3 = "#080f1a";
-const CARD = "rgba(255,255,255,0.025)";
-const BORDER = "rgba(255,255,255,0.055)";
-const BORDER2 = "rgba(255,255,255,0.035)";
-const TEXT1 = "rgba(255,255,255,0.82)";
-const TEXT2 = "rgba(255,255,255,0.35)";
-const TEXT3 = "rgba(255,255,255,0.16)";
+const T = {
+  page: "page-container relative min-h-screen",
+  textPrimary: "text-theme",
+  textSecondary: "text-theme-secondary",
+  textMuted: "text-slate-400 dark:text-white/40",
+  glass: "glass-card",
+  border: "border border-slate-200 dark:border-white/10",
+  bgSubtle: "bg-slate-100 dark:bg-white/5",
+  bgElevated: "bg-white dark:bg-card-dark",
+};
+
+const VAR = {
+  textPrimary: "var(--theme-text-primary)",
+  textSecondary: "var(--theme-text-secondary)",
+  textMuted: "var(--theme-text-muted)",
+  border: "var(--theme-border)",
+  borderSubtle: "var(--theme-border-subtle)",
+  bg: "var(--theme-bg-page)",
+  bgElevated: "var(--theme-bg-elevated)",
+  card: "var(--theme-glass)",
+};
 
 const SIG = {
   red: {
@@ -120,85 +131,36 @@ function MetricCard({ icon, label, value, accent = "#10b981", sub }) {
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      className={`${T.glass} rounded-[10px] px-3.5 py-3 cursor-default transition-all duration-200`}
       style={{
-        background: hov ? "rgba(255,255,255,0.04)" : CARD,
-        border: `1px solid ${hov ? accent + "44" : BORDER}`,
-        borderRadius: 10,
-        padding: "12px 14px",
-        transition: "all 0.2s",
+        borderColor: hov ? accent + "44" : undefined,
         boxShadow: hov ? `0 0 16px ${accent}18` : "none",
-        cursor: "default",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 7,
-          marginBottom: 7,
-        }}
-      >
-        <span style={{ fontSize: 15 }}>{icon}</span>
-        <span
-          style={{
-            fontSize: 9,
-            color: TEXT3,
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-          }}
-        >
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <span className="text-[15px]">{icon}</span>
+        <span className={`text-[9px] uppercase tracking-widest ${T.textMuted}`}>
           {label}
         </span>
       </div>
       <div
-        style={{
-          fontSize: 21,
-          fontWeight: 700,
-          color: accent,
-          fontFamily: "'DM Mono',monospace",
-          lineHeight: 1,
-        }}
+        className="text-[21px] font-bold font-mono leading-none"
+        style={{ color: accent }}
       >
         {value}
       </div>
-      {sub && (
-        <div style={{ fontSize: 9, color: TEXT3, marginTop: 4 }}>{sub}</div>
-      )}
+      {sub && <div className={`text-[9px] mt-1 ${T.textMuted}`}>{sub}</div>}
     </div>
   );
 }
 
 function SectionTitle({ children, action }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: 16,
-      }}
-    >
+    <div className="flex items-center justify-between mb-4">
       <h2
-        style={{
-          fontSize: 14,
-          fontWeight: 700,
-          color: TEXT1,
-          fontFamily: "'Syne',sans-serif",
-          letterSpacing: "0.01em",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-        }}
+        className={`text-sm font-bold tracking-wide flex items-center gap-2 ${T.textPrimary}`}
       >
-        <span
-          style={{
-            width: 3,
-            height: 14,
-            borderRadius: 2,
-            background: "linear-gradient(180deg,#10b981,#10b98155)",
-            display: "inline-block",
-          }}
-        />
+        <span className="w-[3px] h-3.5 rounded-sm bg-gradient-to-b from-emerald-500 to-emerald-500/30 inline-block" />
         {children}
       </h2>
       {action}
@@ -214,7 +176,7 @@ function TrafficLight({ color }) {
         display: "flex",
         flexDirection: "column",
         gap: 7,
-        background: BG,
+        background: VAR.bg,
         borderRadius: 14,
         padding: "16px 12px",
         border: `1px solid ${s.hex}33`,
@@ -274,7 +236,7 @@ function Modal({ src, det, onClose, onDownload }) {
       <div style={{ maxWidth: 880, width: "100%" }}>
         <div
           style={{
-            background: BG3,
+            background: VAR.bgElevated,
             border: `1px solid ${s.hex}44`,
             borderRadius: 14,
             overflow: "hidden",
@@ -287,13 +249,13 @@ function Modal({ src, det, onClose, onDownload }) {
               alignItems: "center",
               justifyContent: "space-between",
               padding: "12px 18px",
-              borderBottom: `1px solid ${BORDER2}`,
+              borderBottom: `1px solid ${VAR.borderSubtle}`,
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <SignalBadge color={color} />
               {det && (
-                <span style={{ color: TEXT2, fontSize: 12 }}>
+                <span style={{ color: VAR.textSecondary, fontSize: 12 }}>
                   #{det.sequence_number} · {dtFmt(det.timestamp)}
                 </span>
               )}
@@ -337,7 +299,7 @@ function Modal({ src, det, onClose, onDownload }) {
               display: "block",
               maxHeight: "70vh",
               objectFit: "contain",
-              background: BG,
+              background: VAR.bg,
             }}
           />
           {det && (
@@ -346,7 +308,7 @@ function Modal({ src, det, onClose, onDownload }) {
                 padding: "10px 18px",
                 display: "flex",
                 gap: 18,
-                borderTop: `1px solid ${BORDER2}`,
+                borderTop: `1px solid ${VAR.borderSubtle}`,
               }}
             >
               {[
@@ -354,9 +316,9 @@ function Modal({ src, det, onClose, onDownload }) {
                 ["🚗", det.vehicle_count ?? 0, "Vehicles"],
                 ["📦", det.detection_count ?? 0, "Objects"],
               ].map(([ic, v, lb]) => (
-                <div key={lb} style={{ fontSize: 12, color: TEXT2 }}>
+                <div key={lb} style={{ fontSize: 12, color: VAR.textSecondary }}>
                   {ic}{" "}
-                  <span style={{ color: TEXT1, fontWeight: 600 }}>{v}</span>{" "}
+                  <span style={{ color: VAR.textPrimary, fontWeight: 600 }}>{v}</span>{" "}
                   {lb}
                 </div>
               ))}
@@ -377,7 +339,7 @@ function LatestSection({ det, onOpenGallery }) {
   if (!det) return null;
   const color = domColor(det);
   const s = sig(color);
-  const imgUrl = `${API}${det.image_url}`;
+  const imgUrl = `${CAMERA_API_URL}${det.image_url}`;
   const download = () => {
     const a = document.createElement("a");
     a.href = imgUrl;
@@ -411,14 +373,9 @@ function LatestSection({ det, onOpenGallery }) {
       </SectionTitle>
 
       <div
+        className={`${T.glass} grid grid-cols-[1.65fr_1fr] gap-3.5 rounded-[14px] overflow-hidden`}
         style={{
-          display: "grid",
-          gridTemplateColumns: "1.65fr 1fr",
-          gap: 14,
-          background: CARD,
           border: `1px solid ${s.hex}2a`,
-          borderRadius: 14,
-          overflow: "hidden",
           boxShadow: `0 0 40px ${s.glow}`,
         }}
       >
@@ -445,7 +402,7 @@ function LatestSection({ det, onOpenGallery }) {
               borderRadius: 5,
               fontSize: 10,
               fontWeight: 600,
-              color: TEXT2,
+              color: VAR.textSecondary,
               letterSpacing: "0.1em",
             }}
           >
@@ -527,7 +484,7 @@ function LatestSection({ det, onOpenGallery }) {
             display: "flex",
             flexDirection: "column",
             gap: 14,
-            borderLeft: `1px solid ${BORDER2}`,
+            borderLeft: `1px solid ${VAR.borderSubtle}`,
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -536,7 +493,7 @@ function LatestSection({ det, onOpenGallery }) {
               <div
                 style={{
                   fontSize: 10,
-                  color: TEXT3,
+                  color: VAR.textMuted,
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
                   marginBottom: 5,
@@ -561,7 +518,7 @@ function LatestSection({ det, onOpenGallery }) {
                   style={{
                     fontSize: 30,
                     fontWeight: 700,
-                    color: TEXT1,
+                    color: VAR.textPrimary,
                     fontFamily: "'DM Mono',monospace",
                     marginTop: 3,
                     lineHeight: 1,
@@ -571,7 +528,7 @@ function LatestSection({ det, onOpenGallery }) {
                   <span
                     style={{
                       fontSize: 12,
-                      color: TEXT3,
+                      color: VAR.textMuted,
                       fontWeight: 400,
                       marginLeft: 3,
                     }}
@@ -584,7 +541,7 @@ function LatestSection({ det, onOpenGallery }) {
                 <div
                   style={{
                     fontSize: 9,
-                    color: TEXT3,
+                    color: VAR.textMuted,
                     marginTop: 4,
                     textTransform: "capitalize",
                   }}
@@ -626,16 +583,16 @@ function LatestSection({ det, onOpenGallery }) {
 
           <div
             style={{
-              background: BG,
+              background: VAR.bg,
               borderRadius: 7,
               padding: "9px 13px",
-              border: `1px solid ${BORDER2}`,
+              border: `1px solid ${VAR.borderSubtle}`,
             }}
           >
             <div
               style={{
                 fontSize: 9,
-                color: TEXT3,
+                color: VAR.textMuted,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 marginBottom: 3,
@@ -646,7 +603,7 @@ function LatestSection({ det, onOpenGallery }) {
             <div
               style={{
                 fontSize: 12,
-                color: TEXT1,
+                color: VAR.textPrimary,
                 fontFamily: "'DM Mono',monospace",
               }}
             >
@@ -659,7 +616,7 @@ function LatestSection({ det, onOpenGallery }) {
               <div
                 style={{
                   fontSize: 9,
-                  color: TEXT3,
+                  color: VAR.textMuted,
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
                   marginBottom: 6,
@@ -676,8 +633,8 @@ function LatestSection({ det, onOpenGallery }) {
                       borderRadius: 4,
                       fontSize: 10,
                       background: "rgba(255,255,255,0.03)",
-                      color: TEXT2,
-                      border: `1px solid ${BORDER2}`,
+                      color: VAR.textSecondary,
+                      border: `1px solid ${VAR.borderSubtle}`,
                     }}
                   >
                     {o}
@@ -752,27 +709,13 @@ function GallerySection({ history, visible, onClose }) {
         padding: "22px 26px",
       }}
     >
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 20,
-          }}
-        >
+      <div className="max-w-[1200px] mx-auto">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h2
-              style={{
-                fontSize: 20,
-                fontWeight: 700,
-                fontFamily: "'Syne',sans-serif",
-                color: TEXT1,
-              }}
-            >
+            <h2 className={`text-xl font-bold ${T.textPrimary}`}>
               Detection Gallery
             </h2>
-            <p style={{ color: TEXT3, fontSize: 12, marginTop: 2 }}>
+            <p className={`${T.textMuted} text-xs mt-0.5`}>
               {history.length} total frames
             </p>
           </div>
@@ -790,7 +733,7 @@ function GallerySection({ history, visible, onClose }) {
                       fontSize: 11,
                       cursor: "pointer",
                       textTransform: "capitalize",
-                      border: `1px solid ${filter === f ? (f === "all" ? "rgba(255,255,255,0.2)" : s.hex + "55") : BORDER}`,
+                      border: `1px solid ${filter === f ? (f === "all" ? "rgba(255,255,255,0.2)" : s.hex + "55") : VAR.border}`,
                       background:
                         filter === f
                           ? f === "all"
@@ -798,7 +741,7 @@ function GallerySection({ history, visible, onClose }) {
                             : s.muted
                           : "transparent",
                       color:
-                        filter === f ? (f === "all" ? TEXT1 : s.hex) : TEXT2,
+                        filter === f ? (f === "all" ? VAR.textPrimary : s.hex) : VAR.textSecondary,
                       transition: "all 0.15s",
                     }}
                   >
@@ -839,7 +782,7 @@ function GallerySection({ history, visible, onClose }) {
                 det={d}
                 s={s}
                 onClick={() =>
-                  setModal({ src: `${API}${d.image_url}`, det: d })
+                  setModal({ src: `${CAMERA_API_URL}${d.image_url}`, det: d })
                 }
               />
             );
@@ -874,15 +817,15 @@ function GalleryThumb({ det, s, onClick }) {
         overflow: "hidden",
         cursor: "pointer",
         position: "relative",
-        border: `1.5px solid ${hov ? s.hex + "77" : BORDER2}`,
+        border: `1.5px solid ${hov ? s.hex + "77" : VAR.borderSubtle}`,
         transform: hov ? "scale(1.04)" : "scale(1)",
         boxShadow: hov ? `0 0 16px ${s.glow}` : "none",
         transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
-        background: BG3,
+        background: VAR.bgElevated,
       }}
     >
       <img
-        src={`${API}${det.image_url}`}
+        src={`${CAMERA_API_URL}${det.image_url}`}
         alt=""
         style={{
           width: "100%",
@@ -905,10 +848,10 @@ function GalleryThumb({ det, s, onClick }) {
           padding: 8,
         }}
       >
-        <div style={{ fontSize: 10, fontWeight: 600, color: TEXT1 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, color: VAR.textPrimary }}>
           #{det.sequence_number}
         </div>
-        <div style={{ fontSize: 9, color: TEXT2, marginTop: 1 }}>
+        <div style={{ fontSize: 9, color: VAR.textSecondary, marginTop: 1 }}>
           {tFmt(det.timestamp)}
         </div>
         {hov && (
@@ -917,7 +860,7 @@ function GalleryThumb({ det, s, onClick }) {
               display: "flex",
               gap: 7,
               fontSize: 9,
-              color: TEXT2,
+              color: VAR.textSecondary,
               marginTop: 2,
             }}
           >
@@ -977,8 +920,8 @@ function TimelineSection({ history }) {
       <SectionTitle>Detection Timeline</SectionTitle>
       <div
         style={{
-          background: CARD,
-          border: `1px solid ${BORDER}`,
+          background: VAR.card,
+          border: `1px solid ${VAR.border}`,
           borderRadius: 12,
           padding: "24px 18px 18px",
         }}
@@ -991,7 +934,7 @@ function TimelineSection({ history }) {
               left: 0,
               right: 0,
               height: 1,
-              background: BORDER2,
+              background: VAR.borderSubtle,
               borderRadius: 1,
             }}
           />
@@ -1029,7 +972,7 @@ function TimelineSection({ history }) {
                   }}
                   onMouseLeave={() => setHov(null)}
                   onClick={() =>
-                    setModal({ src: `${API}${d.image_url}`, det: d })
+                    setModal({ src: `${CAMERA_API_URL}${d.image_url}`, det: d })
                   }
                 >
                   <div
@@ -1049,7 +992,7 @@ function TimelineSection({ history }) {
                     <div
                       style={{
                         fontSize: 8,
-                        color: TEXT3,
+                        color: VAR.textMuted,
                         marginTop: 5,
                         fontFamily: "'DM Mono',monospace",
                       }}
@@ -1063,17 +1006,13 @@ function TimelineSection({ history }) {
           </div>
           {hov !== null && det && (
             <div
+              className="absolute z-[100] w-[180px] pointer-events-none animate-fade-in-up"
               style={{
-                position: "absolute",
                 left: Math.min(
                   Math.max(pos.x - 88, 0),
                   (ref.current?.offsetWidth || 400) - 185,
                 ),
                 top: pos.y - 195,
-                width: 180,
-                zIndex: 100,
-                pointerEvents: "none",
-                animation: "fadeUp 0.14s ease",
               }}
             >
               <div
@@ -1087,7 +1026,7 @@ function TimelineSection({ history }) {
                 }}
               >
                 <img
-                  src={`${API}${det.image_url}`}
+                  src={`${CAMERA_API_URL}${det.image_url}`}
                   alt=""
                   style={{
                     width: "100%",
@@ -1121,7 +1060,7 @@ function TimelineSection({ history }) {
                       {s.label}
                     </span>
                     <span
-                      style={{ color: TEXT3, fontSize: 9, marginLeft: "auto" }}
+                      style={{ color: VAR.textMuted, fontSize: 9, marginLeft: "auto" }}
                     >
                       #{det.sequence_number}
                     </span>
@@ -1131,7 +1070,7 @@ function TimelineSection({ history }) {
                       display: "flex",
                       gap: 9,
                       fontSize: 10,
-                      color: TEXT2,
+                      color: VAR.textSecondary,
                     }}
                   >
                     <span>👤{det.person_count ?? 0}</span>
@@ -1144,7 +1083,7 @@ function TimelineSection({ history }) {
                   </div>
                   <div
                     style={{
-                      color: TEXT3,
+                      color: VAR.textMuted,
                       fontSize: 9,
                       marginTop: 3,
                       fontFamily: "'DM Mono',monospace",
@@ -1194,7 +1133,7 @@ function TimelineSection({ history }) {
               <span
                 style={{
                   fontSize: 9,
-                  color: TEXT3,
+                  color: VAR.textMuted,
                   textTransform: "capitalize",
                 }}
               >
@@ -1202,7 +1141,7 @@ function TimelineSection({ history }) {
               </span>
             </div>
           ))}
-          <span style={{ fontSize: 9, color: TEXT3 }}>
+          <span style={{ fontSize: 9, color: VAR.textMuted }}>
             · Click dot to inspect
           </span>
         </div>
@@ -1284,8 +1223,8 @@ function TimeLapseSection({ history }) {
     fontSize: 12,
     cursor: "pointer",
     background: "rgba(255,255,255,0.03)",
-    border: `1px solid ${BORDER}`,
-    color: TEXT2,
+    border: `1px solid ${VAR.border}`,
+    color: VAR.textSecondary,
     transition: "all 0.15s",
     display: "flex",
     alignItems: "center",
@@ -1297,15 +1236,15 @@ function TimeLapseSection({ history }) {
       <SectionTitle>Traffic Time-Lapse</SectionTitle>
       <div
         style={{
-          background: CARD,
-          border: `1px solid ${BORDER}`,
+          background: VAR.card,
+          border: `1px solid ${VAR.border}`,
           borderRadius: 12,
           overflow: "hidden",
         }}
       >
-        <div style={{ position: "relative", background: BG }}>
+        <div style={{ position: "relative", background: VAR.bg }}>
           <img
-            src={`${API}${frame.image_url}`}
+            src={`${CAMERA_API_URL}${frame.image_url}`}
             alt=""
             style={{
               width: "100%",
@@ -1330,7 +1269,7 @@ function TimeLapseSection({ history }) {
                 borderRadius: 5,
                 fontSize: 10,
                 background: "rgba(0,0,0,0.65)",
-                color: TEXT2,
+                color: VAR.textSecondary,
                 backdropFilter: "blur(8px)",
               }}
             >
@@ -1346,7 +1285,7 @@ function TimeLapseSection({ history }) {
               borderRadius: 5,
               fontSize: 10,
               background: "rgba(0,0,0,0.65)",
-              color: TEXT2,
+              color: VAR.textSecondary,
               backdropFilter: "blur(8px)",
               fontFamily: "'DM Mono',monospace",
             }}
@@ -1377,29 +1316,18 @@ function TimeLapseSection({ history }) {
             />
           ))}
           {playing && (
-            <div
-              style={{
-                position: "absolute",
-                bottom: 10,
-                left: 10,
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: "#f43f5e",
-                animation: "pulse 1s ease infinite",
-              }}
-            />
+            <div className="absolute bottom-2.5 left-2.5 w-[7px] h-[7px] rounded-full bg-rose-500 animate-pulse" />
           )}
         </div>
 
         <div
-          style={{ padding: "13px 18px", borderTop: `1px solid ${BORDER2}` }}
+          style={{ padding: "13px 18px", borderTop: `1px solid ${VAR.borderSubtle}` }}
         >
           <div
             onClick={seek}
             style={{
               height: 3,
-              background: BORDER,
+              background: VAR.border,
               borderRadius: 2,
               marginBottom: 12,
               cursor: "pointer",
@@ -1483,7 +1411,7 @@ function TimeLapseSection({ history }) {
               </button>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ fontSize: 10, color: TEXT3 }}>Speed</span>
+              <span style={{ fontSize: 10, color: VAR.textMuted }}>Speed</span>
               {[1, 2, 4, 8].map((sp) => (
                 <button
                   key={sp}
@@ -1493,9 +1421,9 @@ function TimeLapseSection({ history }) {
                     borderRadius: 5,
                     fontSize: 10,
                     cursor: "pointer",
-                    border: `1px solid ${speed === sp ? s.hex + "55" : BORDER}`,
+                    border: `1px solid ${speed === sp ? s.hex + "55" : VAR.border}`,
                     background: speed === sp ? s.muted : "transparent",
-                    color: speed === sp ? s.hex : TEXT2,
+                    color: speed === sp ? s.hex : VAR.textSecondary,
                     transition: "all 0.15s",
                   }}
                 >
@@ -1506,7 +1434,7 @@ function TimeLapseSection({ history }) {
             <div
               style={{
                 fontSize: 10,
-                color: TEXT3,
+                color: VAR.textMuted,
                 fontFamily: "'DM Mono',monospace",
               }}
             >
@@ -1548,7 +1476,7 @@ function TimeLapseSection({ history }) {
                 }}
               >
                 <img
-                  src={`${API}${f.image_url}`}
+                  src={`${CAMERA_API_URL}${f.image_url}`}
                   alt=""
                   style={{
                     width: "100%",
@@ -1574,15 +1502,9 @@ function StatsSection({ stats, history }) {
   const totalPeople = history.reduce((a, d) => a + (d.person_count || 0), 0);
   const totalVehicles = history.reduce((a, d) => a + (d.vehicle_count || 0), 0);
   return (
-    <section style={{ marginBottom: 24 }}>
+    <section className="mb-6">
       <SectionTitle>Session Statistics</SectionTitle>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))",
-          gap: 9,
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2">
         <MetricCard
           icon="📸"
           label="Total Frames"
@@ -1986,8 +1908,8 @@ function WaveformAnalysis({ history }) {
 
       <div
         style={{
-          background: CARD,
-          border: `1px solid ${BORDER}`,
+          background: VAR.card,
+          border: `1px solid ${VAR.border}`,
           borderRadius: 14,
           overflow: "hidden",
         }}
@@ -1999,7 +1921,7 @@ function WaveformAnalysis({ history }) {
             alignItems: "center",
             justifyContent: "space-between",
             padding: "14px 18px",
-            borderBottom: `1px solid ${BORDER2}`,
+            borderBottom: `1px solid ${VAR.borderSubtle}`,
             flexWrap: "wrap",
             gap: 10,
           }}
@@ -2015,10 +1937,10 @@ function WaveformAnalysis({ history }) {
                   fontSize: 11,
                   fontWeight: 500,
                   cursor: "pointer",
-                  border: `1px solid ${activeTab === t.key ? t.color + "55" : BORDER}`,
+                  border: `1px solid ${activeTab === t.key ? t.color + "55" : VAR.border}`,
                   background:
                     activeTab === t.key ? t.color + "10" : "transparent",
-                  color: activeTab === t.key ? t.color : TEXT2,
+                  color: activeTab === t.key ? t.color : VAR.textSecondary,
                   transition: "all 0.15s",
                 }}
               >
@@ -2045,14 +1967,14 @@ function WaveformAnalysis({ history }) {
                   gap: 5,
                   padding: "3px 9px",
                   borderRadius: 5,
-                  background: BG,
+                  background: VAR.bg,
                   border: `1px solid ${c}22`,
                 }}
               >
                 <span
                   style={{
                     fontSize: 9,
-                    color: TEXT3,
+                    color: VAR.textMuted,
                     textTransform: "uppercase",
                     letterSpacing: "0.07em",
                   }}
@@ -2120,7 +2042,7 @@ function WaveformAnalysis({ history }) {
               alignItems: "center",
               justifyContent: "space-between",
               padding: "0 4px",
-              borderTop: `1px solid ${BORDER2}`,
+              borderTop: `1px solid ${VAR.borderSubtle}`,
               marginTop: 8,
             }}
           >
@@ -2139,13 +2061,13 @@ function WaveformAnalysis({ history }) {
                   <span
                     style={{
                       fontSize: 11,
-                      color: TEXT1,
+                      color: VAR.textPrimary,
                       fontFamily: "'DM Mono',monospace",
                     }}
                   >
                     Frame #{hovFrame.sequence_number}
                   </span>
-                  <span style={{ fontSize: 11, color: TEXT2 }}>
+                  <span style={{ fontSize: 11, color: VAR.textSecondary }}>
                     {dtFmt(hovFrame.timestamp)}
                   </span>
                 </div>
@@ -2155,7 +2077,7 @@ function WaveformAnalysis({ history }) {
                     ["🚗", hovFrame.vehicle_count ?? 0, "#10b981"],
                     ["🚦", hovSig.label, hovSig.hex],
                   ].map(([ic, v, c]) => (
-                    <span key={ic} style={{ fontSize: 11, color: TEXT2 }}>
+                    <span key={ic} style={{ fontSize: 11, color: VAR.textSecondary }}>
                       {ic}{" "}
                       <span style={{ color: c, fontWeight: 600 }}>{v}</span>
                     </span>
@@ -2163,7 +2085,7 @@ function WaveformAnalysis({ history }) {
                 </div>
               </>
             ) : (
-              <span style={{ fontSize: 10, color: TEXT3 }}>
+              <span style={{ fontSize: 10, color: VAR.textMuted }}>
                 Hover over the waveform to inspect a frame
               </span>
             )}
@@ -2174,13 +2096,13 @@ function WaveformAnalysis({ history }) {
         <div
           style={{
             padding: "10px 18px 14px",
-            borderTop: `1px solid ${BORDER2}`,
+            borderTop: `1px solid ${VAR.borderSubtle}`,
           }}
         >
           <div
             style={{
               fontSize: 9,
-              color: TEXT3,
+              color: VAR.textMuted,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               marginBottom: 7,
@@ -2230,13 +2152,13 @@ function WaveformAnalysis({ history }) {
         <div
           style={{
             padding: "10px 18px 16px",
-            borderTop: `1px solid ${BORDER2}`,
+            borderTop: `1px solid ${VAR.borderSubtle}`,
           }}
         >
           <div
             style={{
               fontSize: 9,
-              color: TEXT3,
+              color: VAR.textMuted,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               marginBottom: 8,
@@ -2285,7 +2207,7 @@ function WaveformAnalysis({ history }) {
                         flex: 1,
                         height: `${Math.max(pct * 100, 6)}%`,
                         minHeight: 3,
-                        background: h.total > 0 ? hs.hex : BORDER,
+                        background: h.total > 0 ? hs.hex : VAR.border,
                         borderRadius: "2px 2px 0 0",
                         opacity: h.total > 0 ? 0.45 + pct * 0.55 : 0.2,
                         transition: "all 0.2s",
@@ -2313,7 +2235,7 @@ function WaveformAnalysis({ history }) {
                 key={h}
                 style={{
                   fontSize: 8,
-                  color: TEXT3,
+                  color: VAR.textMuted,
                   fontFamily: "'DM Mono',monospace",
                 }}
               >
@@ -2349,9 +2271,9 @@ export default function SafeVDashboard() {
   const load = useCallback(async () => {
     try {
       const [lr, hr, sr] = await Promise.all([
-        fetch(`${API}/latest`),
-        fetch(`${API}/history?limit=80`),
-        fetch(`${API}/stats`),
+        fetch(`${CAMERA_API_URL}/latest`),
+        fetch(`${CAMERA_API_URL}/history?limit=80`),
+        fetch(`${CAMERA_API_URL}/stats`),
       ]);
       const [ld, hd, sd] = await Promise.all([lr.json(), hr.json(), sr.json()]);
       if (!ld.message) setLatest(ld);
@@ -2375,7 +2297,7 @@ export default function SafeVDashboard() {
   const capture = async () => {
     setBusy(true);
     try {
-      await fetch(`${API}/webcam/capture`);
+      await fetch(`${CAMERA_API_URL}/webcam/capture`);
       await load();
     } catch {
       setError("Capture failed");
@@ -2390,69 +2312,32 @@ export default function SafeVDashboard() {
   if (loading)
     return (
       <div
-        style={{
-          minHeight: "100vh",
-          background: BG,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-          gap: 18,
-        }}
+        className={`${T.page} flex items-center justify-center flex-col gap-[18px]`}
       >
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&display=swap');`}</style>
-        <div style={{ fontSize: 44, animation: "spin 2s linear infinite" }}>
-          🚦
-        </div>
+        <div className="text-[44px] animate-spin">🚦</div>
         <div
-          style={{
-            color: TEXT3,
-            fontFamily: "'DM Mono',monospace",
-            fontSize: 12,
-            letterSpacing: "0.22em",
-          }}
+          className={`${T.textMuted} font-mono text-xs tracking-[0.22em]`}
         >
           LOADING SAFEV...
         </div>
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     );
 
   return (
-    <div style={{ minHeight: "100vh", background: BG, color: TEXT1 }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&display=swap');
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-        ::-webkit-scrollbar{width:4px;height:4px;}
-        ::-webkit-scrollbar-track{background:transparent;}
-        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.07);border-radius:4px;}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-        @keyframes blink{0%,100%{opacity:1}50%{opacity:0.15}}
-        button{font-family:inherit;}
-      `}</style>
-
+    <div className={T.page}>
       {/* Ambient bg */}
       <div
+        className="fixed inset-0 pointer-events-none z-0 transition-[background] duration-[1400ms]"
         style={{
-          position: "fixed",
-          inset: 0,
-          pointerEvents: "none",
-          zIndex: 0,
-          background: `radial-gradient(ellipse 75% 45% at 50% -5%, ${latSig.color}06 0%, transparent 65%)`,
-          transition: "background 1.4s ease",
+          background: `radial-gradient(ellipse 75% 45% at 50% -5%, ${latSig.hex}06 0%, transparent 65%)`,
         }}
       />
       {/* Grid texture */}
       <div
+        className="fixed inset-0 pointer-events-none z-0 opacity-40"
         style={{
-          position: "fixed",
-          inset: 0,
-          pointerEvents: "none",
-          zIndex: 0,
-          backgroundImage: `linear-gradient(${BORDER2} 1px,transparent 1px),linear-gradient(90deg,${BORDER2} 1px,transparent 1px)`,
+          backgroundImage: `linear-gradient(${VAR.borderSubtle} 1px,transparent 1px),linear-gradient(90deg,${VAR.borderSubtle} 1px,transparent 1px)`,
           backgroundSize: "36px 36px",
-          opacity: 0.4,
         }}
       />
 
@@ -2462,171 +2347,79 @@ export default function SafeVDashboard() {
         onClose={() => setGallery(false)}
       />
 
-      <div
-        style={{
-          position: "relative",
-          zIndex: 1,
-          maxWidth: 1180,
-          margin: "0 auto",
-          padding: "0 20px 52px",
-        }}
-      >
+      <div className="relative z-[1] max-w-[1180px] mx-auto px-5 pb-[52px]">
         {/* NAV */}
-        <nav
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "16px 0 20px",
-            borderBottom: `1px solid ${BORDER2}`,
-            marginBottom: 24,
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ position: "relative" }}>
+        <nav className="flex items-center justify-between py-4 border-b border-slate-200 dark:border-white/10 mb-6 flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative">
               <div
+                className="absolute -inset-[5px] rounded-xl animate-pulse"
                 style={{
-                  position: "absolute",
-                  inset: -5,
-                  borderRadius: 12,
                   background: `radial-gradient(circle,${latSig.glow} 0%,transparent 70%)`,
-                  animation: "pulse 2.5s ease infinite",
                 }}
               />
               <div
-                style={{
-                  position: "relative",
-                  width: 38,
-                  height: 38,
-                  borderRadius: 9,
-                  background: BG3,
-                  border: `1px solid ${latSig.hex}33`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 18,
-                }}
+                className={`relative w-[38px] h-[38px] rounded-[9px] ${T.bgElevated} flex items-center justify-center text-lg`}
+                style={{ border: `1px solid ${latSig.hex}33` }}
               >
                 🚦
               </div>
             </div>
             <div>
-              <div
-                style={{
-                  fontFamily: "'Syne',sans-serif",
-                  fontWeight: 800,
-                  fontSize: 17,
-                  letterSpacing: "-0.3px",
-                  lineHeight: 1,
-                }}
-              >
+              <div className="font-extrabold text-[17px] tracking-tight leading-none">
                 SafeV{" "}
-                <span style={{ color: latSig.hex, transition: "color 0.9s" }}>
+                <span
+                  className="transition-colors duration-[900ms]"
+                  style={{ color: latSig.hex }}
+                >
                   Traffic Monitor
                 </span>
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  marginTop: 3,
-                }}
-              >
+              <div className="flex items-center gap-1.5 mt-0.5">
                 <div
-                  style={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: "50%",
-                    background: error ? "#f43f5e" : "#10b981",
-                    animation: "blink 2s ease infinite",
-                  }}
+                  className={`w-[5px] h-[5px] rounded-full animate-pulse ${error ? "bg-rose-500" : "bg-emerald-500"}`}
                 />
-                <span
-                  style={{
-                    fontSize: 10,
-                    color: TEXT3,
-                    letterSpacing: "0.07em",
-                  }}
-                >
+                <span className={`text-[10px] tracking-wide ${T.textMuted}`}>
                   {error ? "OFFLINE" : "AI Detection Active"}
                 </span>
               </div>
             </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
+          <div className="flex gap-2 items-center flex-wrap">
             <div
-              style={{
-                fontSize: 12,
-                color: TEXT3,
-                fontFamily: "'DM Mono',monospace",
-                background: BG3,
-                border: `1px solid ${BORDER}`,
-                padding: "5px 12px",
-                borderRadius: 7,
-                letterSpacing: "0.05em",
-              }}
+              className={`text-xs font-mono ${T.textMuted} ${T.bgElevated} ${T.border} px-3 py-1.5 rounded-[7px] tracking-wide`}
             >
               {clock.toLocaleTimeString([])}
             </div>
             <button
               onClick={() => setLive((v) => !v)}
+              className={`px-3.5 py-1.5 rounded-[7px] text-[11px] font-medium cursor-pointer transition-all duration-200 ${T.bgElevated}`}
               style={{
-                padding: "6px 14px",
-                borderRadius: 7,
-                fontSize: 11,
-                fontWeight: 500,
-                cursor: "pointer",
-                border: `1px solid ${live ? "rgba(16,185,129,0.35)" : BORDER}`,
-                background: live ? "rgba(16,185,129,0.07)" : BG3,
-                color: live ? "#10b981" : TEXT2,
-                transition: "all 0.2s",
+                border: `1px solid ${live ? "rgba(16,185,129,0.35)" : "var(--theme-border)"}`,
+                background: live ? "rgba(16,185,129,0.07)" : undefined,
+                color: live ? "#10b981" : "var(--theme-text-secondary)",
               }}
             >
               {live ? "● Live" : "○ Paused"}
             </button>
             <button
               onClick={load}
-              style={{
-                padding: "6px 14px",
-                borderRadius: 7,
-                fontSize: 11,
-                cursor: "pointer",
-                background: BG3,
-                border: `1px solid ${BORDER}`,
-                color: TEXT2,
-                transition: "all 0.2s",
-              }}
+              className={`px-3.5 py-1.5 rounded-[7px] text-[11px] cursor-pointer transition-all duration-200 ${T.bgElevated} ${T.textSecondary} ${T.border}`}
             >
               ↻ Refresh
             </button>
             <button
               onClick={capture}
               disabled={busy}
+              className="px-4 py-1.5 rounded-[7px] text-[11px] font-semibold transition-all duration-[250ms] disabled:opacity-55 disabled:cursor-default cursor-pointer"
               style={{
-                padding: "6px 16px",
-                borderRadius: 7,
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: busy ? "default" : "pointer",
                 background: busy
-                  ? BG3
+                  ? "var(--theme-bg-elevated)"
                   : `linear-gradient(135deg,${latSig.hex}cc,${latSig.hex}88)`,
-                color: busy ? TEXT2 : "#fff",
+                color: busy ? "var(--theme-text-secondary)" : "#fff",
                 border: "none",
                 boxShadow: busy ? "none" : `0 0 16px ${latSig.glow}`,
-                transition: "all 0.25s",
-                opacity: busy ? 0.55 : 1,
               }}
             >
               {busy ? "Capturing…" : "📸 Capture"}
@@ -2636,34 +2429,12 @@ export default function SafeVDashboard() {
 
         {/* Error */}
         {error && (
-          <div
-            style={{
-              display: "flex",
-              gap: 9,
-              alignItems: "center",
-              background: "rgba(244,63,94,0.05)",
-              border: "1px solid rgba(244,63,94,0.18)",
-              borderRadius: 9,
-              padding: "10px 14px",
-              marginBottom: 18,
-              animation: "fadeUp 0.3s ease",
-            }}
-          >
-            <span style={{ color: "#f43f5e" }}>⚠</span>
-            <span
-              style={{ color: "rgba(255,150,150,0.7)", fontSize: 12, flex: 1 }}
-            >
-              {error}
-            </span>
+          <div className="flex gap-2 items-center bg-rose-500/5 border border-rose-500/20 rounded-[9px] px-3.5 py-2.5 mb-[18px] animate-fade-in-up">
+            <span className="text-rose-500">⚠</span>
+            <span className="text-rose-300/70 text-xs flex-1">{error}</span>
             <button
               onClick={() => setError(null)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#f43f5e",
-                cursor: "pointer",
-                fontSize: 14,
-              }}
+              className="bg-transparent border-none text-rose-500 cursor-pointer text-sm"
             >
               ×
             </button>
@@ -2674,16 +2445,12 @@ export default function SafeVDashboard() {
         {latest ? (
           <LatestSection det={latest} onOpenGallery={() => setGallery(true)} />
         ) : (
-          <div style={{ textAlign: "center", padding: "70px 0", color: TEXT3 }}>
-            <div style={{ fontSize: 50, marginBottom: 12, opacity: 0.3 }}>
-              🚦
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 500 }}>
+          <div className={`text-center py-[70px] ${T.textMuted}`}>
+            <div className="text-[50px] mb-3 opacity-30">🚦</div>
+            <div className={`text-sm font-medium ${T.textPrimary}`}>
               No detections yet
             </div>
-            <div style={{ fontSize: 12, marginTop: 5 }}>
-              Press Capture to begin
-            </div>
+            <div className="text-xs mt-1.5">Press Capture to begin</div>
           </div>
         )}
 

@@ -24,9 +24,9 @@ function Background() {
           {/* HEADER SECTION */}
           <div className="space-y-4 sm:space-y-6">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-400/30 backdrop-blur-sm animate-fade-in mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-4">
               <svg
-                className="w-4 h-4 text-blue-400"
+                className="w-4 h-4 text-blue-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -38,26 +38,23 @@ function Background() {
                   d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                 />
               </svg>
-              <span className="text-sm text-blue-300 font-medium">
+              <span className="text-sm text-theme-secondary font-medium">
                 IoT-Powered Vehicle Safety
               </span>
             </div>
 
             {/* ✅ ONLY ONE H1 FOR SEO */}
-            <h1 className="bg-clip-text text-transparent text-center bg-gradient-to-b from-neutral-100 to-neutral-300 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-sans py-2 sm:py-4 relative z-20 font-bold tracking-tight leading-tight animate-fade-in-up">
+            <h1 className="bg-clip-text text-transparent text-center bg-gradient-to-b from-slate-900 to-slate-600 dark:from-neutral-100 dark:to-neutral-300 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-sans py-2 sm:py-4 relative z-20 font-bold tracking-tight leading-tight animate-fade-in">
               SAFEV – Smart Accident Detection & Vehicle Safety System
             </h1>
 
             {/* Keyword reinforcement with enhanced styling */}
-            <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mx-auto font-normal text-neutral-200 relative z-20">
+            <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mx-auto font-normal text-theme relative z-20">
               <FlipWords words={words} />
             </div>
 
             {/* Enhanced subtitle */}
-            <p
-              className="text-neutral-400 text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed relative z-20 px-4 animate-fade-in"
-              style={{ animationDelay: "0.2s" }}
-            >
+            <p className="text-theme-secondary text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed relative z-20 px-4 animate-fade-in">
               Real-time accident detection • GPS tracking • Alcohol monitoring •
               Emergency alerts
             </p>
@@ -66,10 +63,7 @@ function Background() {
           {/* BUTTONS - Enhanced with better spacing and effects */}
           <div className="w-full max-w-4xl mx-auto space-y-4 sm:space-y-0 sm:grid sm:grid-cols-1 md:grid-cols-3 sm:gap-4 md:gap-6 relative z-30">
             {/* Buy Now - Enhanced */}
-            <div
-              className="w-full animate-fade-in-up"
-              style={{ animationDelay: "0.3s" }}
-            >
+            <div className="w-full animate-fade-in-up">
               <button
                 onClick={() => navigateWithLoader(router, "/buy")}
                 className="group relative w-full px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white text-base sm:text-lg font-semibold rounded-xl shadow-2xl hover:shadow-blue-500/50 transform hover:scale-105 transition-all duration-300 ease-out border border-blue-400/30 hover:border-blue-300/50 backdrop-blur-sm overflow-hidden"
@@ -110,10 +104,7 @@ function Background() {
             </div>
 
             {/* Track Data - Enhanced */}
-            <div
-              className="w-full animate-fade-in-up"
-              style={{ animationDelay: "0.4s" }}
-            >
+            <div className="w-full animate-fade-in-up">
               <button
                 onClick={() => navigateWithLoader(router, "/tracking")}
                 className="group relative w-full px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white text-base sm:text-lg font-semibold rounded-xl shadow-2xl hover:shadow-emerald-500/50 transform hover:scale-105 transition-all duration-300 ease-out border border-emerald-400/30 hover:border-emerald-300/50 backdrop-blur-sm overflow-hidden"
@@ -141,10 +132,7 @@ function Background() {
             </div>
 
             {/* Working On - Enhanced */}
-            <div
-              className="w-full animate-fade-in-up"
-              style={{ animationDelay: "0.5s" }}
-            >
+            <div className="w-full animate-fade-in-up">
               <button
                 onClick={() => {
                   const section = document.getElementById("creator");
@@ -188,12 +176,9 @@ function Background() {
           </div>
 
           {/* SEO DESCRIPTION - Enhanced */}
-          <div
-            className="text-neutral-400 text-xs sm:text-sm md:text-base max-w-3xl mx-auto leading-relaxed relative z-20 px-4 sm:px-0 animate-fade-in"
-            style={{ animationDelay: "0.6s" }}
-          >
+          <div className="text-theme-secondary text-xs sm:text-sm md:text-base max-w-3xl mx-auto leading-relaxed relative z-20 px-4 sm:px-0 animate-fade-in">
             <p className="mb-4">
-              <strong className="text-neutral-300">SAFEV</strong> is an
+              <strong className="text-theme">SAFEV</strong> is an
               IoT-based smart vehicle safety system providing real-time accident
               detection, GPS tracking, alcohol detection, gas leak monitoring,
               and emergency alert notifications.
@@ -203,36 +188,6 @@ function Background() {
           </div>
         </div>
       </BackgroundLines>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-
-        .animate-fade-in-up {
-          animation: fade-in-up 0.8s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 }

@@ -12,7 +12,7 @@ export default function TrackingErrorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white flex items-center justify-center px-4 py-8 sm:py-12">
+    <div className="page-container flex items-center justify-center px-4 py-8 sm:py-12">
       <div className="w-full max-w-2xl">
         {/* Error Icon */}
         <div className="flex justify-center mb-6 sm:mb-8">
@@ -37,14 +37,14 @@ export default function TrackingErrorPage() {
         </div>
 
         {/* Main Content Card */}
-        <div className="bg-zinc-900/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-zinc-800 overflow-hidden">
+        <div className="glass-card shadow-2xl overflow-hidden">
           <div className="p-6 sm:p-8 lg:p-10 space-y-5 sm:space-y-6">
             {/* Header */}
             <div className="text-center space-y-2 sm:space-y-3">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-rose-400 via-pink-400 to-purple-400 text-transparent bg-clip-text">
                 Device Not Found
               </h1>
-              <p className="text-sm sm:text-base text-gray-400">
+              <p className="text-sm sm:text-base text-theme-secondary">
                 The UCOD you entered doesn't match any of our registered
                 devices.
               </p>
@@ -56,7 +56,7 @@ export default function TrackingErrorPage() {
             {/* Information Sections */}
             <div className="space-y-4 sm:space-y-5">
               {/* Check UCOD */}
-              <div className="bg-black/30 border border-zinc-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-2">
+              <div className="glass-card p-4 sm:p-5 space-y-2">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
                     <svg
@@ -74,10 +74,10 @@ export default function TrackingErrorPage() {
                     </svg>
                   </div>
                   <div className="flex-1 space-y-1">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-200">
+                    <h3 className="text-base sm:text-lg font-semibold text-theme">
                       Double-Check Your UCOD
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-theme-secondary leading-relaxed">
                       Please verify the UCOD on the back or inside of your
                       device for accuracy.
                     </p>
@@ -86,7 +86,7 @@ export default function TrackingErrorPage() {
               </div>
 
               {/* QR Code */}
-              <div className="bg-black/30 border border-zinc-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-2">
+              <div className="glass-card p-4 sm:p-5 space-y-2">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
                     <svg
@@ -104,10 +104,10 @@ export default function TrackingErrorPage() {
                     </svg>
                   </div>
                   <div className="flex-1 space-y-1">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-200">
+                    <h3 className="text-base sm:text-lg font-semibold text-theme">
                       Scan QR Code
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-theme-secondary leading-relaxed">
                       You can also scan the QR code printed on your box for
                       quick access to your device information.
                     </p>
@@ -116,7 +116,7 @@ export default function TrackingErrorPage() {
               </div>
 
               {/* Demo UCOD */}
-              <div className="bg-black/30 border border-zinc-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-2">
+              <div className="glass-card p-4 sm:p-5 space-y-2">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
                     <svg
@@ -134,10 +134,10 @@ export default function TrackingErrorPage() {
                     </svg>
                   </div>
                   <div className="flex-1 space-y-2">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-200">
+                    <h3 className="text-base sm:text-lg font-semibold text-theme">
                       Try Demo UCOD
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-theme-secondary leading-relaxed">
                       Want to see how it works? Click to copy our sample UCOD:
                     </p>
                     <button
@@ -171,7 +171,7 @@ export default function TrackingErrorPage() {
               </div>
 
               {/* Support Contact */}
-              <div className="bg-black/30 border border-zinc-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-2">
+              <div className="glass-card p-4 sm:p-5 space-y-2">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
                     <svg
@@ -189,10 +189,10 @@ export default function TrackingErrorPage() {
                     </svg>
                   </div>
                   <div className="flex-1 space-y-1">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-200">
+                    <h3 className="text-base sm:text-lg font-semibold text-theme">
                       Need Help?
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-theme-secondary leading-relaxed">
                       Still facing issues? Our support team is here to help you
                       resolve any problems.
                     </p>
@@ -226,7 +226,7 @@ export default function TrackingErrorPage() {
 
             <button
               onClick={() => (window.location.href = "/contact")}
-              className="w-full py-3.5 sm:py-4 bg-zinc-800 border border-zinc-700 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base text-white hover:bg-zinc-750 hover:border-zinc-600 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full py-3.5 sm:py-4 glass-card rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base text-theme hover:bg-theme-muted hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2"
             >
               <svg
                 className="w-5 h-5"
@@ -246,7 +246,7 @@ export default function TrackingErrorPage() {
 
             <button
               onClick={() => (window.location.href = "/")}
-              className="w-full py-3.5 sm:py-4 bg-zinc-800 border border-zinc-700 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base text-white hover:bg-zinc-750 hover:border-zinc-600 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full py-3.5 sm:py-4 glass-card rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base text-theme hover:bg-theme-muted hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2"
             >
               <svg
                 className="w-5 h-5"
@@ -267,28 +267,11 @@ export default function TrackingErrorPage() {
         </div>
 
         {/* Footer Note */}
-        <p className="text-center text-xs sm:text-sm text-gray-500 mt-6 px-4">
+        <p className="text-center text-xs sm:text-sm text-theme-secondary mt-6 px-4">
           We're here to help. If you need assistance, please don't hesitate to
           reach out to our support team.
         </p>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 }
