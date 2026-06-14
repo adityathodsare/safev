@@ -18,6 +18,23 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Add this async rewrites function
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://localhost:8000/:path*",
+      },
+      {
+        source: "/captured/:path*",
+        destination: "http://localhost:8000/captured/:path*",
+      },
+      {
+        source: "/detected/:path*",
+        destination: "http://localhost:8000/detected/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
