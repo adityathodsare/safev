@@ -1,18 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { useNavigation } from "@/context/NavigationContext";
 
 export default function RakshakPage() {
   const router = useRouter();
   const { navigateWithLoader } = useNavigation();
-  const [showDevModal, setShowDevModal] = useState(false);
 
   const handleNavigation = (path) => {
-    if (path === "/internal-camera") {
-      setShowDevModal(true);
-      return;
-    }
     navigateWithLoader(router, path);
   };
 
@@ -116,27 +111,6 @@ export default function RakshakPage() {
         </div>
       </div>
 
-      {showDevModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowDevModal(false)}>
-          <div className="glass-card p-8 max-w-md w-full text-center" onClick={(e) => e.stopPropagation()}>
-            <div className="text-4xl mb-4">🚧</div>
-            <h3 className="text-xl font-bold text-theme mb-2">
-              In Development
-            </h3>
-            <p className="text-theme-secondary text-sm mb-6">
-              Internal Camera monitoring is part of Phase 1 development. Check our roadmap for updates.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onClick={() => setShowDevModal(false)} className="px-6 py-2 rounded-xl border border-slate-200 dark:border-white/10 text-theme hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
-                Close
-              </button>
-              <button onClick={() => navigateWithLoader(router, "/remaining")} className="btn-primary">
-                View Roadmap
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
