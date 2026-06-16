@@ -135,13 +135,15 @@ function Background() {
             <div className="w-full animate-fade-in-up">
               <button
                 onClick={() => {
-                  const section = document.getElementById("creator");
+                  const section = document.getElementById("developed-by");
 
                   if (section) {
-                    section.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
+                    const yOffset = -80;
+                    const y =
+                      section.getBoundingClientRect().top +
+                      window.pageYOffset +
+                      yOffset;
+                    window.scrollTo({ top: y, behavior: "smooth" });
                   }
                 }}
                 className="group relative w-full px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 hover:from-amber-700 hover:via-orange-700 hover:to-red-700 text-white text-base sm:text-lg font-semibold rounded-xl shadow-2xl hover:shadow-amber-500/50 transform hover:scale-105 transition-all duration-300 ease-out border border-amber-400/30 hover:border-amber-300/50 backdrop-blur-sm overflow-hidden"

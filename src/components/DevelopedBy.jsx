@@ -66,7 +66,7 @@ const TEAM = [
     ],
   },
   {
-    name: "Khushi Yogesh Sharma",
+    name: "Khushi Sharma",
     role: "Contributor",
     image: "/img/2.jpg",
     links: [
@@ -87,64 +87,70 @@ const TEAM = [
 ];
 
 function MemberCard({ member }) {
-  const isLead = member.role === "Team Lead";
+  const getHoverBg = (label) => {
+    switch (label) {
+      case "LinkedIn":
+        return "hover:bg-sky-500/10 hover:border-sky-500/30";
+      case "GitHub":
+        return "hover:bg-purple-500/10 hover:border-purple-500/30";
+      case "Email":
+        return "hover:bg-pink-500/10 hover:border-pink-500/30";
+      case "Portfolio":
+        return "hover:bg-emerald-500/10 hover:border-emerald-500/30";
+      case "Contact":
+        return "hover:bg-orange-500/10 hover:border-orange-500/30";
+      default:
+        return "hover:bg-slate-100 dark:hover:bg-white/10";
+    }
+  };
 
   return (
-    <div
-      className={`group relative rounded-2xl overflow-hidden flex flex-col transition-all duration-500 hover:-translate-y-2 ${
-        isLead
-          ? "ring-1 ring-sky-500/30 shadow-xl shadow-sky-500/10"
-          : "hover:shadow-2xl"
-      }`}
-    >
-      {/* Animated gradient border on hover */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-sky-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-sky-500/20 group-hover:via-purple-500/20 group-hover:to-pink-500/20 transition-all duration-700 pointer-events-none z-0" />
-      <div className="absolute inset-px rounded-2xl bg-white dark:bg-slate-900/90 backdrop-blur-sm z-0" />
+    <div className="group relative rounded-3xl overflow-hidden flex flex-col transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] border border-slate-200/50 dark:border-white/[0.08] bg-white/50 dark:bg-slate-900/40 backdrop-blur-md">
+      {/* Glow highlight effect */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
       <div className="relative z-10 flex flex-col h-full">
-        <div className="relative aspect-[4/5] overflow-hidden">
+        {/* Photo Container */}
+        <div className="relative aspect-[4/5] overflow-hidden m-3 rounded-2xl">
           <img
             src={member.image}
             alt={member.name}
-            className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+            className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 scale-100 group-hover:scale-105"
           />
-          <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-          {isLead && (
-            <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-500/90 text-white shadow-lg backdrop-blur-sm">
-              Team Lead
-            </span>
-          )}
-          <div className="absolute bottom-4 left-4 right-4">
-            <p className="text-base sm:text-lg font-extrabold text-white tracking-tight drop-shadow-md">
-              {member.name}
-            </p>
-            <p className="text-[10px] text-white/70 tracking-[0.14em] uppercase mt-0.5">
-              {member.role}
-            </p>
-          </div>
+          {/* Subtle gradient vignette */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-60" />
         </div>
 
-        {member.links?.length > 0 && (
-          <div className="p-4 flex flex-wrap gap-2 border-t border-slate-200/50 dark:border-white/10 bg-white/30 dark:bg-black/20 backdrop-blur-sm">
-            {member.links.map((link) => {
-              const Icon = link.icon;
-              const external =
-                link.href.startsWith("http") || link.href.startsWith("mailto:");
-              return (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target={external ? "_blank" : undefined}
-                  rel={external ? "noopener noreferrer" : undefined}
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.05] text-[11px] font-semibold text-theme-secondary transition-all duration-200 hover:scale-105 ${link.color}`}
-                >
-                  <Icon className="w-3.5 h-3.5 shrink-0" />
-                  {link.label}
-                </a>
-              );
-            })}
-          </div>
-        )}
+        {/* Info & Links Container */}
+        <div className="px-6 pb-6 pt-2 flex flex-col items-center justify-center text-center flex-grow">
+          <h3 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-800 dark:text-white group-hover:bg-gradient-to-r group-hover:from-sky-400 group-hover:to-purple-400 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+            {member.name}
+          </h3>
+
+          {member.links?.length > 0 && (
+            <div className="mt-4 flex items-center justify-center gap-3 flex-wrap">
+              {member.links.map((link) => {
+                const Icon = link.icon;
+                const external =
+                  link.href.startsWith("http") || link.href.startsWith("mailto:");
+                return (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer" : undefined}
+                    title={link.label}
+                    className={`w-9 h-9 rounded-full flex items-center justify-center border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-350 transition-all duration-300 hover:scale-110 hover:-translate-y-0.5 hover:shadow-md ${getHoverBg(
+                      link.label
+                    )} ${link.color}`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                  </a>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
