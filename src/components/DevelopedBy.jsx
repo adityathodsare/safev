@@ -105,6 +105,10 @@ function MemberCard({ member }) {
   };
 
   return (
+    <section
+  id="developed-by"
+  className="relative overflow-hidden py-16 sm:py-24 border-t border-slate-200 dark:border-white/10 scroll-mt-20"
+>
     <div className="group relative rounded-3xl overflow-hidden flex flex-col transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] border border-slate-200/50 dark:border-white/[0.08] bg-white/50 dark:bg-slate-900/40 backdrop-blur-md">
       {/* Glow highlight effect */}
       <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
@@ -153,6 +157,7 @@ function MemberCard({ member }) {
         </div>
       </div>
     </div>
+    </section>
   );
 }
 

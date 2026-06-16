@@ -151,7 +151,12 @@ function Background() {
                 {/* Shimmer effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
-                <span className="relative z-10 flex items-center justify-center gap-2">
+                <span onClick={() => {
+  document.getElementById("developed-by")?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}} className="relative z-10 flex items-center justify-center gap-2">
                   <svg
                     className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500"
                     fill="none"
