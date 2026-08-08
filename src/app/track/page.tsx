@@ -12,6 +12,159 @@ interface LocationData {
   timestamp: number;
 }
 
+interface TrackingPath {
+  id: number;
+  points: LocationData[];
+  startTime: number;
+  endTime: number;
+  durationMs: number;
+  distanceKm: number;
+  startLocation: LocationData;
+  endLocation: LocationData;
+  stopDurationBeforeMs: number | null;
+}
+
+const PATH_GAP_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
+
+const PATH_COLORS = [
+  "#3b82f6", // Blue
+  "#ef4444", // Red
+  "#22c55e", // Green
+  "#a855f7", // Purple
+  "#f97316", // Orange
+  "#06b6d4", // Cyan
+  "#eab308", // Yellow
+  "#ec4899", // Pink
+  "#14b8a6", // Teal
+  "#8b5cf6", // Violet
+];
+
+const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number => {
+  const R = 6371; // Earth radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+const calculatePathDistance = (points: LocationData[]): number => {
+  let totalDistance = 0;
+  for (let i = 1; i < points.length; i++) {
+    totalDistance += calculateDistance(
+      points[i - 1].latitude,
+      points[i - 1].longitude,
+      points[i].latitude,
+      points[i].longitude
+    );
+  }
+  return totalDistance;
+};
+
+const getPathColor = (pathIndex: number): string => {
+  return PATH_COLORS[pathIndex % PATH_COLORS.length];
+};
+
+const segmentLocationHistory = (history: LocationData[]): TrackingPath[] => {
+  // 1. Filter out invalid lat/lng points
+  const validPoints = history.filter(
+    (loc) =>
+      loc &&
+      typeof loc.latitude === "number" &&
+      typeof loc.longitude === "number" &&
+      !isNaN(loc.latitude) &&
+      !isNaN(loc.longitude) &&
+      (loc.latitude !== 0 || loc.longitude !== 0)
+  );
+
+  if (validPoints.length === 0) return [];
+
+  // 2. Sort chronologically (oldest to newest)
+  const sorted = [...validPoints].sort((a, b) => a.timestamp - b.timestamp);
+
+  const rawPaths: {
+    points: LocationData[];
+    stopDurationBeforeMs: number | null;
+  }[] = [];
+
+  let currentPoints: LocationData[] = [sorted[0]];
+  let currentGapBefore: number | null = null;
+
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = sorted[i - 1];
+    const curr = sorted[i];
+    const gap = curr.timestamp - prev.timestamp;
+
+    if (gap >= PATH_GAP_THRESHOLD_MS) {
+      // Time gap >= 15 min: close current path and start next path
+      rawPaths.push({
+        points: currentPoints,
+        stopDurationBeforeMs: currentGapBefore,
+      });
+      currentPoints = [curr];
+      currentGapBefore = gap;
+    } else {
+      currentPoints.push(curr);
+    }
+  }
+
+  // Push final path
+  if (currentPoints.length > 0) {
+    rawPaths.push({
+      points: currentPoints,
+      stopDurationBeforeMs: currentGapBefore,
+    });
+  }
+
+  // 3. Construct TrackingPath items
+  return rawPaths.map((raw, index) => {
+    const startLoc = raw.points[0];
+    const endLoc = raw.points[raw.points.length - 1];
+    const startTime = startLoc.timestamp;
+    const endTime = endLoc.timestamp;
+    const durationMs = Math.max(0, endTime - startTime);
+    const distanceKm = calculatePathDistance(raw.points);
+
+    return {
+      id: index + 1,
+      points: raw.points,
+      startTime,
+      endTime,
+      durationMs,
+      distanceKm,
+      startLocation: startLoc,
+      endLocation: endLoc,
+      stopDurationBeforeMs: raw.stopDurationBeforeMs,
+    };
+  });
+};
+
+const formatDuration = (ms: number): string => {
+  if (ms <= 0) return "0 min";
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (hours > 0) {
+    const remMin = minutes % 60;
+    return `${hours} hr${hours > 1 ? "s" : ""}${remMin > 0 ? ` ${remMin} min` : ""}`;
+  }
+  if (minutes > 0) {
+    return `${minutes} min${minutes > 1 ? "s" : ""}`;
+  }
+  return `${seconds} sec`;
+};
+
 interface ThingSpeakData {
   channel: {
     id: number;
@@ -50,6 +203,11 @@ export default function RakshakGPSTracker() {
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+
+  // Multi-path segmentation state
+  const [trackingPaths, setTrackingPaths] = useState<TrackingPath[]>([]);
+  const [visiblePathIds, setVisiblePathIds] = useState<Set<number>>(new Set());
+  const [selectedPathId, setSelectedPathId] = useState<number | null>(null);
 
   // ThingSpeak configuration
   const THINGSPEAK_CHANNEL_ID = "3178336";
@@ -178,7 +336,25 @@ export default function RakshakGPSTracker() {
         const latestLocation = historyData[historyData.length - 1];
         setLocation(latestLocation);
         setLocationHistory(historyData);
-        updateMapWithData(latestLocation, historyData, mode);
+
+        if (mode === "history" && historyData.length > 0) {
+          const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+          const recentHistory = historyData.filter(
+            (loc) => loc.timestamp >= twentyFourHoursAgo
+          );
+
+          const paths = segmentLocationHistory(recentHistory);
+          setTrackingPaths(paths);
+          const allIds = new Set(paths.map((p) => p.id));
+          setVisiblePathIds(allIds);
+          setSelectedPathId(null);
+        } else {
+          setTrackingPaths([]);
+          setVisiblePathIds(new Set());
+          setSelectedPathId(null);
+        }
+
+        updateVehicleMarker(latestLocation, mode);
       } else {
         setError("No GPS data available from ThingSpeak");
       }
@@ -194,9 +370,8 @@ export default function RakshakGPSTracker() {
     }
   };
 
-  const updateMapWithData = (
+  const updateVehicleMarker = (
     latestLocation: LocationData,
-    history: LocationData[],
     mode: "live" | "history"
   ) => {
     if (
@@ -207,23 +382,10 @@ export default function RakshakGPSTracker() {
       const L = (window as any).L;
       const map = (mapRef.current as any).leafletMap;
 
-      // Clear existing layers
-      if ((mapRef.current as any).markerLayers) {
-        (mapRef.current as any).markerLayers.forEach((layer: any) => {
-          map.removeLayer(layer);
-        });
-      }
-      (mapRef.current as any).markerLayers = [];
-
       if ((mapRef.current as any).currentMarker) {
         map.removeLayer((mapRef.current as any).currentMarker);
       }
 
-      if ((mapRef.current as any).pathPolyline) {
-        map.removeLayer((mapRef.current as any).pathPolyline);
-      }
-
-      // Create professional vehicle icon for latest location
       const vehicleIcon = L.divIcon({
         className: "vehicle-marker",
         html: `
@@ -267,7 +429,6 @@ export default function RakshakGPSTracker() {
         iconAnchor: [21, 52],
       });
 
-      // Add vehicle marker for latest location
       const vehicleMarker = L.marker(
         [latestLocation.latitude, latestLocation.longitude],
         {
@@ -280,176 +441,338 @@ export default function RakshakGPSTracker() {
         <div style="color: #1f2937; background: white; padding: 12px; border-radius: 8px; font-size: 13px; border: 2px solid #3b82f6; min-width: 200px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
             <div style="width: 12px; height: 12px; background: #3b82f6; border-radius: 50%;"></div>
-            <strong style="color: #111827; font-size: 14px;">📍 Live Vehicle Location</strong>
+            <strong style="color: #111827; font-size: 14px;">📍 Current Vehicle Location</strong>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
             <div>
               <span style="color: #6b7280; font-size: 11px;">Latitude</span>
               <div style="color: #1f2937; font-family: monospace; font-weight: 600;">${latestLocation.latitude.toFixed(
-                6
-              )}</div>
+        6
+      )}</div>
             </div>
             <div>
               <span style="color: #6b7280; font-size: 11px;">Longitude</span>
               <div style="color: #1f2937; font-family: monospace; font-weight: 600;">${latestLocation.longitude.toFixed(
-                6
-              )}</div>
+        6
+      )}</div>
             </div>
             <div>
               <span style="color: #6b7280; font-size: 11px;">Speed</span>
-              <div style="color: #dc2626; font-weight: 700;">${
-                latestLocation.speed?.toFixed(1) || "0.0"
-              } km/h</div>
+              <div style="color: #dc2626; font-weight: 700;">${latestLocation.speed?.toFixed(1) || "0.0"
+        } km/h</div>
             </div>
             <div>
               <span style="color: #6b7280; font-size: 11px;">Time</span>
               <div style="color: #1f2937; font-size: 11px; font-weight: 500;">${formatTime(
-                latestLocation.timestamp
-              )}</div>
+          latestLocation.timestamp
+        )}</div>
             </div>
           </div>
         </div>
       `;
       vehicleMarker.bindPopup(vehiclePopupContent);
       (mapRef.current as any).currentMarker = vehicleMarker;
-      (mapRef.current as any).markerLayers.push(vehicleMarker);
 
-      if (mode === "history" && history.length > 1) {
-        // Filter only data from the last 24 hours
-        const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
-        const recentHistory = history.filter(
-          (loc) => loc.timestamp >= twentyFourHoursAgo
+      if (mode === "live") {
+        map.setView(
+          [latestLocation.latitude, latestLocation.longitude],
+          18
         );
+      }
+    }
+  };
 
-        // Calculate total points and how many to show (limit to reasonable number)
-        const totalPoints = recentHistory.length;
-        const showEvery = Math.max(1, Math.floor(totalPoints / 50)); // Show max 50 points
+  const renderTrackingPaths = (
+    paths: TrackingPath[],
+    visibleIds: Set<number>,
+    selectedId: number | null
+  ) => {
+    if (
+      !mapRef.current ||
+      !(mapRef.current as any).leafletMap ||
+      !(window as any).L
+    )
+      return;
+    const L = (window as any).L;
+    const map = (mapRef.current as any).leafletMap;
 
-        // Add expressive red dot markers for historical positions (excluding the latest one)
-        // Process in chronological order (oldest to newest) and show sequence number
-        recentHistory.slice(0, -1).forEach((loc, index) => {
-          // Only show every Nth point to avoid overcrowding
-          if (index % showEvery !== 0) return;
+    // Clear existing path layers
+    if ((mapRef.current as any).pathLayers) {
+      (mapRef.current as any).pathLayers.forEach((layer: any) => {
+        map.removeLayer(layer);
+      });
+    }
+    (mapRef.current as any).pathLayers = [];
 
-          // Calculate color intensity based on recency (newer = brighter red)
-          const recency = index / (recentHistory.length - 1);
-          const intensity = Math.floor(200 + 55 * recency);
-          const size = 8 + 4 * recency; // 8px to 12px based on recency
-          const sequenceNumber = index + 1; // 1-based index
+    if (trackingMode !== "history" || paths.length === 0) return;
 
-          const dotIcon = L.divIcon({
-            className: "history-dot",
+    const visibleBoundsCoords: [number, number][] = [];
+
+    paths.forEach((path, index) => {
+      if (!visibleIds.has(path.id)) return;
+
+      const pathColor = getPathColor(path.id - 1);
+      const isSelected = selectedId === path.id;
+
+      // Collect points for map bounds
+      path.points.forEach((pt) => {
+        visibleBoundsCoords.push([pt.latitude, pt.longitude]);
+      });
+
+      // 1. Draw Polyline (if path has > 1 points)
+      if (path.points.length > 1) {
+        const coords = path.points.map((p) => [p.latitude, p.longitude]);
+        const polyline = L.polyline(coords, {
+          color: pathColor,
+          weight: isSelected ? 6 : 4,
+          opacity: isSelected ? 1.0 : 0.85,
+          lineCap: "round",
+          lineJoin: "round",
+        }).addTo(map);
+
+        const polylinePopup = `
+          <div style="color: #1f2937; background: white; padding: 12px; border-radius: 8px; font-size: 12px; border: 2px solid ${pathColor}; min-width: 200px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
+              <strong style="color: ${pathColor}; font-size: 14px;">🛣️ Path ${path.id}</strong>
+              <span style="font-size: 10px; background: ${pathColor}22; color: ${pathColor}; padding: 2px 6px; border-radius: 4px; font-weight: 600;">ROUTE</span>
+            </div>
+            <div style="display: grid; gap: 4px;">
+              <div><span style="color: #6b7280;">Distance:</span> <strong style="color: #1f2937;">${path.distanceKm.toFixed(2)} km</strong></div>
+              <div><span style="color: #6b7280;">Duration:</span> ${formatDuration(path.durationMs)}</div>
+              <div><span style="color: #6b7280;">Time:</span> ${formatTime(path.startTime)} → ${formatTime(path.endTime)}</div>
+              <div><span style="color: #6b7280;">GPS Points:</span> ${path.points.length}</div>
+            </div>
+          </div>
+        `;
+        polyline.bindPopup(polylinePopup);
+
+        (mapRef.current as any).pathLayers.push(polyline);
+      }
+
+      // 2. Start Marker (🟢 Path X Start)
+      const startIcon = L.divIcon({
+        className: `path-start-marker-${path.id}`,
+        html: `
+          <div style="
+            position: relative;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(34, 197, 94, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+          ">
+            P${path.id}
+          </div>
+        `,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+      });
+
+      const startMarker = L.marker(
+        [path.startLocation.latitude, path.startLocation.longitude],
+        {
+          icon: startIcon,
+          zIndexOffset: 600,
+        }
+      ).addTo(map);
+
+      const startPopupContent = `
+        <div style="color: #1f2937; background: white; padding: 12px; border-radius: 8px; font-size: 12px; border: 2px solid #22c55e; min-width: 200px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+            <span style="font-size: 16px;">🟢</span>
+            <strong style="color: #15803d; font-size: 14px;">Path ${path.id} Start</strong>
+          </div>
+          <div style="display: grid; gap: 4px;">
+            <div><span style="color: #6b7280;">Time:</span> <strong>${formatTime(path.startTime)}</strong></div>
+            <div><span style="color: #6b7280;">Date:</span> ${formatDate(path.startTime)}</div>
+            <div><span style="color: #6b7280;">Coordinates:</span> <span style="font-family: monospace; font-size: 11px;">${path.startLocation.latitude.toFixed(6)}, ${path.startLocation.longitude.toFixed(6)}</span></div>
+            ${path.startLocation.speed !== null ? `<div><span style="color: #6b7280;">Speed:</span> ${path.startLocation.speed.toFixed(1)} km/h</div>` : ""}
+          </div>
+        </div>
+      `;
+      startMarker.bindPopup(startPopupContent);
+
+      (mapRef.current as any).pathLayers.push(startMarker);
+
+      // 3. End Marker (🔴 Path X End) - if path has > 1 points
+      if (path.points.length > 1) {
+        const endIcon = L.divIcon({
+          className: `path-end-marker-${path.id}`,
+          html: `
+            <div style="
+              position: relative;
+              width: 32px;
+              height: 32px;
+              background: linear-gradient(135deg, #ef4444, #b91c1c);
+              border: 2px solid white;
+              border-radius: 50%;
+              box-shadow: 0 2px 10px rgba(239, 68, 68, 0.7);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 11px;
+              font-weight: 800;
+              color: white;
+              cursor: pointer;
+            ">
+              P${path.id}
+            </div>
+          `,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+        });
+
+        const endMarker = L.marker(
+          [path.endLocation.latitude, path.endLocation.longitude],
+          {
+            icon: endIcon,
+            zIndexOffset: 600,
+          }
+        ).addTo(map);
+
+        const endPopupContent = `
+          <div style="color: #1f2937; background: white; padding: 12px; border-radius: 8px; font-size: 12px; border: 2px solid #ef4444; min-width: 200px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+              <span style="font-size: 16px;">🔴</span>
+              <strong style="color: #b91c1c; font-size: 14px;">Path ${path.id} End</strong>
+            </div>
+            <div style="display: grid; gap: 4px;">
+              <div><span style="color: #6b7280;">Time:</span> <strong>${formatTime(path.endTime)}</strong></div>
+              <div><span style="color: #6b7280;">Traveled Distance:</span> <strong style="color: #3b82f6;">${path.distanceKm.toFixed(2)} km</strong></div>
+              <div><span style="color: #6b7280;">Duration:</span> ${formatDuration(path.durationMs)}</div>
+              <div><span style="color: #6b7280;">Coordinates:</span> <span style="font-family: monospace; font-size: 11px;">${path.endLocation.latitude.toFixed(6)}, ${path.endLocation.longitude.toFixed(6)}</span></div>
+            </div>
+          </div>
+        `;
+        endMarker.bindPopup(endPopupContent);
+
+        (mapRef.current as any).pathLayers.push(endMarker);
+      }
+
+      // 4. Stop Marker (Tracking Gap) before this path
+      if (index > 0 && path.stopDurationBeforeMs !== null) {
+        const prevPath = paths[index - 1];
+        if (visibleIds.has(prevPath.id) || visibleIds.has(path.id)) {
+          const stopIcon = L.divIcon({
+            className: `stop-marker-${index}`,
             html: `
               <div style="
-                width: ${size}px;
-                height: ${size}px;
-                background: linear-gradient(135deg, #dc2626, #b91c1c);
+                position: relative;
+                width: 34px;
+                height: 34px;
+                background: linear-gradient(135deg, #f59e0b, #d97706);
                 border: 2px solid white;
                 border-radius: 50%;
-                box-shadow: 0 2px 8px rgba(220, 38, 38, 0.6);
-                cursor: pointer;
-                transition: all 0.3s ease;
+                box-shadow: 0 3px 12px rgba(245, 158, 11, 0.8);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: ${size - 4}px;
-                font-weight: bold;
+                font-size: 15px;
                 color: white;
-              ">${sequenceNumber}</div>
+                cursor: pointer;
+              ">
+                ⏱️
+              </div>
             `,
-            iconSize: [size, size],
-            iconAnchor: [size / 2, size / 2],
+            iconSize: [34, 34],
+            iconAnchor: [17, 17],
           });
 
-          const dotMarker = L.marker([loc.latitude, loc.longitude], {
-            icon: dotIcon,
-          }).addTo(map);
+          const stopMarker = L.marker(
+            [prevPath.endLocation.latitude, prevPath.endLocation.longitude],
+            {
+              icon: stopIcon,
+              zIndexOffset: 700,
+            }
+          ).addTo(map);
 
-          // Calculate percentage complete (0% to 100%)
-          const progressPercent = (
-            ((index + 1) / recentHistory.length) *
-            100
-          ).toFixed(1);
-
-          const dotPopupContent = `
-            <div style="color: #1f2937; background: white; padding: 10px; border-radius: 6px; font-size: 12px; border: 1px solid #e5e7eb; min-width: 180px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                <div style="width: 8px; height: 8px; background: #dc2626; border-radius: 50%;"></div>
-                <strong style="color: #111827; font-size: 13px;">📍 Point ${sequenceNumber} of ${totalPoints}</strong>
+          const stopPopupContent = `
+            <div style="color: #1f2937; background: white; padding: 12px; border-radius: 8px; font-size: 12px; border: 2px solid #f59e0b; min-width: 220px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <span style="font-size: 16px;">🛑</span>
+                <strong style="color: #d97706; font-size: 14px;">Stop / Tracking Gap ${index}</strong>
               </div>
-              <div style="display: grid; gap: 4px;">
-                <div>
-                  <span style="color: #6b7280;">Journey Progress: </span>
-                  <span style="color: #3b82f6; font-weight: 600;">${progressPercent}%</span>
-                </div>
-                <div>
-                  <span style="color: #6b7280;">Latitude: </span>
-                  <span style="color: #1f2937; font-family: monospace;">${loc.latitude.toFixed(
-                    6
-                  )}</span>
-                </div>
-                <div>
-                  <span style="color: #6b7280;">Longitude: </span>
-                  <span style="color: #1f2937; font-family: monospace;">${loc.longitude.toFixed(
-                    6
-                  )}</span>
-                </div>
-                <div>
-                  <span style="color: #6b7280;">Speed: </span>
-                  <span style="color: #dc2626; font-weight: 600;">${
-                    loc.speed?.toFixed(1) || "0.0"
-                  } km/h</span>
-                </div>
-                <div>
-                  <span style="color: #6b7280;">Time: </span>
-                  <span style="color: #1f2937;">${formatTime(
-                    loc.timestamp
-                  )}</span>
-                </div>
-                <div>
-                  <span style="color: #6b7280;">Date: </span>
-                  <span style="color: #1f2937;">${formatDate(
-                    loc.timestamp
-                  )}</span>
-                </div>
-                <div style="margin-top: 4px; padding-top: 4px; border-top: 1px solid #e5e7eb;">
-                  <span style="color: #6b7280; font-size: 11px;">${getTimeAgo(
-                    loc.timestamp
-                  )}</span>
+              <div style="display: grid; gap: 5px;">
+                <div><span style="color: #6b7280;">Stopped / Gap for:</span> <strong style="color: #d97706; font-size: 13px;">${formatDuration(path.stopDurationBeforeMs)}</strong></div>
+                <div><span style="color: #6b7280;">From:</span> ${formatTime(prevPath.endTime)} (${formatDate(prevPath.endTime)})</div>
+                <div><span style="color: #6b7280;">Until:</span> ${formatTime(path.startTime)} (${formatDate(path.startTime)})</div>
+                <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 11px;">
+                  <span>Previous: <strong style="color: ${getPathColor(prevPath.id - 1)};">Path ${prevPath.id}</strong></span>
+                  <span>Next: <strong style="color: ${pathColor};">Path ${path.id}</strong></span>
                 </div>
               </div>
             </div>
           `;
-          dotMarker.bindPopup(dotPopupContent);
-          (mapRef.current as any).markerLayers.push(dotMarker);
-        });
+          stopMarker.bindPopup(stopPopupContent);
 
-        // Draw a polyline connecting all historical points in chronological order
-        if (recentHistory.length > 1) {
-          const pathCoordinates = recentHistory.map((loc) => [
-            loc.latitude,
-            loc.longitude,
-          ]);
-          const pathPolyline = L.polyline(pathCoordinates, {
-            color: "#3b82f6",
-            weight: 3,
-            opacity: 0.7,
-            dashArray: "5, 10",
-            lineCap: "round",
-            lineJoin: "round",
-          }).addTo(map);
-
-          (mapRef.current as any).pathPolyline = pathPolyline;
-          (mapRef.current as any).markerLayers.push(pathPolyline);
+          (mapRef.current as any).pathLayers.push(stopMarker);
         }
       }
+    });
 
-      // Center map on latest location with appropriate zoom
-      map.setView(
-        [latestLocation.latitude, latestLocation.longitude],
-        mode === "live" ? 18 : 16
-      );
+    // Fit map bounds to visible path coordinates
+    if (visibleBoundsCoords.length > 0) {
+      const bounds = L.latLngBounds(visibleBoundsCoords);
+      map.fitBounds(bounds, { padding: [40, 40] });
     }
+  };
+
+  useEffect(() => {
+    if (mapLoaded) {
+      renderTrackingPaths(trackingPaths, visiblePathIds, selectedPathId);
+    }
+  }, [trackingMode, trackingPaths, visiblePathIds, selectedPathId, mapLoaded]);
+
+  const focusOnPath = (path: TrackingPath) => {
+    setSelectedPathId(path.id);
+    if (!visiblePathIds.has(path.id)) {
+      setVisiblePathIds((prev) => new Set([...prev, path.id]));
+    }
+    if (
+      mapRef.current &&
+      (mapRef.current as any).leafletMap &&
+      (window as any).L
+    ) {
+      const L = (window as any).L;
+      const map = (mapRef.current as any).leafletMap;
+      const coords: [number, number][] = path.points.map((p) => [
+        p.latitude,
+        p.longitude,
+      ]);
+      if (coords.length > 0) {
+        const bounds = L.latLngBounds(coords);
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    }
+  };
+
+  const togglePathVisibility = (pathId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setVisiblePathIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(pathId)) {
+        next.delete(pathId);
+      } else {
+        next.add(pathId);
+      }
+      return next;
+    });
+  };
+
+  const showAllPaths = () => {
+    setVisiblePathIds(new Set(trackingPaths.map((p) => p.id)));
+  };
+
+  const hideAllPaths = () => {
+    setVisiblePathIds(new Set());
   };
 
   const getTimeAgo = (timestamp: number) => {
@@ -506,11 +829,21 @@ export default function RakshakGPSTracker() {
         map.removeLayer((mapRef.current as any).pathPolyline);
         (mapRef.current as any).pathPolyline = null;
       }
+
+      if ((mapRef.current as any).pathLayers) {
+        (mapRef.current as any).pathLayers.forEach((layer: any) => {
+          map.removeLayer(layer);
+        });
+        (mapRef.current as any).pathLayers = [];
+      }
     }
     setLocation(null);
     setError("");
     setLocationHistory([]);
     setThingSpeakData(null);
+    setTrackingPaths([]);
+    setVisiblePathIds(new Set());
+    setSelectedPathId(null);
   };
 
   const formatTime = (timestamp: number) => {
@@ -561,17 +894,15 @@ export default function RakshakGPSTracker() {
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-700/50">
                 <span
-                  className={`inline-block w-3 h-3 rounded-full ${
-                    isTracking ? "bg-green-400 animate-pulse" : "bg-slate-600"
-                  }`}
+                  className={`inline-block w-3 h-3 rounded-full ${isTracking ? "bg-green-400 animate-pulse" : "bg-slate-600"
+                    }`}
                 ></span>
                 <span className="text-theme text-sm font-medium">
                   {isTracking
-                    ? `ACTIVE - ${
-                        trackingMode === "live"
-                          ? "LIVE TRACKING"
-                          : "24H HISTORY"
-                      }`
+                    ? `ACTIVE - ${trackingMode === "live"
+                      ? "LIVE TRACKING"
+                      : "24H HISTORY"
+                    }`
                     : "STANDBY"}
                 </span>
               </div>
@@ -837,6 +1168,151 @@ export default function RakshakGPSTracker() {
               </div>
             )}
 
+            {/* Journey Paths Section - Render when trackingMode === "history" */}
+            {trackingMode === "history" && trackingPaths.length > 0 && (
+              <div className="glass-card p-6 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-200/50 dark:border-white/10">
+                  <h3 className="text-lg font-bold text-theme flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/20 rounded-xl">🛣️</div>
+                    Journey Paths
+                  </h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={showAllPaths}
+                      className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-xs font-semibold rounded-lg transition-colors border border-blue-500/30 cursor-pointer"
+                    >
+                      Show All
+                    </button>
+                    <button
+                      onClick={hideAllPaths}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition-colors border border-slate-700 cursor-pointer"
+                    >
+                      Hide All
+                    </button>
+                  </div>
+                </div>
+
+                {/* Journey Summary Stats */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="glass-card p-3 text-center rounded-xl border border-blue-500/20">
+                    <p className="text-[10px] text-theme-secondary uppercase tracking-wider">
+                      Total Paths
+                    </p>
+                    <p className="text-lg font-bold text-blue-400">
+                      {trackingPaths.length}
+                    </p>
+                  </div>
+                  <div className="glass-card p-3 text-center rounded-xl border border-amber-500/20">
+                    <p className="text-[10px] text-theme-secondary uppercase tracking-wider">
+                      Total Stops
+                    </p>
+                    <p className="text-lg font-bold text-amber-400">
+                      {Math.max(0, trackingPaths.length - 1)}
+                    </p>
+                  </div>
+                  <div className="glass-card p-3 text-center rounded-xl border border-green-500/20">
+                    <p className="text-[10px] text-theme-secondary uppercase tracking-wider">
+                      Total Distance
+                    </p>
+                    <p className="text-lg font-bold text-green-400">
+                      {trackingPaths
+                        .reduce((sum, p) => sum + p.distanceKm, 0)
+                        .toFixed(1)}{" "}
+                      km
+                    </p>
+                  </div>
+                </div>
+
+                {/* Path Cards List */}
+                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                  {trackingPaths.map((path, idx) => {
+                    const isVisible = visiblePathIds.has(path.id);
+                    const isSelected = selectedPathId === path.id;
+                    const color = getPathColor(idx);
+
+                    return (
+                      <div
+                        key={path.id}
+                        onClick={() => focusOnPath(path)}
+                        className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer ${isSelected
+                            ? "bg-slate-800/90 border-blue-500 shadow-lg ring-1 ring-blue-500"
+                            : "bg-slate-800/40 hover:bg-slate-800/70 border-slate-700/50"
+                          }`}
+                        style={{
+                          borderLeftWidth: "5px",
+                          borderLeftColor: color,
+                        }}
+                      >
+                        {/* Header row: Checkbox, Path Title, Color badge */}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              checked={isVisible}
+                              onChange={(e) =>
+                                togglePathVisibility(path.id, e as any)
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-4 h-4 rounded text-blue-500 focus:ring-blue-400 bg-slate-700 border-slate-600 cursor-pointer"
+                            />
+                            <span className="font-bold text-sm text-theme flex items-center gap-2">
+                              Path {path.id}
+                              <span
+                                className="w-2.5 h-2.5 rounded-full inline-block"
+                                style={{ backgroundColor: color }}
+                              ></span>
+                            </span>
+                          </div>
+                          <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
+                            {path.distanceKm.toFixed(2)} km
+                          </span>
+                        </div>
+
+                        {/* Details */}
+                        <div className="grid grid-cols-2 gap-2 text-xs text-theme-secondary mt-3">
+                          <div>
+                            <span className="block text-[10px] text-slate-400">
+                              Time Window
+                            </span>
+                            <span className="font-medium text-theme">
+                              {formatTime(path.startTime)} →{" "}
+                              {formatTime(path.endTime)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="block text-[10px] text-slate-400">
+                              Duration
+                            </span>
+                            <span className="font-medium text-theme">
+                              {formatDuration(path.durationMs)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="block text-[10px] text-slate-400">
+                              GPS Points
+                            </span>
+                            <span className="font-medium text-theme">
+                              {path.points.length} points
+                            </span>
+                          </div>
+                          {path.stopDurationBeforeMs !== null && (
+                            <div>
+                              <span className="block text-[10px] text-slate-400">
+                                Gap Before
+                              </span>
+                              <span className="font-medium text-amber-400">
+                                ⏱️ {formatDuration(path.stopDurationBeforeMs)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Map Legend */}
             <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-3xl border border-purple-500/20 p-6 shadow-2xl">
               <h3 className="text-lg font-bold text-theme mb-4 flex items-center gap-3">
@@ -853,25 +1329,51 @@ export default function RakshakGPSTracker() {
                       Current Vehicle
                     </p>
                     <p className="text-xs text-theme-secondary">
-                      Live position with animation
+                      Live position marker
                     </p>
                   </div>
                 </div>
-                {trackingMode === "history" && (
+
+                {trackingMode === "history" && trackingPaths.length > 0 ? (
                   <>
+                    {trackingPaths.map((path, idx) => (
+                      <div
+                        key={path.id}
+                        className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50"
+                      >
+                        <div
+                          className="w-7 h-3 rounded-full border border-white/50 shadow-sm"
+                          style={{ backgroundColor: getPathColor(idx) }}
+                        ></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-theme flex items-center justify-between">
+                            <span>Path {path.id}</span>
+                            <span className="text-[11px] text-blue-400 font-mono">
+                              {path.distanceKm.toFixed(2)} km
+                            </span>
+                          </p>
+                          <p className="text-[10px] text-theme-secondary truncate">
+                            {formatTime(path.startTime)} - {formatTime(path.endTime)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                     <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
-                      <div className="w-6 h-6 bg-gradient-to-br from-red-500 to-red-600 rounded-full border-2 border-white shadow flex items-center justify-center text-white text-xs font-bold">
-                        1
+                      <div className="w-7 h-7 bg-amber-500/20 border border-amber-500 rounded-full flex items-center justify-center text-xs">
+                        ⏱️
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-theme">
-                          Historical Positions
+                          Stop / Tracking Gap
                         </p>
                         <p className="text-xs text-theme-secondary">
-                          Numbered by travel sequence
+                          15+ minute break between paths
                         </p>
                       </div>
                     </div>
+                  </>
+                ) : (
+                  trackingMode === "history" && (
                     <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
                       <div className="w-8 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
                       <div>
@@ -879,12 +1381,13 @@ export default function RakshakGPSTracker() {
                           Travel Path
                         </p>
                         <p className="text-xs text-theme-secondary">
-                          Route taken (chronological)
+                          Route taken
                         </p>
                       </div>
                     </div>
-                  </>
+                  )
                 )}
+
                 <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
                   <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                   <div>
