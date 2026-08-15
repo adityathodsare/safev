@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { API_BASE_URL } from "@/lib/config";
+import { useTheme } from "@/context/ThemeContext";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import {
   Camera,
   Users,
@@ -30,35 +32,40 @@ import {
   SlidersHorizontal,
   Layers,
   Cpu,
-  Check
+  Check,
+  ShieldCheck,
+  ShieldX,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────────
-   CONFIG & THEME  (UNCHANGED LOGIC)
+   CONFIG & THEME
 ───────────────────────────────────────────────── */
 const API = API_BASE_URL.replace(/\/$/, "");
 const POLL_MS = 4000;
 const GALLERY_LIMIT = 80;
+const DEFAULT_MAX_PASSENGERS = 5;
 
 const T = {
-  page: "page-container relative min-h-screen bg-[#06080d] text-slate-100 selection:bg-purple-500/30",
-  textPrimary: "text-slate-100",
-  textSecondary: "text-slate-400",
-  textMuted: "text-slate-500 font-mono",
-  glass: "bg-[#0b0f19]/90 border border-white/10 backdrop-blur-xl",
-  border: "border border-white/10",
-  bgElevated: "bg-[#0d1322]",
+  page: "page-container relative min-h-screen bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-slate-100 selection:bg-purple-500/30 transition-colors duration-300",
+  textPrimary: "text-slate-900 dark:text-slate-100",
+  textSecondary: "text-slate-600 dark:text-slate-400",
+  textMuted: "text-slate-500 dark:text-slate-400 font-mono",
+  glass: "bg-white/80 dark:bg-[#0b0f19]/90 border border-slate-200 dark:border-white/10 backdrop-blur-xl shadow-lg dark:shadow-none",
+  border: "border border-slate-200 dark:border-white/10",
+  bgElevated: "bg-white dark:bg-[#0d1322]",
 };
 
 const VAR = {
-  textPrimary: "#f8fafc",
-  textSecondary: "#94a3b8",
-  textMuted: "#64748b",
-  border: "rgba(255,255,255,0.08)",
-  borderSubtle: "rgba(255,255,255,0.04)",
-  bg: "#06080d",
-  bgElevated: "#0d1322",
-  card: "rgba(11,15,25,0.85)",
+  textPrimary: "var(--theme-text-primary)",
+  textSecondary: "var(--theme-text-secondary)",
+  textMuted: "var(--theme-text-muted)",
+  border: "var(--theme-border)",
+  borderSubtle: "var(--theme-border-subtle)",
+  bg: "var(--theme-bg-page)",
+  bgElevated: "var(--theme-bg-elevated)",
+  card: "var(--theme-glass)",
 };
 
 const STS = {
@@ -92,27 +99,27 @@ const st = (s) => STS[s] || STS.unknown;
 function cabinStatus(det) {
   if (!det) return "unknown";
   if (det.overloaded) return "danger";
-  if (det.alert) return "warn";
+  if (det.alert || (det.seatbelt_warnings ?? 0) > 0) return "warn";
   return "ok";
 }
 
 const tFmt = (ts) =>
   ts
     ? new Date(ts).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      })
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
     : "—";
 const dtFmt = (ts) =>
   ts
     ? new Date(ts).toLocaleString([], {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      })
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
     : "—";
 
 function normalizeCapture(item, idx) {
@@ -121,10 +128,12 @@ function normalizeCapture(item, idx) {
     image_url: item.detected_url,
     passenger_count: item.passenger_count ?? 0,
     overloaded: item.overloaded ?? false,
+    seatbelt_warnings: item.seatbelt_warnings ?? 0,
     alert: item.alert ?? false,
     timestamp: item.timestamp,
     source: item.source,
     filename: item.filename,
+    persons: item.persons ?? [],
     sequence_number: idx + 1,
   };
 }
@@ -165,10 +174,10 @@ function MetricCard({ icon: Icon, label, value, accent = "#10b981", sub, isPrima
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      className="relative bg-[#0b0f19] rounded-xl p-3.5 transition-all duration-200 overflow-hidden"
+      className="relative bg-white dark:bg-[#0b0f19] rounded-xl p-3.5 transition-all duration-200 overflow-hidden shadow-sm dark:shadow-none border border-slate-200 dark:border-white/10"
       style={{
-        border: `1px solid ${hov ? `${accent}55` : "rgba(255,255,255,0.08)"}`,
-        boxShadow: hov ? `0 4px 20px rgba(0,0,0,0.5), 0 0 12px ${accent}15` : "none",
+        borderColor: hov ? `${accent}66` : undefined,
+        boxShadow: hov ? `0 4px 20px rgba(0,0,0,0.15), 0 0 12px ${accent}15` : undefined,
       }}
     >
       <div
@@ -177,7 +186,7 @@ function MetricCard({ icon: Icon, label, value, accent = "#10b981", sub, isPrima
       />
       <div className="pl-1.5">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[9px] uppercase tracking-widest text-slate-400 font-mono font-semibold">
+          <span className="text-[9px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono font-semibold">
             {label}
           </span>
           {Icon && <Icon className="w-3.5 h-3.5 opacity-70" style={{ color: accent }} />}
@@ -188,7 +197,7 @@ function MetricCard({ icon: Icon, label, value, accent = "#10b981", sub, isPrima
         >
           {value}
         </div>
-        {sub && <div className="text-[9px] mt-1.5 text-slate-500 font-mono">{sub}</div>}
+        {sub && <div className="text-[9px] mt-1.5 text-slate-500 dark:text-slate-400 font-mono">{sub}</div>}
       </div>
     </div>
   );
@@ -198,12 +207,12 @@ function SectionTitle({ children, action, subtitle }) {
   return (
     <div className="flex items-end justify-between mb-3.5 flex-wrap gap-2">
       <div>
-        <h2 className="text-[11px] font-bold tracking-[0.2em] text-slate-300 flex items-center gap-2 uppercase font-mono">
+        <h2 className="text-[11px] font-bold tracking-[0.2em] text-slate-800 dark:text-slate-300 flex items-center gap-2 uppercase font-mono">
           <span className="w-1 h-3.5 bg-purple-500 rounded-full inline-block" />
           {children}
         </h2>
         {subtitle && (
-          <p className="text-[10px] font-mono text-slate-500 mt-0.5 pl-3">
+          <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 pl-3">
             {subtitle}
           </p>
         )}
@@ -280,6 +289,63 @@ function LiveImage({ url, alt = "Frame" }) {
 }
 
 /* ─────────────────────────────────────────────────
+   SEATBELT PERSON LIST — used in modal
+───────────────────────────────────────────────── */
+function PersonSeatbeltList({ persons }) {
+  if (!persons || persons.length === 0) return null;
+  return (
+    <div className="px-5 py-3 border-t border-white/10 bg-[#06080d]">
+      <div className="text-[9px] uppercase tracking-widest text-slate-500 font-mono font-semibold mb-2">
+        Passenger Seatbelt Detail
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {persons.map((p, i) => {
+          const worn = p.seatbelt_worn;
+          const score = Math.round((p.seatbelt_score ?? 0) * 100);
+          return (
+            <div
+              key={i}
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border font-mono text-[10px]"
+              style={{
+                background: worn ? "rgba(16,185,129,0.08)" : "rgba(244,63,94,0.08)",
+                borderColor: worn ? "rgba(16,185,129,0.3)" : "rgba(244,63,94,0.3)",
+              }}
+            >
+              {worn ? (
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+              ) : (
+                <ShieldX className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />
+              )}
+              <span className="text-slate-300 font-bold">P{i + 1}</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${score}%`,
+                      background: worn ? "#10b981" : "#f43f5e",
+                    }}
+                  />
+                </div>
+                <span style={{ color: worn ? "#10b981" : "#f43f5e" }}>
+                  {score}%
+                </span>
+              </div>
+              <span
+                className="text-[9px] font-bold uppercase"
+                style={{ color: worn ? "#10b981" : "#f43f5e" }}
+              >
+                {worn ? "BELT ✓" : "NO BELT"}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────
    INSPECTION MODAL
 ───────────────────────────────────────────────── */
 function Modal({ src, det, onClose, onDownload }) {
@@ -331,11 +397,11 @@ function Modal({ src, det, onClose, onDownload }) {
           </div>
 
           {/* Image Viewport */}
-          <div className="bg-black flex items-center justify-center max-h-[70vh] overflow-hidden relative">
+          <div className="bg-black flex items-center justify-center max-h-[60vh] overflow-hidden relative">
             <img
               src={getFullImageUrl(src, API)}
               alt="Frame View"
-              className="max-w-full max-h-[70vh] object-contain block"
+              className="max-w-full max-h-[60vh] object-contain block"
             />
           </div>
 
@@ -350,7 +416,7 @@ function Modal({ src, det, onClose, onDownload }) {
               <div className="flex items-center gap-2">
                 <Radio className="w-3.5 h-3.5 text-blue-400" />
                 <span>Source:</span>
-                <span className="text-white font-bold">{det.source ?? "ESP32-CAM"}</span>
+                <span className="text-white font-bold uppercase">{det.source ?? "—"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="w-3.5 h-3.5 text-amber-400" />
@@ -359,8 +425,18 @@ function Modal({ src, det, onClose, onDownload }) {
                   {det.overloaded ? "YES" : "NO"}
                 </span>
               </div>
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                <span>No Seatbelt:</span>
+                <span className={`font-bold ${(det.seatbelt_warnings ?? 0) > 0 ? "text-amber-400" : "text-emerald-400"}`}>
+                  {det.seatbelt_warnings ?? 0}
+                </span>
+              </div>
             </div>
           )}
+
+          {/* Per-person seatbelt breakdown */}
+          {det?.persons?.length > 0 && <PersonSeatbeltList persons={det.persons} />}
         </div>
       </div>
     </div>
@@ -370,7 +446,7 @@ function Modal({ src, det, onClose, onDownload }) {
 /* ─────────────────────────────────────────────────
    SECTION 1 — LIVE DETECTION CONSOLE
 ───────────────────────────────────────────────── */
-function LatestSection({ det, onOpenGallery }) {
+function LatestSection({ det, onOpenGallery, maxPassengers }) {
   const [imgHov, setImgHov] = useState(false);
   const [modal, setModal] = useState(false);
   if (!det) return null;
@@ -383,6 +459,8 @@ function LatestSection({ det, onOpenGallery }) {
     a.download = `safev-cabin-${det.sequence_number || "latest"}.jpg`;
     a.click();
   };
+
+  const beltWarnings = det.seatbelt_warnings ?? 0;
 
   return (
     <section className="mb-4">
@@ -425,8 +503,8 @@ function LatestSection({ det, onOpenGallery }) {
             <StatusBadge status={status} size="lg" />
           </div>
           {/* HUD: bottom-left */}
-          <div className="absolute bottom-3 left-3 z-10 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-md text-[9px] font-mono text-slate-400 border border-white/10">
-            CAM-01 · ESP32-CAM
+          <div className="absolute bottom-3 left-3 z-10 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-md text-[9px] font-mono text-slate-400 border border-white/10 uppercase">
+            {det.source ? `CAM-01 · ${det.source}` : "CAM-01"}
           </div>
           {/* HUD: bottom-right */}
           <div className="absolute bottom-3 right-3 z-10 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-md text-[9px] font-mono text-slate-200 font-semibold border border-white/10">
@@ -437,9 +515,8 @@ function LatestSection({ det, onOpenGallery }) {
 
           {/* Hover overlay */}
           <div
-            className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity duration-200 z-20 ${
-              imgHov ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
+            className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity duration-200 z-20 ${imgHov ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
           >
             <span className="inline-flex items-center gap-2 text-[11px] font-mono font-semibold text-white bg-black/85 border border-white/20 px-4 py-2 rounded-lg shadow-2xl">
               <Maximize2 className="w-3.5 h-3.5 text-purple-400" /> View Full Frame
@@ -488,7 +565,9 @@ function LatestSection({ det, onOpenGallery }) {
                   <span className="text-3xl font-bold font-mono text-white leading-none">
                     {det.passenger_count ?? 0}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-mono font-medium">passengers detected</span>
+                  <span className="text-[10px] text-slate-400 font-mono font-medium">
+                    / {maxPassengers} passengers
+                  </span>
                 </div>
               </div>
             </div>
@@ -502,14 +581,14 @@ function LatestSection({ det, onOpenGallery }) {
               value={det.passenger_count ?? 0}
               accent="#a78bfa"
               isPrimary={true}
-              sub="Primary count"
+              sub={`Limit: ${maxPassengers}`}
             />
             <MetricCard
-              icon={Target}
-              label="Frame #"
-              value={`#${det.sequence_number || "—"}`}
-              accent="#f59e0b"
-              sub="Sequence ID"
+              icon={ShieldAlert}
+              label="No Seatbelt"
+              value={beltWarnings}
+              accent={beltWarnings > 0 ? "#f59e0b" : "#10b981"}
+              sub={beltWarnings > 0 ? "Belt violations" : "All belted"}
             />
             <MetricCard
               icon={Zap}
@@ -521,7 +600,7 @@ function LatestSection({ det, onOpenGallery }) {
             <MetricCard
               icon={Radio}
               label="Source"
-              value={det.source ?? "ESP32"}
+              value={(det.source ?? "—").toUpperCase()}
               accent="#60a5fa"
               sub="Camera origin"
             />
@@ -537,6 +616,33 @@ function LatestSection({ det, onOpenGallery }) {
             </div>
           </div>
 
+          {/* Per-person seatbelt inline preview */}
+          {det.persons && det.persons.length > 0 && (
+            <div className="bg-[#06080d] rounded-lg px-3 py-2.5 border border-white/8">
+              <div className="text-[9px] uppercase tracking-widest text-slate-500 font-mono font-semibold mb-2">
+                Seatbelt Status
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {det.persons.map((p, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-mono font-bold border"
+                    style={{
+                      background: p.seatbelt_worn ? "rgba(16,185,129,0.08)" : "rgba(244,63,94,0.08)",
+                      borderColor: p.seatbelt_worn ? "rgba(16,185,129,0.3)" : "rgba(244,63,94,0.3)",
+                      color: p.seatbelt_worn ? "#10b981" : "#f43f5e",
+                    }}
+                  >
+                    {p.seatbelt_worn
+                      ? <ShieldCheck className="w-3 h-3" />
+                      : <ShieldX className="w-3 h-3" />}
+                    P{i + 1}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Download Action */}
           <button
             onClick={download}
@@ -551,7 +657,7 @@ function LatestSection({ det, onOpenGallery }) {
         <Modal
           src={imgUrl}
           det={det}
-          onClose={() => setModal(null)}
+          onClose={() => setModal(false)}
           onDownload={download}
         />
       )}
@@ -562,16 +668,23 @@ function LatestSection({ det, onOpenGallery }) {
 /* ─────────────────────────────────────────────────
    SECTION 2 — THIN STATUS STRIP
 ───────────────────────────────────────────────── */
-function ThinStatusStrip({ det, live }) {
+function ThinStatusStrip({ det, live, health }) {
   if (!det) return null;
   const status = cabinStatus(det);
   const s = st(status);
+  const mode = health?.mode ?? det.source ?? "—";
+  const interval = health?.capture_interval_sec ?? "—";
+
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-[#0a0d16] border border-white/8 rounded-xl text-[10px] font-mono text-slate-400 mb-6 flex-wrap gap-2">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-semibold text-slate-200 uppercase">CAMERA ONLINE</span>
+          <span
+            className={`w-2 h-2 rounded-full ${live ? "bg-emerald-500 animate-pulse" : "bg-amber-500/70"}`}
+          />
+          <span className={`font-semibold uppercase ${live ? "text-slate-200" : "text-amber-400"}`}>
+            {live ? "CAMERA ONLINE" : "STREAM PAUSED"}
+          </span>
         </div>
         <span className="text-slate-700">·</span>
         <div className="flex items-center gap-1.5">
@@ -581,10 +694,14 @@ function ThinStatusStrip({ det, live }) {
       </div>
 
       <div className="flex items-center gap-4 text-slate-400 flex-wrap">
-        <span>DEVICE: <strong className="text-slate-200 font-bold">CAM-01 (ESP32-CAM)</strong></span>
+        <span>MODE: <strong className="text-slate-200 font-bold uppercase">{mode}</strong></span>
         <span>FRAME: <strong className="text-slate-200 font-bold">#{det.sequence_number || "—"}</strong></span>
         <span>STATUS: <strong style={{ color: s.hex }}>{s.label.toUpperCase()}</strong></span>
+        <span>STREAM: <strong className={live ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>{live ? "LIVE" : "PAUSED"}</strong></span>
         <span>POLL: <strong className="text-slate-200">4s</strong></span>
+        {interval !== "—" && (
+          <span>INTERVAL: <strong className="text-slate-200">{interval}s</strong></span>
+        )}
       </div>
     </div>
   );
@@ -698,6 +815,7 @@ function GallerySection({ history, visible, onClose }) {
 
 function GalleryThumb({ det, s, onClick }) {
   const [hov, setHov] = useState(false);
+  const beltWarnings = det.seatbelt_warnings ?? 0;
   return (
     <div
       onClick={onClick}
@@ -720,6 +838,12 @@ function GalleryThumb({ det, s, onClick }) {
             e.target.style.opacity = "0.15";
           }}
         />
+        {/* belt warning badge on thumb */}
+        {beltWarnings > 0 && (
+          <div className="absolute top-1.5 right-1.5 flex items-center gap-1 bg-black/80 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold text-amber-400 border border-amber-400/30">
+            <ShieldX className="w-2.5 h-2.5" /> {beltWarnings}
+          </div>
+        )}
       </div>
       <div className="p-2.5 bg-[#080b12] border-t border-white/5 space-y-1">
         <div className="flex items-center justify-between text-[10px] font-mono font-bold text-white">
@@ -848,6 +972,11 @@ function TimelineSection({ history }) {
                     </span>
                     <span className="text-slate-400">{tFmt(det.timestamp)}</span>
                   </div>
+                  {(det.seatbelt_warnings ?? 0) > 0 && (
+                    <div className="flex items-center gap-1 text-[9px] font-mono text-amber-400 font-bold">
+                      <ShieldX className="w-2.5 h-2.5" /> {det.seatbelt_warnings} no-belt
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -894,45 +1023,53 @@ function TimeLapseSection({ history }) {
   const [frameIdx, setFrameIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
-  const [progress, setProgress] = useState(0);
   const iRef = useRef(null);
 
+  const totalFrames = frames.length;
+  const progress = totalFrames > 1 ? (frameIdx / (totalFrames - 1)) * 100 : 0;
+
   const stop = useCallback(() => {
-    clearInterval(iRef.current);
+    if (iRef.current) {
+      clearInterval(iRef.current);
+      iRef.current = null;
+    }
     setPlaying(false);
   }, []);
 
   const play = useCallback(() => {
-    if (!frames.length) return;
+    if (!totalFrames) return;
+    if (iRef.current) clearInterval(iRef.current);
     setPlaying(true);
     iRef.current = setInterval(() => {
       setFrameIdx((i) => {
-        const n = i + 1;
-        if (n >= frames.length) {
-          stop();
+        if (i >= totalFrames - 1) {
           return 0;
         }
-        setProgress((n / (frames.length - 1)) * 100);
-        return n;
+        return i + 1;
       });
     }, 1000 / speed);
-  }, [frames.length, speed, stop]);
+  }, [totalFrames, speed]);
 
   useEffect(() => {
     if (playing) {
-      stop();
       play();
+    } else if (iRef.current) {
+      clearInterval(iRef.current);
+      iRef.current = null;
     }
-  }, [speed]);
-  useEffect(() => () => clearInterval(iRef.current), []);
+    return () => {
+      if (iRef.current) clearInterval(iRef.current);
+    };
+  }, [playing, speed, play]);
 
-  const toggle = () => (playing ? stop() : play());
+  const toggle = () => setPlaying((prev) => !prev);
+
   const seek = (e) => {
+    if (!totalFrames) return;
     const r = e.currentTarget.getBoundingClientRect();
-    const p = (e.clientX - r.left) / r.width;
-    const i = Math.round(p * (frames.length - 1));
-    setFrameIdx(Math.max(0, Math.min(i, frames.length - 1)));
-    setProgress(p * 100);
+    const p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    const i = Math.round(p * (totalFrames - 1));
+    setFrameIdx(Math.max(0, Math.min(i, totalFrames - 1)));
   };
 
   if (!frames.length) return null;
@@ -964,6 +1101,12 @@ function TimeLapseSection({ history }) {
           <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-[9px] font-mono text-slate-300 bg-black/80 border border-white/10">
             {tFmt(frame.timestamp)}
           </div>
+          {/* seatbelt warning on timelapse frame */}
+          {(frame.seatbelt_warnings ?? 0) > 0 && (
+            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-[9px] font-mono font-bold bg-black/80 text-amber-400 px-2.5 py-1 rounded-md border border-amber-400/30">
+              <ShieldX className="w-3 h-3" /> {frame.seatbelt_warnings} NO BELT
+            </div>
+          )}
           {playing && (
             <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-[9px] font-mono font-bold bg-black/80 text-purple-400 px-2.5 py-1 rounded-md border border-white/10">
               <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
@@ -1025,7 +1168,6 @@ function TimeLapseSection({ history }) {
                 onClick={() => {
                   stop();
                   setFrameIdx(0);
-                  setProgress(0);
                 }}
                 className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer"
                 title="Reset to Start"
@@ -1070,7 +1212,6 @@ function TimeLapseSection({ history }) {
                 key={f.id}
                 onClick={() => {
                   setFrameIdx(i);
-                  setProgress((i / (frames.length - 1)) * 100);
                 }}
                 className="flex-shrink-0 w-14 aspect-[4/3] rounded-md overflow-hidden cursor-pointer transition-all border"
                 style={{
@@ -1116,7 +1257,7 @@ function StatsSection({ stats, history }) {
       </SectionTitle>
 
       {/* Main Metric Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 mb-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 mb-3">
         <MetricCard
           icon={Camera}
           label="Total Captures"
@@ -1144,6 +1285,13 @@ function StatsSection({ stats, history }) {
           value={stats.overload_events ?? 0}
           accent="#f43f5e"
           sub="Cabin overload alerts"
+        />
+        <MetricCard
+          icon={ShieldAlert}
+          label="Belt Warnings"
+          value={stats.seatbelt_warning_events ?? 0}
+          accent={(stats.seatbelt_warning_events ?? 0) > 0 ? "#f59e0b" : "#10b981"}
+          sub="Seatbelt violations"
         />
         <MetricCard
           icon={Activity}
@@ -1195,23 +1343,32 @@ function StatsSection({ stats, history }) {
    SECTION 7 — OCCUPANCY ANALYSIS (ANALYTICS)
 ───────────────────────────────────────────────── */
 function OccupancyAnalysis({ history }) {
+  const { theme } = useTheme();
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const [hovIdx, setHovIdx] = useState(null);
+  const [activeTab, setActiveTab] = useState("passengers");
   const frames = useMemo(() => [...history].reverse(), [history]);
+
   const paxData = useMemo(
     () => frames.map((d) => d.passenger_count || 0),
     [frames],
   );
+  const beltData = useMemo(
+    () => frames.map((d) => d.seatbelt_warnings || 0),
+    [frames],
+  );
+
   const peakPax = useMemo(() => Math.max(...paxData, 0), [paxData]);
   const avgPax = useMemo(
     () =>
       paxData.length
         ? (paxData.reduce((a, v) => a + v, 0) / paxData.length).toFixed(1)
         : 0,
+    [paxData],
   );
   const alertCount = useMemo(
-    () => frames.filter((d) => d.alert).length,
+    () => frames.filter((d) => d.alert || (d.seatbelt_warnings ?? 0) > 0).length,
     [frames],
   );
   const overloadCount = useMemo(
@@ -1221,7 +1378,7 @@ function OccupancyAnalysis({ history }) {
 
   function drawWaveform() {
     const canvas = canvasRef.current;
-    if (!canvas || !paxData.length) return;
+    if (!canvas || !frames.length) return;
     const dpr = window.devicePixelRatio || 1;
     const W = canvas.offsetWidth;
     const H = canvas.offsetHeight;
@@ -1234,14 +1391,28 @@ function OccupancyAnalysis({ history }) {
     const PAD = { top: 24, right: 20, bottom: 28, left: 40 };
     const cW = W - PAD.left - PAD.right;
     const cH = H - PAD.top - PAD.bottom;
-    const max = Math.max(...paxData, 1);
-    const n = paxData.length;
-    const colorTop = "#a78bfa";
+    const n = frames.length;
+    const isLight = theme === "light";
+
+    let primaryData = paxData;
+    let colorTop = "#a78bfa";
+    let colorGrad = isLight ? "rgba(167,139,250,0.25)" : "rgba(167,139,250,0.35)";
+
+    if (activeTab === "seatbelts") {
+      primaryData = beltData;
+      colorTop = "#f59e0b";
+      colorGrad = isLight ? "rgba(245,158,11,0.25)" : "rgba(245,158,11,0.35)";
+    }
+
+    const maxPrimary = Math.max(...primaryData, 1);
+    const maxBelt = Math.max(...beltData, 1);
+    const maxVal = activeTab === "combined" ? Math.max(maxPrimary, maxBelt) : maxPrimary;
+
     const xOf = (i) => PAD.left + (i / Math.max(n - 1, 1)) * cW;
-    const yOf = (v) => PAD.top + cH - (v / max) * cH;
+    const yOf = (v, max = maxVal) => PAD.top + cH - (v / Math.max(max, 1)) * cH;
 
     // Grid lines
-    ctx.strokeStyle = "rgba(255,255,255,0.05)";
+    ctx.strokeStyle = isLight ? "rgba(15, 23, 42, 0.08)" : "rgba(255, 255, 255, 0.05)";
     ctx.lineWidth = 1;
     [0.25, 0.5, 0.75, 1].forEach((r) => {
       const y = PAD.top + cH - r * cH;
@@ -1249,54 +1420,64 @@ function OccupancyAnalysis({ history }) {
       ctx.moveTo(PAD.left, y);
       ctx.lineTo(PAD.left + cW, y);
       ctx.stroke();
-      ctx.fillStyle = "rgba(255,255,255,0.3)";
+      ctx.fillStyle = isLight ? "#64748b" : "rgba(255, 255, 255, 0.3)";
       ctx.font = `9px monospace`;
       ctx.textAlign = "right";
-      ctx.fillText(Math.round(max * r), PAD.left - 6, y + 3);
+      ctx.fillText(Math.round(maxVal * r), PAD.left - 6, y + 3);
     });
 
     if (n < 2) return;
 
-    // Area Gradient
-    const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + cH);
-    grad.addColorStop(0, "rgba(167,139,250,0.35)");
-    grad.addColorStop(1, "rgba(167,139,250,0.02)");
+    // Helper to draw single line
+    const drawLine = (data, color, fillGrad) => {
+      if (fillGrad) {
+        const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + cH);
+        grad.addColorStop(0, fillGrad);
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.beginPath();
+        ctx.moveTo(xOf(0), yOf(data[0]));
+        for (let i = 1; i < n - 1; i++) {
+          const xc = (xOf(i) + xOf(i + 1)) / 2;
+          const yc = (yOf(data[i]) + yOf(data[i + 1])) / 2;
+          ctx.quadraticCurveTo(xOf(i), yOf(data[i]), xc, yc);
+        }
+        ctx.lineTo(xOf(n - 1), yOf(data[n - 1]));
+        ctx.lineTo(xOf(n - 1), PAD.top + cH);
+        ctx.lineTo(xOf(0), PAD.top + cH);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
 
-    ctx.beginPath();
-    ctx.moveTo(xOf(0), yOf(paxData[0]));
-    for (let i = 1; i < n - 1; i++) {
-      const xc = (xOf(i) + xOf(i + 1)) / 2;
-      const yc = (yOf(paxData[i]) + yOf(paxData[i + 1])) / 2;
-      ctx.quadraticCurveTo(xOf(i), yOf(paxData[i]), xc, yc);
-    }
-    ctx.lineTo(xOf(n - 1), yOf(paxData[n - 1]));
-    ctx.lineTo(xOf(n - 1), PAD.top + cH);
-    ctx.lineTo(xOf(0), PAD.top + cH);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(xOf(0), yOf(data[0]));
+      for (let i = 1; i < n - 1; i++) {
+        const xc = (xOf(i) + xOf(i + 1)) / 2;
+        const yc = (yOf(data[i]) + yOf(data[i + 1])) / 2;
+        ctx.quadraticCurveTo(xOf(i), yOf(data[i]), xc, yc);
+      }
+      ctx.lineTo(xOf(n - 1), yOf(data[n - 1]));
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = isLight ? 4 : 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    };
 
-    // Line Stroke
-    ctx.beginPath();
-    ctx.moveTo(xOf(0), yOf(paxData[0]));
-    for (let i = 1; i < n - 1; i++) {
-      const xc = (xOf(i) + xOf(i + 1)) / 2;
-      const yc = (yOf(paxData[i]) + yOf(paxData[i + 1])) / 2;
-      ctx.quadraticCurveTo(xOf(i), yOf(paxData[i]), xc, yc);
+    if (activeTab === "combined") {
+      drawLine(paxData, "#a78bfa", isLight ? "rgba(167,139,250,0.15)" : "rgba(167,139,250,0.2)");
+      drawLine(beltData, "#f59e0b", isLight ? "rgba(245,158,11,0.15)" : "rgba(245,158,11,0.2)");
+    } else {
+      drawLine(primaryData, colorTop, colorGrad);
     }
-    ctx.lineTo(xOf(n - 1), yOf(paxData[n - 1]));
-    ctx.strokeStyle = colorTop;
-    ctx.lineWidth = 2.5;
-    ctx.shadowColor = colorTop;
-    ctx.shadowBlur = 10;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
 
     // Hover Line & Point
     if (hovIdx !== null && hovIdx < n) {
       const x = xOf(hovIdx);
-      const y = yOf(paxData[hovIdx]);
-      ctx.strokeStyle = "rgba(255,255,255,0.25)";
+      const val = activeTab === "seatbelts" ? beltData[hovIdx] : paxData[hovIdx];
+      const y = yOf(val);
+      ctx.strokeStyle = isLight ? "rgba(15, 23, 42, 0.25)" : "rgba(255, 255, 255, 0.25)";
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.moveTo(x, PAD.top);
@@ -1315,7 +1496,7 @@ function OccupancyAnalysis({ history }) {
 
   useEffect(() => {
     drawWaveform();
-  }, [paxData, hovIdx]);
+  }, [paxData, beltData, activeTab, hovIdx, theme]);
 
   const handleMouse = (e) => {
     if (!wrapRef.current) return;
@@ -1334,31 +1515,52 @@ function OccupancyAnalysis({ history }) {
   const hovStatus = hovFrame ? cabinStatus(hovFrame) : "unknown";
   const hovSig = st(hovStatus);
 
+  const tabs = [
+    { key: "passengers", label: "Passengers", color: "#a78bfa" },
+    { key: "seatbelts", label: "Seatbelt Violations", color: "#f59e0b" },
+    { key: "combined", label: "Combined View", color: "#60a5fa" },
+  ];
+
   return (
     <section className="mb-6">
-      <SectionTitle subtitle="Historical passenger occupancy trends over time">
-        Analytics & Occupancy Waveform
+      <SectionTitle subtitle="Historical passenger occupancy and violation trends over time">
+        Analytics &amp; Occupancy Waveform
       </SectionTitle>
-      <div className="bg-[#0a0d16] border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-white dark:bg-[#0a0d16] border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
 
-        {/* Header metrics */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 flex-wrap gap-2">
-          <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-semibold">
-            PASSENGER COUNT OVER TIME
-          </span>
+        {/* Header metrics and view tabs */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-white/10 flex-wrap gap-3">
+          {/* Tab selector */}
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#06080d] p-1 rounded-xl border border-slate-200 dark:border-white/10">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setActiveTab(t.key)}
+                className="px-3 py-1 rounded-lg text-[10px] font-mono transition-all cursor-pointer font-semibold"
+                style={{
+                  background: activeTab === t.key ? `${t.color}20` : "transparent",
+                  color: activeTab === t.key ? t.color : "#64748b",
+                  border: `1px solid ${activeTab === t.key ? `${t.color}55` : "transparent"}`,
+                }}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
           <div className="flex items-center gap-2 flex-wrap font-mono text-[10px]">
             {[
-              ["Peak", peakPax, "#a78bfa"],
-              ["Avg", avgPax, "#a78bfa"],
+              ["Peak Pax", peakPax, "#a78bfa"],
+              ["Avg Pax", avgPax, "#a78bfa"],
               ["Alerts", alertCount, "#f59e0b"],
               ["Overload", overloadCount, "#f43f5e"],
             ].map(([lb, v, c]) => (
               <div
                 key={lb}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/4 border"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/4 border border-slate-200 dark:border-white/10"
                 style={{ borderColor: `${c}33` }}
               >
-                <span className="text-slate-400 uppercase text-[8px] font-bold">{lb}</span>
+                <span className="text-slate-500 dark:text-slate-400 uppercase text-[8px] font-bold">{lb}</span>
                 <span className="font-bold text-xs" style={{ color: c }}>{v}</span>
               </div>
             ))}
@@ -1377,7 +1579,7 @@ function OccupancyAnalysis({ history }) {
           </div>
 
           {/* Hover Tooltip Bar */}
-          <div className="h-9 flex items-center justify-between px-2 border-t border-white/8 mt-2 font-mono text-[10px]">
+          <div className="h-9 flex items-center justify-between px-2 border-t border-slate-200 dark:border-white/8 mt-2 font-mono text-[10px]">
             {hovFrame ? (
               <>
                 <div className="flex items-center gap-3">
@@ -1385,19 +1587,24 @@ function OccupancyAnalysis({ history }) {
                     className="w-2 h-2 rounded-full inline-block flex-shrink-0"
                     style={{ background: hovSig.hex }}
                   />
-                  <span className="text-white font-bold">FRAME #{hovFrame.sequence_number}</span>
-                  <span className="text-slate-400">{dtFmt(hovFrame.timestamp)}</span>
+                  <span className="text-slate-900 dark:text-white font-bold">FRAME #{hovFrame.sequence_number}</span>
+                  <span className="text-slate-500 dark:text-slate-400">{dtFmt(hovFrame.timestamp)}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-purple-300 font-bold">
-                    <Users className="w-3.5 h-3.5 inline mr-1 text-purple-400" />
+                  <span className="text-purple-600 dark:text-purple-300 font-bold">
+                    <Users className="w-3.5 h-3.5 inline mr-1 text-purple-500 dark:text-purple-400" />
                     {hovFrame.passenger_count ?? 0} passengers
                   </span>
+                  {(hovFrame.seatbelt_warnings ?? 0) > 0 && (
+                    <span className="flex items-center gap-1 text-amber-500 dark:text-amber-400 font-bold text-[9px]">
+                      <ShieldX className="w-3 h-3" /> {hovFrame.seatbelt_warnings} no-belt
+                    </span>
+                  )}
                   <StatusBadge status={cabinStatus(hovFrame)} />
                 </div>
               </>
             ) : (
-              <span className="text-[9px] text-slate-500 italic">
+              <span className="text-[9px] text-slate-500 dark:text-slate-400 italic">
                 Hover over waveform graph to inspect exact frame telemetry
               </span>
             )}
@@ -1405,8 +1612,8 @@ function OccupancyAnalysis({ history }) {
         </div>
 
         {/* Status Event Strip */}
-        <div className="px-4 pb-4 pt-2.5 border-t border-white/10 bg-[#0b0f19]/60">
-          <div className="text-[8px] uppercase tracking-widest text-slate-500 font-mono mb-2 font-semibold">
+        <div className="px-4 pb-4 pt-2.5 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#0b0f19]/60">
+          <div className="text-[8px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono mb-2 font-semibold">
             Status timeline — each vertical bar represents one detection frame
           </div>
           <div className="flex items-end gap-0.5 h-7 overflow-x-auto">
@@ -1443,6 +1650,7 @@ export default function InternalCameraPage() {
   const [latest, setLatest] = useState(null);
   const [history, setHistory] = useState([]);
   const [stats, setStats] = useState(null);
+  const [health, setHealth] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [live, setLive] = useState(true);
@@ -1452,6 +1660,15 @@ export default function InternalCameraPage() {
   useEffect(() => {
     const t = setInterval(() => setClock(new Date()), 1000);
     return () => clearInterval(t);
+  }, []);
+
+  const loadHealth = useCallback(async () => {
+    try {
+      const r = await fetch(`${API}/health`, { signal: AbortSignal.timeout(3000) });
+      if (r.ok) setHealth(await r.json());
+    } catch {
+      // health is non-critical, ignore
+    }
   }, []);
 
   const load = useCallback(async () => {
@@ -1467,10 +1684,16 @@ export default function InternalCameraPage() {
         gr.ok ? gr.json() : { captures: [] },
         sr.ok ? sr.json() : null,
       ]);
-      setLatest({
-        ...ld,
-        sequence_number: ld.sequence_number || (gd.captures?.length || 0),
-      });
+
+      // empty-state check — backend returns {alert: false, message: "No detections yet"}
+      if (ld.message) {
+        setLatest(null);
+      } else {
+        setLatest({
+          ...ld,
+          sequence_number: ld.sequence_number || (gd.captures?.length || 0),
+        });
+      }
       setHistory((gd.captures || []).map(normalizeCapture));
       setStats(sd);
       setError(null);
@@ -1482,12 +1705,15 @@ export default function InternalCameraPage() {
   }, []);
 
   useEffect(() => {
+    loadHealth();
     load();
     if (!live) return;
     const t = setInterval(load, POLL_MS);
     return () => clearInterval(t);
-  }, [live, load]);
+  }, [live, load, loadHealth]);
 
+  const maxPassengers = health?.max_passengers ?? DEFAULT_MAX_PASSENGERS;
+  const cameraMode = health?.mode ?? latest?.source ?? "—";
   const latStatus = latest ? cabinStatus(latest) : "unknown";
   const latSig = st(latStatus);
 
@@ -1534,67 +1760,76 @@ export default function InternalCameraPage() {
       {/* ── Main Monitoring Dashboard Shell ── */}
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-12">
 
-        {/* ── Level 2: Monitoring System Header ── */}
-        <header className="bg-[#0b0f19]/90 border border-white/10 backdrop-blur-xl rounded-2xl px-5 py-4 mb-4 shadow-xl">
+        {/* ── Header ── */}
+        <header className="bg-white/80 dark:bg-[#0b0f19]/90 border border-slate-200 dark:border-white/10 backdrop-blur-xl rounded-2xl px-5 py-4 mb-4 shadow-lg dark:shadow-xl transition-colors">
           <div className="flex items-center justify-between gap-4 flex-wrap">
 
             {/* LEFT: System Identity */}
             <div className="flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
-                <Camera className="w-5 h-5 text-purple-400" />
+                <Camera className="w-5 h-5 text-purple-500 dark:text-purple-400" />
               </div>
               <div>
-                <h1 className="text-base sm:text-lg font-bold tracking-tight text-white font-mono leading-none flex items-center gap-2">
-                  SAFE-V Traffic Monitor
+                <h1 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white font-mono leading-none flex items-center gap-2">
+                  SAFE-V Internal Monitor
                 </h1>
                 <div className="flex items-center gap-2 mt-1.5">
                   <span
                     className={`w-2 h-2 rounded-full ${error ? "bg-rose-500" : "bg-emerald-500 animate-pulse"}`}
                   />
-                  <span className={`text-[10px] sm:text-[11px] font-mono font-semibold tracking-wider uppercase ${error ? "text-rose-400" : "text-emerald-400"}`}>
+                  <span className={`text-[10px] sm:text-[11px] font-mono font-semibold tracking-wider uppercase ${error ? "text-rose-500 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
                     {error ? "SYSTEM OFFLINE" : "AI SYSTEM ONLINE"}
                   </span>
-                  <span className="text-slate-600 text-xs">·</span>
-                  <span className="text-[10px] font-mono text-slate-400">
-                    CAM-01 (ESP32-CAM)
+                  <span className="text-slate-400 dark:text-slate-600 text-xs">·</span>
+                  <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">
+                    MODE: {cameraMode}
                   </span>
                 </div>
               </div>
             </div>
 
             {/* CENTER: Hardware Telemetry Tag */}
-            <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/3 border border-white/8 font-mono text-[11px] text-slate-300">
-              <Radio className="w-3.5 h-3.5 text-purple-400" />
-              <span>ESP32-CAM · VISION MON</span>
-              <span className="text-slate-700">·</span>
-              <span className={`text-[10px] font-bold tracking-widest ${live ? "text-emerald-400" : "text-slate-500"}`}>
+            <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/3 border border-slate-200 dark:border-white/8 font-mono text-[11px] text-slate-700 dark:text-slate-300">
+              <Radio className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
+              <span>CAM-01 · {cameraMode.toUpperCase()}</span>
+              <span className="text-slate-400 dark:text-slate-700">·</span>
+              <span className={`text-[10px] font-bold tracking-widest ${live ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500"}`}>
                 {live ? "LIVE STREAM" : "STREAM PAUSED"}
               </span>
+              {health?.capture_interval_sec && (
+                <>
+                  <span className="text-slate-400 dark:text-slate-700">·</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                    INTERVAL: {health.capture_interval_sec}s
+                  </span>
+                </>
+              )}
             </div>
 
             {/* RIGHT: System Controls */}
             <div className="flex items-center gap-2.5 flex-wrap">
-              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-slate-300 bg-white/4 border border-white/10 px-3 py-1.5 rounded-lg tabular-nums">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <ThemeToggle />
+              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/4 border border-slate-200 dark:border-white/10 px-3 py-1.5 rounded-lg tabular-nums">
+                <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                 {clock.toLocaleTimeString()}
               </div>
               <button
                 onClick={() => setLive((v) => !v)}
                 className="px-3.5 py-1.5 rounded-lg text-[11px] font-mono font-medium cursor-pointer transition-all flex items-center gap-1.5"
                 style={{
-                  border: `1px solid ${live ? "rgba(139,92,246,0.35)" : "rgba(255,255,255,0.08)"}`,
-                  background: live ? "rgba(139,92,246,0.12)" : "rgba(255,255,255,0.03)",
-                  color: live ? "#c084fc" : "#64748b",
+                  border: `1px solid ${live ? "rgba(139,92,246,0.35)" : "rgba(148,163,184,0.2)"}`,
+                  background: live ? "rgba(139,92,246,0.12)" : "rgba(148,163,184,0.05)",
+                  color: live ? "#9333ea" : "#64748b",
                 }}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${live ? "bg-purple-400 animate-pulse" : "bg-slate-600"}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${live ? "bg-purple-500 dark:bg-purple-400 animate-pulse" : "bg-slate-400 dark:bg-slate-600"}`} />
                 {live ? "● Live" : "○ Paused"}
               </button>
               <button
                 onClick={load}
-                className="px-3.5 py-1.5 rounded-lg text-[11px] font-mono cursor-pointer transition-all bg-white/4 border border-white/10 text-slate-200 hover:text-white hover:bg-white/8 flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-lg text-[11px] font-mono cursor-pointer transition-all bg-slate-100 dark:bg-white/4 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/8 flex items-center gap-1.5"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-slate-400" /> ↻ Refresh
+                <RefreshCw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" /> ↻ Refresh
               </button>
             </div>
 
@@ -1603,21 +1838,21 @@ export default function InternalCameraPage() {
 
         {/* Error Banner */}
         {error && (
-          <div className="flex items-center justify-between bg-[#0a0d16] border border-rose-500/30 rounded-xl px-4 py-2.5 mb-5 text-[11px] font-mono text-rose-400">
+          <div className="flex items-center justify-between bg-rose-50 dark:bg-[#0a0d16] border border-rose-200 dark:border-rose-500/30 rounded-xl px-4 py-2.5 mb-5 text-[11px] font-mono text-rose-600 dark:text-rose-400">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 text-rose-400" />
+              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 text-rose-500 dark:text-rose-400" />
               <span>Backend unavailable &mdash; {error}</span>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={load}
-                className="px-2.5 py-1 rounded bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 cursor-pointer transition-all text-[10px] font-semibold"
+                className="px-2.5 py-1 rounded bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 hover:bg-rose-500/25 cursor-pointer transition-all text-[10px] font-semibold"
               >
                 Retry Connection
               </button>
               <button
                 onClick={() => setError(null)}
-                className="text-rose-500 hover:text-rose-300 cursor-pointer"
+                className="text-rose-500 hover:text-rose-700 dark:hover:text-rose-300 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -1631,20 +1866,23 @@ export default function InternalCameraPage() {
             <LatestSection
               det={latest}
               onOpenGallery={() => setGallery(true)}
+              maxPassengers={maxPassengers}
             />
-            <ThinStatusStrip det={latest} live={live} />
+            <ThinStatusStrip det={latest} live={live} health={health} />
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 bg-[#0a0d16] border border-white/10 rounded-2xl mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-white/4 border border-white/10 flex items-center justify-center mb-4">
-              <Camera className="w-7 h-7 text-slate-600 animate-pulse" />
+          <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#0a0d16] border border-slate-200 dark:border-white/10 rounded-2xl mb-6 shadow-sm dark:shadow-none">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-white/4 border border-slate-200 dark:border-white/10 flex items-center justify-center mb-4">
+              <Camera className="w-7 h-7 text-slate-500 dark:text-slate-600 animate-pulse" />
             </div>
-            <div className="text-sm font-mono font-bold text-slate-300 tracking-wider">
-              CAMERA OFFLINE
+            <div className="text-sm font-mono font-bold text-slate-800 dark:text-slate-300 tracking-wider">
+              {cameraMode === "webcam" ? "WAITING FOR WEBCAM FRAME" : "CAMERA OFFLINE"}
             </div>
-            <div className="text-[11px] font-mono text-slate-500 mt-1.5 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-700 animate-pulse" />
-              Awaiting ESP32-CAM frames
+            <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-700 animate-pulse" />
+              {cameraMode === "webcam"
+                ? `Auto-capture every ${health?.capture_interval_sec ?? 20}s`
+                : "Awaiting camera frames — POST to /upload"}
             </div>
           </div>
         )}
