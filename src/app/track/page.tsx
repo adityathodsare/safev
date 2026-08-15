@@ -1,5 +1,6 @@
 "use client";
 
+import UcodGuard from "@/components/auth/UcodGuard";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import type { AIPlace, AIAssistantResponse } from "@/app/api/ai-assistant/route";
@@ -231,7 +232,7 @@ interface ThingSpeakData {
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
-export default function RakshakGPSTracker() {
+function RakshakGPSTracker() {
   const { theme } = useTheme();
   const mapRef = useRef<HTMLDivElement>(null);
   const tileLayerRef = useRef<any>(null);
@@ -264,7 +265,7 @@ export default function RakshakGPSTracker() {
     id: string; sender: "user" | "ai"; text: string; places?: AIPlace[]; timestamp: number;
   }>>([{
     id: "welcome", sender: "ai",
-    text: "I am your RAKSHAK Location-Aware AI Copilot. I use your live vehicle GPS coordinates to find nearby emergency hospitals, police stations, fuel stations, food, and lodging.",
+    text: "I am your RAKSHAK Location-Aware AI Copilot. I use your live vehicle GPS coordinates to find nearby emergency hospitals, police stations, fuel stations, food, and lodging strictly within a 5–7 km radius.",
     timestamp: Date.now(),
   }]);
 
@@ -273,17 +274,57 @@ export default function RakshakGPSTracker() {
 
   // ── Map init ─────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const cssLink = document.createElement("link");
-    cssLink.rel = "stylesheet";
-    cssLink.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-    document.head.appendChild(cssLink);
+  const safeFitBounds = (map: any, L: any, coords: any[], padding = [50, 50]) => {
+    if (!map || !L || !Array.isArray(coords) || coords.length === 0) return;
+    const validCoords = coords.filter((c) => {
+      if (!Array.isArray(c) || c.length < 2) return false;
+      const lat = Number(c[0]);
+      const lng = Number(c[1]);
+      return (
+        !isNaN(lat) &&
+        !isNaN(lng) &&
+        isFinite(lat) &&
+        isFinite(lng) &&
+        lat >= -90 &&
+        lat <= 90 &&
+        lng >= -180 &&
+        lng <= 180
+      );
+    });
+    if (validCoords.length === 0) return;
+    try {
+      const bounds = L.latLngBounds(validCoords);
+      if (bounds && (typeof bounds.isValid !== "function" || bounds.isValid())) {
+        map.fitBounds(bounds, { padding });
+      }
+    } catch (e) {
+      console.warn("safeFitBounds warning:", e);
+    }
+  };
 
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-    script.onload = () => {
-      if (mapRef.current && (window as any).L) {
-        const L = (window as any).L;
+  useEffect(() => {
+    if (!document.querySelector('link[href*="leaflet.css"]')) {
+      const cssLink = document.createElement("link");
+      cssLink.rel = "stylesheet";
+      cssLink.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(cssLink);
+    }
+
+    const initMap = () => {
+      if (!mapRef.current || !(window as any).L) return;
+      const L = (window as any).L;
+
+      if ((mapRef.current as any).leafletMap) {
+        try {
+          (mapRef.current as any).leafletMap.remove();
+        } catch (e) {}
+        (mapRef.current as any).leafletMap = null;
+      }
+      if ((mapRef.current as any)._leaflet_id) {
+        delete (mapRef.current as any)._leaflet_id;
+      }
+
+      try {
         const map = L.map(mapRef.current, { zoomControl: true }).setView([20.5937, 78.9629], 5);
         const tileUrl = theme === "dark"
           ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
@@ -298,13 +339,34 @@ export default function RakshakGPSTracker() {
         (mapRef.current as any).aiPlaceLayers = [];
         (mapRef.current as any).aiRouteLayer = null;
         setMapLoaded(true);
+      } catch (err) {
+        console.warn("Leaflet init error:", err);
       }
     };
-    document.body.appendChild(script);
+
+    if ((window as any).L) {
+      initMap();
+    } else {
+      let script = document.querySelector('script[src*="leaflet.js"]') as HTMLScriptElement;
+      if (!script) {
+        script = document.createElement("script");
+        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        document.body.appendChild(script);
+      }
+      script.addEventListener("load", initMap);
+    }
 
     return () => {
-      if (mapRef.current && (mapRef.current as any).leafletMap) {
-        (mapRef.current as any).leafletMap.remove();
+      if (mapRef.current) {
+        if ((mapRef.current as any).leafletMap) {
+          try {
+            (mapRef.current as any).leafletMap.remove();
+          } catch (e) {}
+          (mapRef.current as any).leafletMap = null;
+        }
+        if ((mapRef.current as any)._leaflet_id) {
+          delete (mapRef.current as any)._leaflet_id;
+        }
       }
     };
   }, []);
@@ -496,7 +558,7 @@ export default function RakshakGPSTracker() {
     });
 
     if (boundsCoords.length > 0) {
-      map.fitBounds(L.latLngBounds(boundsCoords), { padding: [40, 40] });
+      safeFitBounds(map, L, boundsCoords, [40, 40]);
     }
   }, [trackingMode]);
 
@@ -512,7 +574,7 @@ export default function RakshakGPSTracker() {
     const L = (window as any).L;
     const map = (mapRef.current as any).leafletMap;
     const coords: [number, number][] = path.points.map((p) => [p.latitude, p.longitude]);
-    if (coords.length > 0) map.fitBounds(L.latLngBounds(coords), { padding: [50, 50] });
+    if (coords.length > 0) safeFitBounds(map, L, coords, [50, 50]);
   };
 
   const togglePathVisibility = (pathId: number, e: React.MouseEvent) => {
@@ -585,13 +647,15 @@ export default function RakshakGPSTracker() {
       const { bg, label, iconKey } = getCategoryTheme(place.category);
       const svgIcon = CATEGORY_SVG[iconKey] || CATEGORY_SVG.default;
 
+      const isNearest = idx === 0;
+      const markerLabel = isNearest ? `★ NEAREST (${place.distanceKm !== undefined ? place.distanceKm.toFixed(1) + "km" : label})` : label;
       const icon = L.divIcon({
-        className: "",
+        className: "custom-ai-place-marker",
         html: `
-          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
             <div style="
-              width:36px;height:36px;
-              background:${bg};
+              width:${isNearest ? "42px" : "36px"};height:${isNearest ? "42px" : "36px"};
+              background:${isNearest ? "#dc2626" : bg};
               border:3px solid #ffffff;
               border-radius:50%;
               box-shadow:0 4px 16px rgba(0,0,0,0.35);
@@ -599,27 +663,27 @@ export default function RakshakGPSTracker() {
             ">${svgIcon}</div>
             <div style="
               padding:2px 7px;
-              background:${bg};
+              background:${isNearest ? "#dc2626" : bg};
               border:1.5px solid #ffffff;
               border-radius:20px;
               box-shadow:0 2px 8px rgba(0,0,0,0.25);
               font-size:9px;font-weight:800;color:#fff;
               white-space:nowrap;letter-spacing:0.3px;
-            ">${label}</div>
+            ">${markerLabel}</div>
           </div>`,
         iconSize: [40, 56],
         iconAnchor: [20, 56],
       });
 
-      const m = L.marker([place.latitude, place.longitude], { icon, zIndexOffset: 800 }).addTo(map);
+      const m = L.marker([place.latitude, place.longitude], { icon, zIndexOffset: isNearest ? 1000 : 800 }).addTo(map);
       m.bindPopup(`
-        <div style="padding:14px;border-radius:12px;font-size:12px;border:2px solid ${bg};min-width:240px;background:#fff;color:#0f172a;box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+        <div style="padding:14px;border-radius:12px;font-size:12px;border:2px solid ${isNearest ? "#dc2626" : bg};min-width:240px;background:#fff;color:#0f172a;box-shadow:0 10px 25px rgba(0,0,0,0.15);">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <div style="display:flex;align-items:center;gap:8px;">
               <div style="width:28px;height:28px;background:${bg};border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${svgIcon}</div>
               <b style="font-size:13px;">${place.name}</b>
             </div>
-            <span style="font-size:9px;background:${bg}18;color:${bg};border:1px solid ${bg}40;padding:2px 7px;border-radius:20px;font-weight:800;white-space:nowrap;">${label}</span>
+            <span style="font-size:9px;background:${isNearest ? "#dc2626" : bg}18;color:${isNearest ? "#dc2626" : bg};border:1px solid ${bg}40;padding:2px 7px;border-radius:20px;font-weight:800;white-space:nowrap;">${isNearest ? "★ NEAREST" : label}</span>
           </div>
           <div style="display:grid;gap:5px;margin-bottom:12px;font-size:12px;">
             ${place.distanceKm !== undefined ? `<div><span style="color:#94a3b8;">Distance:</span> <b style="color:#0284c7;">${place.distanceKm.toFixed(1)} km</b></div>` : ""}
@@ -643,7 +707,7 @@ export default function RakshakGPSTracker() {
     });
 
     if (coords.length > 0) {
-      (mapRef.current as any).leafletMap.fitBounds(L.latLngBounds(coords), { padding: [50, 50] });
+      safeFitBounds((mapRef.current as any).leafletMap, L, coords, [50, 50]);
     }
   };
 
@@ -670,7 +734,7 @@ export default function RakshakGPSTracker() {
         color: "#0284c7", weight: 6, opacity: 0.9, lineCap: "round", dashArray: "8,12",
       }).addTo(map);
       (mapRef.current as any).aiRouteLayer = pl;
-      map.fitBounds(L.latLngBounds(data.routeCoords), { padding: [60, 60] });
+      safeFitBounds(map, L, data.routeCoords, [60, 60]);
       setAIActiveRoute({ destinationName: place.name, distanceKm: data.distanceKm, durationMins: data.durationMins });
     } catch (e) {
       setAIError("Failed to fetch route directions.");
@@ -691,13 +755,22 @@ export default function RakshakGPSTracker() {
       });
       if (!res.ok) { const e = await res.json(); throw new Error(e.error || "AI error"); }
       const data: AIAssistantResponse = await res.json();
-      const places = data.places || [];
-      setAIPlaces(places);
-      renderAIPlaceMarkers(places);
+      const rawPlaces = data.places || [];
+      const sortedPlaces = [...rawPlaces].sort((a, b) => (a.distanceKm || 0) - (b.distanceKm || 0));
+      setAIPlaces(sortedPlaces);
+      renderAIPlaceMarkers(sortedPlaces);
+
+      // Auto-route to the absolute nearest place
+      if (sortedPlaces.length > 0) {
+        setTimeout(() => {
+          handleGetRoute(sortedPlaces[0]);
+        }, 300);
+      }
+
       setAIMessages((prev) => [...prev, {
         id: (Date.now() + 1).toString(), sender: "ai",
         text: data.message || "Here are nearby services.",
-        places, timestamp: Date.now(),
+        places: sortedPlaces, timestamp: Date.now(),
       }]);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "AI error";
@@ -1031,7 +1104,7 @@ export default function RakshakGPSTracker() {
                 RAKSHAK AI Copilot
                 <span className="text-[9px] font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-full">LIVE</span>
               </div>
-              <div className="text-[11px] text-slate-500">Location-Aware Emergency & Driver Assistant</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400">Location-Aware Emergency & Driver Assistant (5–7 km Radius)</div>
             </div>
             <button
               onClick={() => setIsAIOpen(false)}
@@ -1275,5 +1348,13 @@ export default function RakshakGPSTracker() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TrackPage() {
+  return (
+    <UcodGuard>
+      <RakshakGPSTracker />
+    </UcodGuard>
   );
 }

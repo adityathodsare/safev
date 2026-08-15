@@ -1,4 +1,5 @@
 "use client";
+import UcodGuard from "@/components/auth/UcodGuard";
 import { useState, useEffect } from "react";
 import {
   FaCarCrash,
@@ -416,4 +417,10 @@ const Home = () => {
   );
 };
 
-export default Home;
+const AccidentTrackPage = () => (
+  <UcodGuard>
+    <Home />
+  </UcodGuard>
+);
+
+export default AccidentTrackPage;

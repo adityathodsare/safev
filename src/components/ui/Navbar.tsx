@@ -5,8 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useNavigation } from "@/context/NavigationContext";
+import { useUcod } from "@/context/UcodContext";
 import { useRouter, usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
+import { ShieldCheck, LogOut } from "lucide-react";
 
 const transition = {
   type: "spring",
@@ -128,7 +130,13 @@ function Navbar({ className }: { className?: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { navigateWithLoader } = useNavigation();
+  const { ucod, isValidated, clearUcod } = useUcod();
   const router = useRouter();
+
+  const handleDisconnect = () => {
+    clearUcod();
+    navigateWithLoader(router, "/tracking");
+  };
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -209,6 +217,19 @@ function Navbar({ className }: { className?: string }) {
                 <MenuItem setActive={setActive} active={active} item={"Register"} />
               </div>
             </Menu>
+            {isValidated && (
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{ucod}</span>
+                <button
+                  onClick={handleDisconnect}
+                  title="Disconnect UCOD Session"
+                  className="ml-1 text-slate-400 hover:text-rose-400 transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
             <ThemeToggle />
           </div>
         </div>

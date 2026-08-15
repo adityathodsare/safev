@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export default function TrackingErrorPage() {
   const [copied, setCopied] = useState(false);
-  const demoUCOD = "SAFEV1";
+  const demoUCOD = "MHXXRTXXXX";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(demoUCOD);

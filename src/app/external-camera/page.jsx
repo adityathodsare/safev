@@ -1,4 +1,5 @@
 "use client";
+import UcodGuard from "@/components/auth/UcodGuard";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { CAMERA_API_URL } from "@/lib/config";
 import {
@@ -2330,7 +2331,7 @@ function WaveformAnalysis({ history }) {
 /* ─────────────────────────────────────────────────
    MAIN APP
 ───────────────────────────────────────────────── */
-export default function SafeVDashboard() {
+function SafeVDashboard() {
   const [latest, setLatest] = useState(null);
   const [history, setHistory] = useState([]);
   const [stats, setStats] = useState(null);
@@ -2548,5 +2549,13 @@ export default function SafeVDashboard() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ExternalCameraPage() {
+  return (
+    <UcodGuard>
+      <SafeVDashboard />
+    </UcodGuard>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import UcodGuard from "@/components/auth/UcodGuard";
 import { useState, useEffect } from "react";
 import {
   FaWineGlassAlt,
@@ -456,4 +457,10 @@ const AlcoholDetection = () => {
   );
 };
 
-export default AlcoholDetection;
+const AlcoholDetectionPage = () => (
+  <UcodGuard>
+    <AlcoholDetection />
+  </UcodGuard>
+);
+
+export default AlcoholDetectionPage;

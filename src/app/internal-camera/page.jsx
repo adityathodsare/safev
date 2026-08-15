@@ -1,5 +1,6 @@
 "use client";
 
+import UcodGuard from "@/components/auth/UcodGuard";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { API_BASE_URL } from "@/lib/config";
 import { useTheme } from "@/context/ThemeContext";
@@ -1646,7 +1647,7 @@ function OccupancyAnalysis({ history }) {
 /* ─────────────────────────────────────────────────
    MAIN DASHBOARD APPLICATION
 ───────────────────────────────────────────────── */
-export default function InternalCameraPage() {
+function InternalCameraDashboard() {
   const [latest, setLatest] = useState(null);
   const [history, setHistory] = useState([]);
   const [stats, setStats] = useState(null);
@@ -1898,5 +1899,13 @@ export default function InternalCameraPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function InternalCameraPage() {
+  return (
+    <UcodGuard>
+      <InternalCameraDashboard />
+    </UcodGuard>
   );
 }

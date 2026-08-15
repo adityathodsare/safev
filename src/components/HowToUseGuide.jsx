@@ -6,9 +6,9 @@ const steps = [
     id: 1,
     label: "Find UCOD",
     title: "Locate Your UCOD",
-    desc: "Your UCOD (Unique Code) is the gateway to your SafeV device. Find this 6-character alphanumeric code printed on the back of your device and on the product box.",
+    desc: "Your UCOD (Unique Code) is the gateway to your SafeV device. Find this alphanumeric code printed on the back of your device and on the product box.",
     detail:
-      "Format: 6 characters — alphanumeric (e.g. SAFEV1, TRK002, MTR003). This code is unique to your specific hardware kit.",
+      "Format: Alphanumeric code (e.g. MHXXRTXXXX, TRK002, MTR003). This code is unique to your specific hardware kit.",
     tip: "Take a photo of the UCOD label before installing the device in your vehicle for easy reference later.",
     visual: "ucod",
     accent: "#7C3AED",
@@ -72,14 +72,14 @@ function UcodVisual() {
           UNIQUE IDENTIFIER
         </div>
         <div className="text-4xl font-extrabold text-amber-500 dark:text-amber-400 font-mono tracking-[0.18em] animate-ucod-glow">
-          SAFEV1
+          MHXXRTXXXX
         </div>
         <div className="text-[11px] text-theme-secondary mt-3">
           📍 Printed on the back of your device &amp; box
         </div>
       </div>
       <div className="flex gap-2 justify-center">
-        {["TRK002", "MTR003", "SAFEV1"].map((c) => (
+        {["TRK002", "MTR003", "MHXXRTXXXX"].map((c) => (
           <span
             key={c}
             className="font-mono text-[11px] text-theme-secondary bg-slate-100 dark:bg-white/5 rounded px-2 py-0.5 border border-slate-200 dark:border-white/10"
@@ -104,7 +104,7 @@ function ConnectVisual() {
           SAFEV KIT
         </div>
         <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 font-mono text-[9px] bg-amber-400/15 border border-amber-400/30 text-amber-500 dark:text-amber-400 px-2 py-0.5 rounded whitespace-nowrap">
-          SAFEV1
+          MHXXRTXXXX
         </div>
       </div>
       <div className="flex gap-4 justify-center mt-6">
@@ -240,7 +240,7 @@ function TrackVisual() {
         <div className="flex gap-2">
           <input
             readOnly
-            value="SAFEV1"
+            value="MHXXRTXXXX"
             className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[10px] px-3.5 py-2.5 text-violet-500 dark:text-violet-400 font-mono text-base font-bold tracking-[0.15em] outline-none"
           />
           <button

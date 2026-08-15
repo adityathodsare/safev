@@ -2,6 +2,7 @@
 
 import { useInView } from "react-intersection-observer";
 import { Carousel } from "../../components/ui/carousel";
+import UcodGuard from "@/components/auth/UcodGuard";
 
 export default function CarouselDemo() {
   const slideData = [
@@ -27,7 +28,8 @@ export default function CarouselDemo() {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.5 });
 
   return (
-    <div className="relative w-full min-h-screen bg-gray-900 text-white overflow-x-hidden">
+    <UcodGuard>
+      <div className="relative w-full min-h-screen bg-gray-900 text-white overflow-x-hidden">
       {/* 🚀 Hero Section with Carousel */}
       <div className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 md:px-10">
         <Carousel slides={slideData} />
@@ -63,5 +65,6 @@ export default function CarouselDemo() {
         </div>
       </div>
     </div>
-  );
+  </UcodGuard>
+);
 }

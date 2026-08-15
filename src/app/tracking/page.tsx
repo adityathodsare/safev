@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useNavigation } from "@/context/NavigationContext";
+import { useUcod } from "@/context/UcodContext";
 import { Search, Shield, ChevronRight } from "lucide-react";
 
 export default function TrackingPage() {
@@ -10,10 +11,12 @@ export default function TrackingPage() {
   const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
   const { navigateWithLoader } = useNavigation();
+  const { validateUcod } = useUcod();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (ucod.trim().toLowerCase() === "safev1") {
+    const isOk = validateUcod(ucod);
+    if (isOk) {
       navigateWithLoader(router, "/tracking/choose");
     } else {
       navigateWithLoader(router, "/tracking/error");
