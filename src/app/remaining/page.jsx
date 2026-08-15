@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import UcodGuard from "@/components/auth/UcodGuard";
 import {
   Camera,
   MapPin,
@@ -196,8 +195,7 @@ export default function RemainingFeaturesPage() {
   };
 
   return (
-    <UcodGuard>
-      <div className="page-container">
+    <div className="page-container">
       {/* Header */}
       <div className="bg-gray-800/50 backdrop-blur-sm shadow-xl border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -434,6 +432,5 @@ export default function RemainingFeaturesPage() {
         </div>
       </div>
     </div>
-  </UcodGuard>
-);
+  );
 }

@@ -130,7 +130,7 @@ function Navbar({ className }: { className?: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { navigateWithLoader } = useNavigation();
-  const { ucod, isValidated, clearUcod } = useUcod();
+  const { ucod, userName, isValidated, clearUcod } = useUcod();
   const router = useRouter();
 
   const handleDisconnect = () => {
@@ -210,21 +210,24 @@ function Navbar({ className }: { className?: string }) {
               <div onClick={() => handleNavigation("/contact")}>
                 <MenuItem setActive={setActive} active={active} item={"Contact Us"} />
               </div>
-              <div
-                onClick={() => handleNavigation("/register")}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-colors rounded-lg px-1 text-white"
-              >
-                <MenuItem setActive={setActive} active={active} item={"Register"} />
-              </div>
+              {!isValidated && (
+                <div
+                  onClick={() => handleNavigation("/register")}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-colors rounded-lg px-1 text-white"
+                >
+                  <MenuItem setActive={setActive} active={active} item={"Register"} />
+                </div>
+              )}
             </Menu>
             {isValidated && (
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{ucod}</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-sm">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                <span className="font-bold text-slate-900 dark:text-white">{userName || "adityathodsare"}</span>
+                <span className="text-[11px] text-emerald-700 dark:text-emerald-300 font-mono font-medium">({ucod})</span>
                 <button
                   onClick={handleDisconnect}
                   title="Disconnect UCOD Session"
-                  className="ml-1 text-slate-400 hover:text-rose-400 transition-colors"
+                  className="ml-1 text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
@@ -276,6 +279,18 @@ function Navbar({ className }: { className?: string }) {
               className="mt-4 pb-4 glass-card shadow-lg"
             >
               <div className="flex flex-col space-y-2 p-4">
+                {isValidated && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 text-xs mb-1">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span className="font-bold text-slate-900 dark:text-white">{userName || "adityathodsare"}</span>
+                      <span className="text-[10px] text-emerald-700 dark:text-emerald-300 font-mono">({ucod})</span>
+                    </div>
+                    <button onClick={handleDisconnect} className="text-slate-400 hover:text-rose-500 transition-colors">
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
                 <div onClick={() => handleNavigation("/")} className={linkClass}>
                   Home
                 </div>
@@ -298,12 +313,14 @@ function Navbar({ className }: { className?: string }) {
                 <div onClick={() => handleNavigation("/contact")} className={linkClass}>
                   Contact Us
                 </div>
-                <div
-                  onClick={() => handleNavigation("/register")}
-                  className="px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 cursor-pointer transition-colors font-medium text-center"
-                >
-                  Register
-                </div>
+                {!isValidated && (
+                  <div
+                    onClick={() => handleNavigation("/register")}
+                    className="px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 cursor-pointer transition-colors font-medium text-center"
+                  >
+                    Register
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

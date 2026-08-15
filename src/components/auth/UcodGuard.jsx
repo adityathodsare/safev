@@ -6,20 +6,41 @@ import { useUcod } from "@/context/UcodContext";
 import { ShieldAlert, KeyRound, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+const PUBLIC_MARKETING_PATHS = [
+  "/",
+  "/contact",
+  "/prototype",
+  "/remaining",
+  "/buy",
+  "/confirmPurchase",
+  "/success",
+  "/tracking",
+  "/tracking/choose",
+  "/register",
+  "/logout"
+];
+
 export default function UcodGuard({ children }) {
   const { isValidated, isChecking } = useUcod();
   const router = useRouter();
   const pathname = usePathname();
 
+  const isPublicPage = PUBLIC_MARKETING_PATHS.some(
+    (path) => pathname === path || (path !== "/" && pathname?.startsWith(path))
+  );
+
   useEffect(() => {
-    if (!isChecking && !isValidated) {
-      // Redirect after brief delay to avoid flash, or redirect immediately
+    if (!isPublicPage && !isChecking && !isValidated) {
       const timer = setTimeout(() => {
         router.replace("/tracking");
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [isChecking, isValidated, router]);
+  }, [isPublicPage, isChecking, isValidated, router]);
+
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
 
   // Loading state during initial session check
   if (isChecking) {
