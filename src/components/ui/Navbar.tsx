@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useNavigation } from "@/context/NavigationContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 
 const transition = {
@@ -122,6 +122,7 @@ export const HoveredLink = ({ children, ...rest }: any) => {
 };
 
 function Navbar({ className }: { className?: string }) {
+  const pathname = usePathname();
   const [active, setActive] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -168,7 +169,7 @@ function Navbar({ className }: { className?: string }) {
       {/* Desktop Navbar */}
       <div
         className={cn(
-          "hidden md:flex fixed top-0 inset-x-0 z-50 transition-all duration-300",
+          "hidden md:flex fixed top-0 inset-x-0 z-[100] transition-all duration-300",
           navBg,
           className,
         )}
@@ -216,7 +217,7 @@ function Navbar({ className }: { className?: string }) {
       {/* Mobile Navbar */}
       <div
         className={cn(
-          "md:hidden fixed top-0 inset-x-0 z-50 transition-all duration-300",
+          "md:hidden fixed top-0 inset-x-0 z-[100] transition-all duration-300",
           navBg,
           scrolled ? "py-2" : "py-3",
         )}

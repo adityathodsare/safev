@@ -1,6 +1,29 @@
 "use client";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { CAMERA_API_URL } from "@/lib/config";
+import {
+  Camera,
+  Users,
+  Car,
+  Package,
+  Target,
+  Radio,
+  Zap,
+  Clock,
+  RefreshCw,
+  Play,
+  Pause,
+  Square,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  X,
+  Filter,
+  Activity,
+  Shield,
+  Video,
+  AlertTriangle,
+} from "lucide-react";
 
 /* ─────────────────────────────────────────────────
    CONFIG & THEME
@@ -125,23 +148,29 @@ function SignalBadge({ color, size = "md" }) {
   );
 }
 
-function MetricCard({ icon, label, value, accent = "#10b981", sub }) {
+function MetricCard({ icon: Icon, label, value, accent = "#10b981", sub }) {
   const [hov, setHov] = useState(false);
   return (
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      className={`${T.glass} rounded-[10px] px-3.5 py-3 cursor-default transition-all duration-200`}
+      className={`${T.glass} rounded-[10px] px-3.5 py-3 cursor-default transition-all duration-200 relative overflow-hidden`}
       style={{
         borderColor: hov ? accent + "44" : undefined,
         boxShadow: hov ? `0 0 16px ${accent}18` : "none",
       }}
     >
-      <div className="flex items-center gap-1.5 mb-1.5">
-        <span className="text-[15px]">{icon}</span>
-        <span className={`text-[9px] uppercase tracking-widest ${T.textMuted}`}>
+      <div className="flex items-center justify-between gap-1.5 mb-1.5">
+        <span className={`text-[9px] uppercase tracking-widest font-mono font-semibold ${T.textMuted}`}>
           {label}
         </span>
+        {Icon && (
+          typeof Icon === "string" ? (
+            <span className="text-xs opacity-80">{Icon}</span>
+          ) : (
+            <Icon className="w-3.5 h-3.5 opacity-80" style={{ color: accent }} />
+          )
+        )}
       </div>
       <div
         className="text-[21px] font-bold font-mono leading-none"
@@ -149,7 +178,7 @@ function MetricCard({ icon, label, value, accent = "#10b981", sub }) {
       >
         {value}
       </div>
-      {sub && <div className={`text-[9px] mt-1 ${T.textMuted}`}>{sub}</div>}
+      {sub && <div className={`text-[9px] mt-1 font-mono ${T.textMuted}`}>{sub}</div>}
     </div>
   );
 }
@@ -271,9 +300,12 @@ function Modal({ src, det, onClose, onDownload }) {
                   background: "rgba(16,185,129,0.1)",
                   border: "1px solid rgba(16,185,129,0.3)",
                   color: "#10b981",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
                 }}
               >
-                ⬇ Download
+                <Download className="w-3.5 h-3.5" /> Download
               </button>
               <button
                 onClick={onClose}
@@ -285,9 +317,12 @@ function Modal({ src, det, onClose, onDownload }) {
                   background: "rgba(244,63,94,0.1)",
                   border: "1px solid rgba(244,63,94,0.25)",
                   color: "#f43f5e",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                ✕
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -330,6 +365,59 @@ function Modal({ src, det, onClose, onDownload }) {
   );
 }
 
+function getFullImageUrl(url, baseUrl = CAMERA_API_URL) {
+  if (!url) return "";
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("data:") ||
+    url.startsWith("blob:")
+  ) {
+    return url;
+  }
+  const cleanBase = (baseUrl || "").replace(/\/$/, "");
+  const cleanPath = url.startsWith("/") ? url : `/${url}`;
+  return `${cleanBase}${cleanPath}`;
+}
+
+function LiveImage({ url, alt = "Frame" }) {
+  const [err, setErr] = useState(false);
+
+  useEffect(() => {
+    setErr(false);
+  }, [url]);
+
+  const fullUrl = getFullImageUrl(url, CAMERA_API_URL);
+
+  if (!url || !fullUrl || err) {
+    return (
+      <div className="w-full min-h-[320px] bg-[#06080d] flex flex-col items-center justify-center gap-3">
+        <div className="w-14 h-14 rounded-2xl border border-white/10 bg-white/4 flex items-center justify-center">
+          <Camera className="w-7 h-7 text-slate-500 animate-pulse" />
+        </div>
+        <span className="text-[10px] font-mono text-slate-500 tracking-[0.25em] uppercase font-semibold">
+          {err ? "Feed Unavailable" : "Awaiting Live Feed"}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={fullUrl}
+      alt={alt}
+      onError={() => setErr(true)}
+      style={{
+        width: "100%",
+        height: "100%",
+        minHeight: 320,
+        objectFit: "cover",
+        display: "block",
+      }}
+    />
+  );
+}
+
 /* ─────────────────────────────────────────────────
    SECTION 1 — LATEST DETECTION
 ───────────────────────────────────────────────── */
@@ -339,7 +427,7 @@ function LatestSection({ det, onOpenGallery }) {
   if (!det) return null;
   const color = domColor(det);
   const s = sig(color);
-  const imgUrl = `${CAMERA_API_URL}${det.image_url}`;
+  const imgUrl = getFullImageUrl(det.image_url, CAMERA_API_URL);
   const download = () => {
     const a = document.createElement("a");
     a.href = imgUrl;
@@ -411,20 +499,7 @@ function LatestSection({ det, onOpenGallery }) {
           <div style={{ position: "absolute", top: 10, right: 10, zIndex: 3 }}>
             <SignalBadge color={color} />
           </div>
-          <img
-            src={imgUrl}
-            alt="Latest"
-            style={{
-              width: "100%",
-              height: "100%",
-              minHeight: 320,
-              objectFit: "cover",
-              display: "block",
-              transform: imgHov ? "scale(1.025)" : "scale(1)",
-              transition: "transform 0.4s ease",
-            }}
-            onError={(e) => (e.target.style.opacity = "0.2")}
-          />
+          <LiveImage url={det.image_url} />
           <div
             style={{
               position: "absolute",
@@ -556,25 +631,25 @@ function LatestSection({ det, onOpenGallery }) {
             style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 7 }}
           >
             <MetricCard
-              icon="👤"
+              icon={Users}
               label="People"
               value={det.person_count ?? 0}
               accent="#60a5fa"
             />
             <MetricCard
-              icon="🚗"
+              icon={Car}
               label="Vehicles"
               value={det.vehicle_count ?? 0}
               accent="#10b981"
             />
             <MetricCard
-              icon="📦"
+              icon={Package}
               label="Objects"
               value={det.detection_count ?? 0}
               accent="#a78bfa"
             />
             <MetricCard
-              icon="🎯"
+              icon={Target}
               label="Frame"
               value={`#${det.sequence_number}`}
               accent="#f59e0b"
@@ -760,9 +835,12 @@ function GallerySection({ history, visible, onClose }) {
                 background: "rgba(244,63,94,0.08)",
                 border: "1px solid rgba(244,63,94,0.22)",
                 color: "#f43f5e",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
               }}
             >
-              ✕ Close
+              <X className="w-3.5 h-3.5" /> Close
             </button>
           </div>
         </div>
@@ -782,7 +860,7 @@ function GallerySection({ history, visible, onClose }) {
                 det={d}
                 s={s}
                 onClick={() =>
-                  setModal({ src: `${CAMERA_API_URL}${d.image_url}`, det: d })
+                  setModal({ src: getFullImageUrl(d.image_url, CAMERA_API_URL), det: d })
                 }
               />
             );
@@ -825,7 +903,7 @@ function GalleryThumb({ det, s, onClick }) {
       }}
     >
       <img
-        src={`${CAMERA_API_URL}${det.image_url}`}
+        src={getFullImageUrl(det.image_url, CAMERA_API_URL)}
         alt=""
         style={{
           width: "100%",
@@ -972,7 +1050,7 @@ function TimelineSection({ history }) {
                   }}
                   onMouseLeave={() => setHov(null)}
                   onClick={() =>
-                    setModal({ src: `${CAMERA_API_URL}${d.image_url}`, det: d })
+                    setModal({ src: getFullImageUrl(d.image_url, CAMERA_API_URL), det: d })
                   }
                 >
                   <div
@@ -1026,7 +1104,7 @@ function TimelineSection({ history }) {
                 }}
               >
                 <img
-                  src={`${CAMERA_API_URL}${det.image_url}`}
+                  src={getFullImageUrl(det.image_url, CAMERA_API_URL)}
                   alt=""
                   style={{
                     width: "100%",
@@ -1244,7 +1322,7 @@ function TimeLapseSection({ history }) {
       >
         <div style={{ position: "relative", background: VAR.bg }}>
           <img
-            src={`${CAMERA_API_URL}${frame.image_url}`}
+            src={getFullImageUrl(frame.image_url, CAMERA_API_URL)}
             alt=""
             style={{
               width: "100%",
@@ -1476,7 +1554,7 @@ function TimeLapseSection({ history }) {
                 }}
               >
                 <img
-                  src={`${CAMERA_API_URL}${f.image_url}`}
+                  src={getFullImageUrl(f.image_url, CAMERA_API_URL)}
                   alt=""
                   style={{
                     width: "100%",
@@ -2314,10 +2392,13 @@ export default function SafeVDashboard() {
       <div
         className={`${T.page} flex items-center justify-center flex-col gap-[18px]`}
       >
-        <div className="text-[44px] animate-spin">🚦</div>
+        <div className="w-12 h-12 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center">
+          <Camera className="w-6 h-6 text-emerald-400 animate-pulse" />
+        </div>
         <div
-          className={`${T.textMuted} font-mono text-xs tracking-[0.22em]`}
+          className={`${T.textMuted} font-mono text-xs tracking-[0.22em] flex items-center gap-2`}
         >
+          <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-400" />
           LOADING SAFEV...
         </div>
       </div>
@@ -2347,85 +2428,87 @@ export default function SafeVDashboard() {
         onClose={() => setGallery(false)}
       />
 
-      <div className="relative z-[1] max-w-[1180px] mx-auto px-5 pb-[52px]">
-        {/* NAV */}
-        <nav className="flex items-center justify-between py-4 border-b border-slate-200 dark:border-white/10 mb-6 flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div
-                className="absolute -inset-[5px] rounded-xl animate-pulse"
-                style={{
-                  background: `radial-gradient(circle,${latSig.glow} 0%,transparent 70%)`,
-                }}
-              />
-              <div
-                className={`relative w-[38px] h-[38px] rounded-[9px] ${T.bgElevated} flex items-center justify-center text-lg`}
-                style={{ border: `1px solid ${latSig.hex}33` }}
-              >
-                🚦
-              </div>
-            </div>
-            <div>
-              <div className="font-extrabold text-[17px] tracking-tight leading-none">
-                SafeV{" "}
-                <span
-                  className="transition-colors duration-[900ms]"
-                  style={{ color: latSig.hex }}
-                >
-                  Traffic Monitor
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 mt-0.5">
+      <main className="relative z-10 max-w-[1180px] mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-[52px]">
+        {/* NAV / External Camera Dashboard Header */}
+        <header className={`${T.glass} rounded-2xl p-4 sm:p-5 mb-6 shadow-lg`}>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="relative">
                 <div
-                  className={`w-[5px] h-[5px] rounded-full animate-pulse ${error ? "bg-rose-500" : "bg-emerald-500"}`}
+                  className="absolute -inset-[5px] rounded-xl animate-pulse"
+                  style={{
+                    background: `radial-gradient(circle,${latSig.glow} 0%,transparent 70%)`,
+                  }}
                 />
-                <span className={`text-[10px] tracking-wide ${T.textMuted}`}>
-                  {error ? "OFFLINE" : "AI Detection Active"}
-                </span>
+                <div
+                  className={`relative w-[38px] h-[38px] rounded-[9px] ${T.bgElevated} flex items-center justify-center text-lg`}
+                  style={{ border: `1px solid ${latSig.hex}33` }}
+                >
+                  <Camera className="w-5 h-5 text-emerald-400" />
+                </div>
+              </div>
+              <div>
+                <div className="font-extrabold text-[17px] tracking-tight leading-none font-mono">
+                  SafeV{" "}
+                  <span
+                    className="transition-colors duration-[900ms]"
+                    style={{ color: latSig.hex }}
+                  >
+                    Traffic Monitor
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <div
+                    className={`w-[6px] h-[6px] rounded-full animate-pulse ${error ? "bg-rose-500" : "bg-emerald-500"}`}
+                  />
+                  <span className={`text-[10px] sm:text-[11px] font-mono font-medium tracking-wide ${T.textMuted}`}>
+                    {error ? "OFFLINE" : "AI Detection Active"}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex gap-2 items-center flex-wrap">
-            <div
-              className={`text-xs font-mono ${T.textMuted} ${T.bgElevated} ${T.border} px-3 py-1.5 rounded-[7px] tracking-wide`}
-            >
-              {clock.toLocaleTimeString([])}
+            <div className="flex gap-2 items-center flex-wrap">
+              <div
+                className={`text-xs font-mono ${T.textMuted} ${T.bgElevated} ${T.border} px-3 py-1.5 rounded-[7px] tracking-wide hidden sm:block`}
+              >
+                {clock.toLocaleTimeString([])}
+              </div>
+              <button
+                onClick={() => setLive((v) => !v)}
+                className={`px-3.5 py-1.5 rounded-[7px] text-[11px] font-mono font-medium cursor-pointer transition-all duration-200 ${T.bgElevated}`}
+                style={{
+                  border: `1px solid ${live ? "rgba(16,185,129,0.35)" : "var(--theme-border)"}`,
+                  background: live ? "rgba(16,185,129,0.07)" : undefined,
+                  color: live ? "#10b981" : "var(--theme-text-secondary)",
+                }}
+              >
+                {live ? "● Live" : "○ Paused"}
+              </button>
+              <button
+                onClick={load}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[7px] text-[11px] font-mono cursor-pointer transition-all duration-200 ${T.bgElevated} ${T.textSecondary} ${T.border}`}
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Refresh
+              </button>
+              <button
+                onClick={capture}
+                disabled={busy}
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-[7px] text-[11px] font-mono font-semibold transition-all duration-[250ms] disabled:opacity-55 disabled:cursor-default cursor-pointer"
+                style={{
+                  background: busy
+                    ? "var(--theme-bg-elevated)"
+                    : `linear-gradient(135deg,${latSig.hex}cc,${latSig.hex}88)`,
+                  color: busy ? "var(--theme-text-secondary)" : "#fff",
+                  border: "none",
+                  boxShadow: busy ? "none" : `0 0 16px ${latSig.glow}`,
+                }}
+              >
+                <Camera className="w-3.5 h-3.5" /> {busy ? "Capturing…" : "Capture"}
+              </button>
             </div>
-            <button
-              onClick={() => setLive((v) => !v)}
-              className={`px-3.5 py-1.5 rounded-[7px] text-[11px] font-medium cursor-pointer transition-all duration-200 ${T.bgElevated}`}
-              style={{
-                border: `1px solid ${live ? "rgba(16,185,129,0.35)" : "var(--theme-border)"}`,
-                background: live ? "rgba(16,185,129,0.07)" : undefined,
-                color: live ? "#10b981" : "var(--theme-text-secondary)",
-              }}
-            >
-              {live ? "● Live" : "○ Paused"}
-            </button>
-            <button
-              onClick={load}
-              className={`px-3.5 py-1.5 rounded-[7px] text-[11px] cursor-pointer transition-all duration-200 ${T.bgElevated} ${T.textSecondary} ${T.border}`}
-            >
-              ↻ Refresh
-            </button>
-            <button
-              onClick={capture}
-              disabled={busy}
-              className="px-4 py-1.5 rounded-[7px] text-[11px] font-semibold transition-all duration-[250ms] disabled:opacity-55 disabled:cursor-default cursor-pointer"
-              style={{
-                background: busy
-                  ? "var(--theme-bg-elevated)"
-                  : `linear-gradient(135deg,${latSig.hex}cc,${latSig.hex}88)`,
-                color: busy ? "var(--theme-text-secondary)" : "#fff",
-                border: "none",
-                boxShadow: busy ? "none" : `0 0 16px ${latSig.glow}`,
-              }}
-            >
-              {busy ? "Capturing…" : "📸 Capture"}
-            </button>
           </div>
-        </nav>
+        </header>
 
         {/* Error */}
         {error && (
@@ -2463,7 +2546,7 @@ export default function SafeVDashboard() {
             <WaveformAnalysis history={history} />
           </>
         )}
-      </div>
+      </main>
     </div>
   );
 }
