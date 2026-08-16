@@ -125,7 +125,44 @@
 | 🗄️ **Database** | MySQL / PostgreSQL |
 | ☁️ **Cloud & Infra** | AWS EC2 · Docker & Docker Compose · Vercel Deployment |
 | 🔔 **Alerting** | Telegram Bot API · JavaMailSender (SMTP) |
-| 🧪 **Testing** | Playwright E2E Test Framework |
+---
+
+## 🐳 Docker & GitHub Packages Deployment
+
+### 1. Build and Run Container Locally
+
+```bash
+# Build the Docker image
+docker build -t safev-frontend:latest .
+
+# Run the container locally on port 3000
+docker run -p 3000:3000 -e GEMINI_API_KEY="your_api_key_here" safev-frontend:latest
+```
+
+### 2. Pull & Run from GitHub Packages (GHCR)
+
+The application image is automatically built and published to GitHub Container Registry on push to `main`:
+
+```bash
+# Pull the latest image from GitHub Packages
+docker pull ghcr.io/adityathodsare/safev:latest
+
+# Run the container from GHCR
+docker run -p 3000:3000 ghcr.io/adityathodsare/safev:latest
+```
+
+### 3. Manual Build & Push to GitHub Container Registry
+
+```bash
+# Authenticate to GHCR (Personal Access Token with read:packages and write:packages scope required)
+echo $CR_PAT | docker login ghcr.io -u adityathodsare --password-stdin
+
+# Build and tag for GitHub Container Registry
+docker build -t ghcr.io/adityathodsare/safev:latest .
+
+# Push image to GitHub Packages
+docker push ghcr.io/adityathodsare/safev:latest
+```
 
 ---
 ---
