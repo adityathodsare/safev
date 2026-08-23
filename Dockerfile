@@ -24,7 +24,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 LABEL org.opencontainers.image.source="https://github.com/adityathodsare/safev"
-LABEL org.opencontainers.image.description="SAFE-V Vehicle Safety & AI Copilot Platform"
+LABEL org.opencontainers.image.description="SAFE-V Vehicle Safety & AI Assisted Safety monitoring Platform"
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

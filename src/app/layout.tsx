@@ -6,6 +6,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { NavigationProvider } from "../context/NavigationContext";
 import { ThemeProvider } from "../context/ThemeContext";
 import { UcodProvider } from "../context/UcodContext";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,6 +81,7 @@ export default function RootLayout({
             </UcodProvider>
           </NavigationProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
