@@ -183,9 +183,20 @@ function Navbar({ className }: { className?: string }) {
         )}
       >
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <div className="flex items-center">
+          <div
+            className="flex items-center gap-2.5 cursor-pointer group"
+            onClick={() => handleNavigation("/")}
+          >
+            <Image
+              src="/logo.png"
+              alt="SAFEV Logo"
+              width={34}
+              height={34}
+              className="h-8.5 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              priority
+            />
             <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              SAFE-V
+              SAFEV
             </span>
           </div>
 
@@ -248,8 +259,21 @@ function Navbar({ className }: { className?: string }) {
       >
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
-            <div className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              SAFEV
+            <div
+              className="flex items-center gap-2 cursor-pointer group"
+              onClick={() => handleNavigation("/")}
+            >
+              <Image
+                src="/logo.png"
+                alt="SAFEV Logo"
+                width={28}
+                height={28}
+                className="h-7 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                priority
+              />
+              <div className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                SAFEV
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />

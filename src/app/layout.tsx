@@ -33,6 +33,14 @@ export const metadata: Metadata = {
     "GPS Accident Tracking",
     "Drunk Driving Detection",
   ],
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
+  },
   verification: {
     google: "bYKpAg9RD4Qg0148KYs86YUCpw1hm3zBXraKDy81gVQ",
   },
@@ -44,9 +52,9 @@ export const metadata: Metadata = {
     siteName: "SAFEV",
     images: [
       {
-        url: "https://safev.vercel.app/og-image.png",
-        width: 1200,
-        height: 630,
+        url: "https://safev.vercel.app/logo.png",
+        width: 533,
+        height: 468,
         alt: "SAFEV Smart Vehicle Safety System",
       },
     ],
@@ -64,6 +72,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/icon.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme')||'dark';var r=document.documentElement;r.classList.remove('dark','light');r.classList.add(t);}catch(e){document.documentElement.classList.add('dark');}})();`,

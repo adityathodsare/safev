@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import {
   FaGithub,
   FaLinkedin,
@@ -22,9 +23,18 @@ function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* About Section */}
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">
-              SAFEV
-            </h2>
+            <div className="flex items-center gap-3 mb-4">
+              <Image
+                src="/logo.png"
+                alt="SAFEV Logo"
+                width={40}
+                height={40}
+                className="h-10 w-auto object-contain"
+              />
+              <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                SAFEV
+              </h2>
+            </div>
             <p className="text-theme-secondary leading-relaxed text-sm">
               SAFEV is a cutting-edge vehicle safety system designed to protect
               drivers and passengers from potential accidents. build and develop
