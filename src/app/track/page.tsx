@@ -190,28 +190,28 @@ const getTimeAgo = (ts: number): string => {
 
 // SVG icon strings for Leaflet map markers (no React, pure inline SVG)
 const CATEGORY_SVG: Record<string, string> = {
-  hospital:  `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  police:    `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-  fire:      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 3z"/></svg>`,
-  pharmacy:  `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>`,
-  clinic:    `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`,
-  fuel:      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V6a2 2 0 012-2h6a2 2 0 012 2v16"/><path d="M3 22h10M13 8h2a2 2 0 012 2v3a2 2 0 002 2h0a2 2 0 002-2V9.83a2 2 0 00-.59-1.42L17 4"/></svg>`,
-  restaurant:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,
-  hotel:     `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h20v20H2z"/><path d="M12 2v20M2 12h20"/></svg>`,
-  repair:    `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>`,
-  default:   `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  hospital: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  police: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  fire: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 3z"/></svg>`,
+  pharmacy: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>`,
+  clinic: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`,
+  fuel: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V6a2 2 0 012-2h6a2 2 0 012 2v16"/><path d="M3 22h10M13 8h2a2 2 0 012 2v3a2 2 0 002 2h0a2 2 0 002-2V9.83a2 2 0 00-.59-1.42L17 4"/></svg>`,
+  restaurant: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,
+  hotel: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h20v20H2z"/><path d="M12 2v20M2 12h20"/></svg>`,
+  repair: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>`,
+  default: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
 };
 
 const getCategoryTheme = (cat = "") => {
   const c = cat.toLowerCase();
   if (c.includes("hospital") || c.includes("emergency")) return { bg: "#dc2626", label: "Hospital", iconKey: "hospital" };
-  if (c.includes("police"))   return { bg: "#2563eb", label: "Police",   iconKey: "police" };
-  if (c.includes("fire"))     return { bg: "#d97706", label: "Fire Stn", iconKey: "fire" };
+  if (c.includes("police")) return { bg: "#2563eb", label: "Police", iconKey: "police" };
+  if (c.includes("fire")) return { bg: "#d97706", label: "Fire Stn", iconKey: "fire" };
   if (c.includes("pharmacy")) return { bg: "#059669", label: "Pharmacy", iconKey: "pharmacy" };
-  if (c.includes("clinic"))   return { bg: "#0d9488", label: "Clinic",   iconKey: "clinic" };
-  if (c.includes("fuel") || c.includes("gas")) return { bg: "#4f46e5", label: "Fuel",   iconKey: "fuel" };
-  if (c.includes("restaurant") || c.includes("food")) return { bg: "#db2777", label: "Food",   iconKey: "restaurant" };
-  if (c.includes("hotel") || c.includes("stay"))      return { bg: "#7c3aed", label: "Hotel",  iconKey: "hotel" };
+  if (c.includes("clinic")) return { bg: "#0d9488", label: "Clinic", iconKey: "clinic" };
+  if (c.includes("fuel") || c.includes("gas")) return { bg: "#4f46e5", label: "Fuel", iconKey: "fuel" };
+  if (c.includes("restaurant") || c.includes("food")) return { bg: "#db2777", label: "Food", iconKey: "restaurant" };
+  if (c.includes("hotel") || c.includes("stay")) return { bg: "#7c3aed", label: "Hotel", iconKey: "hotel" };
   if (c.includes("repair") || c.includes("mechanic")) return { bg: "#475569", label: "Repair", iconKey: "repair" };
   return { bg: "#0284c7", label: "Place", iconKey: "default" };
 };
@@ -317,7 +317,7 @@ function RakshakGPSTracker() {
       if ((mapRef.current as any).leafletMap) {
         try {
           (mapRef.current as any).leafletMap.remove();
-        } catch (e) {}
+        } catch (e) { }
         (mapRef.current as any).leafletMap = null;
       }
       if ((mapRef.current as any)._leaflet_id) {
@@ -326,12 +326,14 @@ function RakshakGPSTracker() {
 
       try {
         const map = L.map(mapRef.current, { zoomControl: true }).setView([20.5937, 78.9629], 5);
+        const cartoKey = process.env.NEXT_PUBLIC_CARTO_API_KEY || "cb1_3ixy_1_709ab388d478a261688332bf";
         const tileUrl = theme === "dark"
-          ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+          ? `https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${cartoKey}`
+          : `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoKey}`;
         const tileLayer = L.tileLayer(tileUrl, {
-          attribution: theme === "dark" ? "© CARTO" : "© OpenStreetMap contributors",
-          maxZoom: 19,
+          attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: "abcd",
+          maxZoom: 20,
         }).addTo(map);
         tileLayerRef.current = tileLayer;
         (mapRef.current as any).leafletMap = map;
@@ -361,7 +363,7 @@ function RakshakGPSTracker() {
         if ((mapRef.current as any).leafletMap) {
           try {
             (mapRef.current as any).leafletMap.remove();
-          } catch (e) {}
+          } catch (e) { }
           (mapRef.current as any).leafletMap = null;
         }
         if ((mapRef.current as any)._leaflet_id) {
@@ -378,12 +380,14 @@ function RakshakGPSTracker() {
     const L = (window as any).L;
     const map = (mapRef.current as any).leafletMap;
     map.removeLayer(tileLayerRef.current);
+    const cartoKey = process.env.NEXT_PUBLIC_CARTO_API_KEY || "cb1_3ixy_1_709ab388d478a261688332bf";
     const tileUrl = theme === "dark"
-      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+      ? `https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${cartoKey}`
+      : `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoKey}`;
     tileLayerRef.current = L.tileLayer(tileUrl, {
-      attribution: theme === "dark" ? "© CARTO" : "© OpenStreetMap contributors",
-      maxZoom: 19,
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: "abcd",
+      maxZoom: 20,
     }).addTo(map);
   }, [theme, mapLoaded]);
 
@@ -1029,8 +1033,8 @@ function RakshakGPSTracker() {
                       key={path.id}
                       onClick={() => focusOnPath(path)}
                       className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${selectedPathId === path.id
-                          ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600"
-                          : "bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                        ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600"
+                        : "bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800/60"
                         }`}
                     >
                       <div className="flex items-center justify-between">
@@ -1215,8 +1219,8 @@ function RakshakGPSTracker() {
 
                   {/* Bubble */}
                   <div className={`max-w-[88%] rounded-2xl text-xs space-y-3 ${msg.sender === "user"
-                      ? "bg-blue-600 text-white px-4 py-2.5 rounded-br-sm"
-                      : "bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-bl-sm"
+                    ? "bg-blue-600 text-white px-4 py-2.5 rounded-br-sm"
+                    : "bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-bl-sm"
                     }`}>
                     <p className="leading-relaxed">{msg.text}</p>
 
