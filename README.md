@@ -44,12 +44,16 @@
 Watch the live hardware prototype demonstration video showcasing physical ESP32 circuitry, dual-core telemetry hub, sensor calibration, and real-time emergency dispatch:
 
 <div align="center">
-  <video src="public/document_6143164647718527506.mp4" controls width="100%">
-    Your browser does not support HTML5 video. <a href="public/document_6143164647718527506.mp4">Click here to watch or download the prototype video</a>.
-  </video>
+  <a href="https://youtu.be/22hU7Eip-ag" target="_blank">
+    <img src="https://img.youtube.com/vi/22hU7Eip-ag/hqdefault.jpg" alt="SAFEV Hardware Prototype Demonstration Video" width="85%" style="border-radius: 12px;">
+  </a>
+  <br/><br/>
+  <a href="https://youtu.be/22hU7Eip-ag" target="_blank">
+    <img src="https://img.shields.io/badge/▶️_Watch_Demonstration-YouTube-FF0000?style=for-the-badge&logo=youtube" alt="Watch on YouTube">
+  </a>
 </div>
 
-> 🎬 **Direct Video Link**: [Watch / Download SAFEV Hardware Prototype Video (MP4)](public/document_6143164647718527506.mp4)
+> 🎬 **Direct Video Link**: [Watch SAFEV Hardware Prototype Video (YouTube)](https://youtu.be/22hU7Eip-ag)
 
 ---
 

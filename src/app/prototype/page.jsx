@@ -200,18 +200,16 @@ export default function PrototypePage() {
 
           <div
             ref={observerRef}
-            className="w-full relative rounded-2xl overflow-hidden border border-slate-300 dark:border-white/15 shadow-2xl bg-black min-h-[250px] sm:min-h-[400px] max-h-[80vh] aspect-video flex items-center justify-center"
+            className="w-full relative rounded-2xl overflow-hidden border border-slate-300 dark:border-white/15 shadow-2xl bg-black min-h-[250px] sm:min-h-[400px] aspect-video flex items-center justify-center"
           >
             {inView && (
-              <video
-                controls
-                preload="metadata"
-                playsInline
-                className="w-full h-full max-h-[80vh] rounded-2xl object-contain bg-black"
-              >
-                <source src="/document_6143164647718527506.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+              <iframe
+                src="https://www.youtube.com/embed/22hU7Eip-ag?autoplay=0&rel=0"
+                title="SAFEV IoT Hardware Prototype Demonstration"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="w-full h-full border-0 rounded-2xl"
+              />
             )}
           </div>
         </div>
