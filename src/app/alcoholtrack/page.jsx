@@ -7,7 +7,6 @@ import {
   FaTint,
   FaBurn,
   FaCar,
-  FaExclamationTriangle,
 } from "react-icons/fa";
 import {
   LineChart,
@@ -27,8 +26,8 @@ const AlcoholDetection = () => {
   const [liveMode, setLiveMode] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const channelID = "3407232";
-  const apiKey = "UFVCOV4G37H5S9HN";
+  const channelID = process.env.NEXT_PUBLIC_THINGSPEAK_ALCOHOL_CHANNEL_ID || "3407232";
+  const apiKey = process.env.NEXT_PUBLIC_THINGSPEAK_ALCOHOL_READ_API_KEY || "UFVCOV4G37H5S9HN";
 
   const fetchLiveData = async () => {
     try {
@@ -196,21 +195,7 @@ const AlcoholDetection = () => {
           )}
         </div>
 
-        {/* Alert – High Alcohol */}
-        {latestData && latestData.alcoholLevel > 2300 && (
-          <div className="w-full max-w-6xl mb-6 sm:mb-8 animate-slideDown">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-600 to-orange-600 p-1">
-              <div className="glass-card rounded-xl p-4 sm:p-6">
-                <div className="flex items-center justify-center gap-3 sm:gap-4">
-                  <FaExclamationTriangle className="text-2xl sm:text-3xl animate-bounce" />
-                  <span className="font-bold text-base sm:text-lg lg:text-xl text-center">
-                    🚨 HIGH ALCOHOL LEVEL DETECTED — Safety Alert!
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Alert – Fire */}
         {latestData && latestData.fireDetected === 1 && (

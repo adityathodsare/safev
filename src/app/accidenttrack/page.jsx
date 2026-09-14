@@ -27,8 +27,8 @@ const Home = () => {
   const [liveMode, setLiveMode] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const channelID = "3178329";
-  const apiKey = "6FP5OUS42Y6AQ7BW";
+  const channelID = process.env.NEXT_PUBLIC_THINGSPEAK_ACCIDENT_CHANNEL_ID || "3178329";
+  const apiKey = process.env.NEXT_PUBLIC_THINGSPEAK_ACCIDENT_READ_API_KEY || "6FP5OUS42Y6AQ7BW";
 
   const fetchLiveData = async () => {
     try {

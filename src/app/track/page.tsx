@@ -269,8 +269,8 @@ function RakshakGPSTracker() {
     timestamp: Date.now(),
   }]);
 
-  const THINGSPEAK_CHANNEL_ID = "3178336";
-  const THINGSPEAK_READ_API_KEY = "IUXBXZHM4D3JY2G2";
+  const THINGSPEAK_CHANNEL_ID = process.env.NEXT_PUBLIC_THINGSPEAK_GPS_CHANNEL_ID || "3178336";
+  const THINGSPEAK_READ_API_KEY = process.env.NEXT_PUBLIC_THINGSPEAK_GPS_READ_API_KEY || "IUXBXZHM4D3JY2G2";
 
   // ── Map init ─────────────────────────────────────────────────────────────────
 
