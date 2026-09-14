@@ -8,7 +8,7 @@ import { useNavigation } from "@/context/NavigationContext";
 import { useUcod } from "@/context/UcodContext";
 import { useRouter, usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
-import { ShieldCheck, LogOut } from "lucide-react";
+import { ShieldCheck, LogOut, Github, Star } from "lucide-react";
 
 const transition = {
   type: "spring",
@@ -131,7 +131,19 @@ function Navbar({ className }: { className?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const { navigateWithLoader } = useNavigation();
   const { ucod, userName, isValidated, clearUcod } = useUcod();
+  const [starCount, setStarCount] = useState<number | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch("https://api.github.com/repos/adityathodsare/safev")
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.stargazers_count === "number") {
+          setStarCount(data.stargazers_count);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleDisconnect = () => {
     clearUcod();
@@ -244,6 +256,23 @@ function Navbar({ className }: { className?: string }) {
                 </button>
               </div>
             )}
+            <a
+              href="https://github.com/adityathodsare/safev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-xl text-theme hover:bg-theme-muted transition-all duration-200 flex items-center gap-1.5 border border-slate-200/80 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 hover:border-amber-500/50 group shadow-sm text-xs font-semibold"
+              title="Star SAFEV on GitHub"
+              aria-label="Star SAFEV on GitHub"
+            >
+              <Github className="w-4 h-4 text-slate-700 dark:text-slate-200 group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline">Star</span>
+              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 opacity-90 group-hover:scale-110 transition-transform" />
+              {starCount !== null && (
+                <span className="ml-0.5 px-1.5 py-0.5 rounded-md bg-slate-200/60 dark:bg-white/10 text-[11px] font-bold text-slate-700 dark:text-slate-200">
+                  {starCount}
+                </span>
+              )}
+            </a>
             <ThemeToggle />
           </div>
         </div>
@@ -276,6 +305,22 @@ function Navbar({ className }: { className?: string }) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <a
+                href="https://github.com/adityathodsare/safev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1.5 rounded-lg text-theme hover:bg-theme-muted transition-colors flex items-center gap-1.5 text-xs font-semibold border border-slate-200/80 dark:border-white/10"
+                title="Star SAFEV on GitHub"
+                aria-label="Star SAFEV on GitHub"
+              >
+                <Github className="w-4 h-4 text-slate-700 dark:text-slate-200" />
+                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                {starCount !== null && (
+                  <span className="px-1 py-0.5 rounded bg-slate-200/60 dark:bg-white/10 text-[10px] font-bold">
+                    {starCount}
+                  </span>
+                )}
+              </a>
               <ThemeToggle />
               <button
                 onClick={toggleMobileMenu}
