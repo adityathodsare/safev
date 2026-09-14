@@ -39,6 +39,20 @@
 
 ---
 
+## 🎥 Hardware Prototype Video Demonstration
+
+Watch the live hardware prototype demonstration video showcasing physical ESP32 circuitry, dual-core telemetry hub, sensor calibration, and real-time emergency dispatch:
+
+<div align="center">
+  <video src="public/document_6143164647718527506.mp4" controls width="100%">
+    Your browser does not support HTML5 video. <a href="public/document_6143164647718527506.mp4">Click here to watch or download the prototype video</a>.
+  </video>
+</div>
+
+> 🎬 **Direct Video Link**: [Watch / Download SAFEV Hardware Prototype Video (MP4)](public/document_6143164647718527506.mp4)
+
+---
+
 ## 🚀 What's New in SAFEV-AI Release
 
 - 🤖 **RAKSHAK AI Suite**: Integrated Google Gemini (`@google/genai`) powered assistant into the central safety navigation portal.

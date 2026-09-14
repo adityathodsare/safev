@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import Image from "next/image";
 import { useInView } from "react-intersection-observer";
 import Footer from "@/components/Footer";
+import { Carousel } from "@/components/ui/carousel";
 import {
   Cpu,
   Activity,
@@ -14,6 +15,7 @@ import {
   Video,
   ShieldCheck,
   Zap,
+  Layers,
 } from "lucide-react";
 
 export default function PrototypePage() {
@@ -68,6 +70,45 @@ export default function PrototypePage() {
     },
   ];
 
+  const prototypeSlides = [
+    {
+      title: "SAFEV Hardware Prototype Unit",
+      badge: "System Assembly",
+      description: "Complete physical integration featuring ESP32, MPU6050, GPS, and SIM800L modules in live test configuration.",
+      src: "/img/img4.jpg",
+    },
+    {
+      title: "Dual Core Processing & Telemetry Hub",
+      badge: "Core Hardware",
+      description: "Real-time sensor monitoring circuit with instant response triggers and power distribution module.",
+      src: "/img/img2.jpg",
+    },
+    {
+      title: "Sensor Circuit & Pinout Wiring",
+      badge: "Electronics Setup",
+      description: "Multi-channel sensor interconnects routing crash, tilt, and gas telemetry data to cloud server.",
+      src: "/img/img1.jpg",
+    },
+    {
+      title: "MQ-3 Alcohol Vapour Detection Calibration",
+      badge: "Substance Analysis",
+      description: "High-sensitivity sensor matrix for real-time cabin air and driver sobriety monitoring.",
+      src: "/img/madaksh.jpeg",
+    },
+    {
+      title: "Custom Printed Circuit Board (PCB)",
+      badge: "PCB Engineering",
+      description: "Compact dual-layer PCB design built for high impact tolerance and vehicle power isolation.",
+      src: "/img/pcb.jpeg",
+    },
+    {
+      title: "Protective Hardware Enclosure",
+      badge: "Chassis & Protection",
+      description: "Vibration-dampened housing engineered to protect critical sensors during severe vehicle collisions.",
+      src: "/img/protek.jpeg",
+    },
+  ];
+
   const scrollToVideo = () => {
     if (videoRef.current) {
       videoRef.current.scrollIntoView({ behavior: "smooth" });
@@ -117,6 +158,24 @@ export default function PrototypePage() {
         </div>
       </section>
 
+      {/* 📸 Prototype Image Gallery Carousel */}
+      <section className="py-8 px-4 max-w-7xl mx-auto w-full relative z-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20 text-xs font-semibold mb-3">
+            <Layers className="w-3.5 h-3.5" />
+            <span>Visual Showcase</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-theme mb-3">
+            Hardware Prototype Gallery
+          </h2>
+          <p className="text-theme-secondary text-sm sm:text-base max-w-xl mx-auto">
+            Swipe through real photos of the SAFEV system assembly, PCB engineering, sensor calibration, and protective enclosure.
+          </p>
+        </div>
+
+        <Carousel slides={prototypeSlides} autoplay={true} autoplayInterval={4500} />
+      </section>
+
       {/* 🎥 Video Section ("Watch How It Works") */}
       <section
         ref={videoRef}
@@ -141,17 +200,18 @@ export default function PrototypePage() {
 
           <div
             ref={observerRef}
-            className="w-full relative rounded-2xl overflow-hidden border border-slate-300 dark:border-white/15 shadow-2xl bg-black aspect-video"
+            className="w-full relative rounded-2xl overflow-hidden border border-slate-300 dark:border-white/15 shadow-2xl bg-black min-h-[250px] sm:min-h-[400px] max-h-[80vh] aspect-video flex items-center justify-center"
           >
             {inView && (
-              <iframe
-                src="https://www.youtube.com/embed/9gR1c8AmzTk?si=RrnOkhwgBYE3sD8f"
-                title="SAFEV Hardware Prototype Video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full rounded-2xl"
-                style={{ border: "none" }}
-              />
+              <video
+                controls
+                preload="metadata"
+                playsInline
+                className="w-full h-full max-h-[80vh] rounded-2xl object-contain bg-black"
+              >
+                <source src="/document_6143164647718527506.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             )}
           </div>
         </div>

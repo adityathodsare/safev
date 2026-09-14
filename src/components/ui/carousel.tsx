@@ -70,7 +70,7 @@ export function Carousel({ slides, autoplay = true, autoplayInterval = 5000 }: C
         onTouchEnd={handleTouchEnd}
       >
         {/* Aspect Ratio Box */}
-        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-slate-900">
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[16/9] overflow-hidden bg-slate-950">
           {slides.map((slide, idx) => (
             <div
               key={idx}
@@ -78,32 +78,41 @@ export function Carousel({ slides, autoplay = true, autoplayInterval = 5000 }: C
                 idx === current ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
               }`}
             >
-              {/* Image */}
+              {/* Blurred background image fill for ambient backdrop */}
+              <Image
+                src={slide.src}
+                alt=""
+                fill
+                className="object-cover blur-3xl opacity-35 scale-110 pointer-events-none"
+                unoptimized
+              />
+
+              {/* Full Image without cropping */}
               <Image
                 src={slide.src}
                 alt={slide.title}
                 fill
                 priority={idx === 0}
-                className="object-cover object-center transform scale-105 group-hover:scale-100 transition-transform duration-700"
+                className="object-contain object-center z-10 p-2 sm:p-4 transition-all duration-500"
                 unoptimized
               />
+
               {/* Overlay Gradients */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent z-15 pointer-events-none" />
 
               {/* Text Overlay */}
-              <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8 md:p-10 flex flex-col justify-end max-w-3xl space-y-3 z-20">
+              <div className="absolute bottom-0 inset-x-0 p-5 sm:p-8 flex flex-col justify-end max-w-3xl space-y-2 z-20 pointer-events-none">
                 {slide.badge && (
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 backdrop-blur-md w-fit">
                     <IconSparkles className="w-3.5 h-3.5" />
                     <span>{slide.badge}</span>
                   </div>
                 )}
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-snug drop-shadow-md">
+                <h3 className="text-lg sm:text-2xl font-extrabold text-white tracking-tight leading-snug drop-shadow-md">
                   {slide.title}
                 </h3>
                 {slide.description && (
-                  <p className="text-xs sm:text-sm md:text-base text-slate-300 line-clamp-2 sm:line-clamp-3 leading-relaxed drop-shadow">
+                  <p className="text-xs sm:text-sm text-slate-300 line-clamp-2 leading-relaxed drop-shadow">
                     {slide.description}
                   </p>
                 )}

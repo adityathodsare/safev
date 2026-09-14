@@ -126,34 +126,21 @@ function Background() {
               </button>
             </div>
 
-            {/* Working On - Enhanced */}
+            {/* Prototype - High-Tech Animated Button */}
             <div className="w-full animate-fade-in-up">
               <button
-                onClick={() => {
-                  const section = document.getElementById("developed-by");
-
-                  if (section) {
-                    const yOffset = -80;
-                    const y =
-                      section.getBoundingClientRect().top +
-                      window.pageYOffset +
-                      yOffset;
-                    window.scrollTo({ top: y, behavior: "smooth" });
-                  }
-                }}
-                className="group relative w-full px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 hover:from-amber-700 hover:via-orange-700 hover:to-red-700 text-white text-base sm:text-lg font-semibold rounded-xl shadow-2xl hover:shadow-amber-500/50 transform hover:scale-105 transition-all duration-300 ease-out border border-amber-400/30 hover:border-amber-300/50 backdrop-blur-sm overflow-hidden"
+                onClick={() => navigateWithLoader(router, "/prototype")}
+                className="group relative w-full px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-700 hover:via-pink-700 hover:to-amber-600 text-white text-base sm:text-lg font-semibold rounded-xl shadow-2xl hover:shadow-purple-500/50 transform hover:scale-105 transition-all duration-300 ease-out border border-purple-400/40 hover:border-pink-300/60 backdrop-blur-sm overflow-hidden cursor-pointer"
               >
-                {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                {/* Pulse Glow Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                <span onClick={() => {
-  document.getElementById("developed-by")?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
-}} className="relative z-10 flex items-center justify-center gap-2">
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+
+                <span className="relative z-10 flex items-center justify-center gap-2">
                   <svg
-                    className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500"
+                    className="w-5 h-5 group-hover:rotate-45 group-hover:scale-110 transition-all duration-300"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -162,16 +149,23 @@ function Background() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                      d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m16-6h2m-2 6h2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
                     />
+                  </svg>
+                  Prototype
+                  <svg
+                    className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
                     />
                   </svg>
-                  developed by
                 </span>
               </button>
             </div>
